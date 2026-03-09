@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+:root {
+  --color-warm-50: #fdf8f0;
+  --color-warm-100: #fef3c7;
+  --color-warm-600: #d97706;
+  --color-warm-700: #b45309;
+}
+
+body {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
