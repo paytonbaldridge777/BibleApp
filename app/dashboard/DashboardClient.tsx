@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/db/supabase';
+import { postGuidance, postFeedback } from '@/lib/api';
 import type { DailyGuidance, SpiritualProfile } from '@/types';
 
 interface Props {
@@ -68,16 +69,7 @@ export default function DashboardClient({
     setIsGenerating(true);
     setError('');
     try {
-      const res = await fetch('/api/guidance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action }),
-      });
-      if (!res.ok) {
-        const json = await res.json();
-        throw new Error(json.error ?? 'Failed to generate guidance');
-      }
-      const json = await res.json();
+      const json = await postGuidance(action);
       setGuidance(json.guidance);
       router.refresh();
     } catch (err) {
@@ -90,14 +82,8 @@ export default function DashboardClient({
   const sendFeedback = async (type: 'helpful' | 'not_relevant' | 'favorite') => {
     if (!guidance) return;
     try {
-      const res = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guidance_id: guidance.id, feedback_type: type }),
-      });
-      if (res.ok) {
-        setFeedbackState((prev) => ({ ...prev, [type]: 'sent' }));
-      }
+      await postFeedback(guidance.id, type);
+      setFeedbackState((prev) => ({ ...prev, [type]: 'sent' }));
     } catch {
       // silently fail feedback
     }
