@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { postOnboarding } from '@/lib/api';
 
 const CRISIS_KEYWORDS = [
   'suicide',
@@ -119,17 +120,7 @@ export default function OnboardingPage() {
     setError('');
 
     try {
-      const res = await fetch('/api/onboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        const json = await res.json();
-        throw new Error(json.error ?? 'Failed to save your profile');
-      }
-
+      await postOnboarding(data);
       router.push('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');

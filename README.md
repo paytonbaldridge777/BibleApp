@@ -28,7 +28,8 @@ Shepherd is a production-ready web application that delivers daily, personalized
 | Auth | Supabase Auth |
 | AI | OpenAI GPT-4o-mini |
 | Forms | React Hook Form + Zod |
-| Deployment | Vercel |
+| Frontend Hosting | Cloudflare Pages |
+| Backend API | Cloudflare Worker (paytonbaldridge777/BibleApp-api) |
 
 ---
 
@@ -58,7 +59,7 @@ Edit `.env.local` with your values:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-OPENAI_API_KEY=sk-your-openai-api-key
+NEXT_PUBLIC_API_BASE_URL=https://your-worker.your-subdomain.workers.dev
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
@@ -85,10 +86,10 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 |----------|-------------|----------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | ✅ Yes |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anonymous key | ✅ Yes |
-| `OPENAI_API_KEY` | OpenAI API key for devotional generation | ⚠️ Optional* |
+| `NEXT_PUBLIC_API_BASE_URL` | Base URL of the Cloudflare Worker API (no trailing slash) | ✅ Yes |
 | `NEXT_PUBLIC_APP_URL` | Your app's public URL | ✅ Yes |
 
-> *If `OPENAI_API_KEY` is not provided, Shepherd will use built-in fallback templates for all content generation. The app works fully without an OpenAI key.
+> `OPENAI_API_KEY` is only needed in the **Cloudflare Worker** (BibleApp-api), not in the frontend.
 
 ---
 
@@ -102,19 +103,9 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 📦 Deployment to Vercel
+## 📦 Deployment
 
-1. Push your code to GitHub
-2. Import the repository at [vercel.com/new](https://vercel.com/new)
-3. Add all environment variables in the Vercel project settings
-4. Deploy!
-
-```bash
-# Or deploy via CLI
-npx vercel --prod
-```
-
----
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for the full step-by-step guide to deploy the frontend to **Cloudflare Pages** and the backend API to a **Cloudflare Worker**.
 
 ## 🗺 App Routes
 
@@ -128,9 +119,8 @@ npx vercel --prod
 | `/dashboard` | Daily guidance dashboard |
 | `/favorites` | Saved favorite guidance |
 | `/settings/profile` | View and update spiritual profile |
-| `/api/onboarding` | POST — save onboarding answers |
-| `/api/guidance` | GET/POST — fetch or generate daily guidance |
-| `/api/feedback` | POST — submit feedback |
+
+> The `/api/*` routes have been removed from the frontend. All backend API calls are handled by the Cloudflare Worker in [paytonbaldridge777/BibleApp-api](https://github.com/paytonbaldridge777/BibleApp-api).
 
 ---
 
