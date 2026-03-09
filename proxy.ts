@@ -5,7 +5,7 @@ const PROTECTED_ROUTES = ['/dashboard', '/onboarding', '/settings', '/favorites'
 const AUTH_ROUTES = ['/auth/login', '/auth/signup', '/auth/callback'];
 const PUBLIC_ROUTES = ['/', '/login', '/signup'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow public and auth routes
