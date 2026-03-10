@@ -126,21 +126,28 @@ CREATE POLICY "Users can delete own favorites" ON favorites FOR DELETE USING (au
 -- scripture_themes is publicly readable
 CREATE POLICY "Anyone can read scripture themes" ON scripture_themes FOR SELECT USING (true);
 
--- Function to handle new user creation
-CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO profiles (id, email, full_name)
-  VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->>'full_name')
-  ON CONFLICT (id) DO NOTHING;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- Function to handle new user creation (Supabase-safe: schema-qualified + locked-down search_path)
+create schema if not exists public;
 
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, email, full_name)
+  values (new.id, new.email, new.raw_user_meta_data->>'full_name')
+  on conflict (id) do nothing;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_daily_guidance_user_date ON daily_guidance(user_id, date DESC);
