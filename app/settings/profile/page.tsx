@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from '@/lib/db/supabase-server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { SpiritualProfile } from '@/types';
+export const runtime = 'edge';
 
 export default async function ProfileSettingsPage() {
   const supabase = await createServerSupabaseClient();
