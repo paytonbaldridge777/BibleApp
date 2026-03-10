@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from '@/lib/db/supabase-server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Favorite, DailyGuidance } from '@/types';
+export const runtime = 'edge';
 
 export default async function FavoritesPage() {
   const supabase = await createServerSupabaseClient();
