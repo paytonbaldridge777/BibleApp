@@ -124,13 +124,13 @@ The business logic for the Worker is already implemented in the frontend repo as
 | Setting | Value |
 |---------|-------|
 | Framework preset | **Next.js** |
-| Build command | `npx @cloudflare/next-on-pages` |
+| Build command | `npx @cloudflare/next-on-pages@1` |
 | Build output directory | `.vercel/output/static` |
 | Node.js version | `20` |
 
-> **Note:** Cloudflare Pages uses `@cloudflare/next-on-pages` to adapt Next.js for the edge runtime.  
-> Add the package to the project: in the Cloudflare Pages build settings you can add a custom install command of  
-> `npm install && npm install --save-dev @cloudflare/next-on-pages`.
+> **Note:** Use `npx @cloudflare/next-on-pages@1` (not `npm run build` and **not** `npx wrangler deploy`).  
+> Cloudflare Pages uses `@cloudflare/next-on-pages` to adapt Next.js for the Pages edge runtime.  
+> Do **not** deploy the frontend via Wrangler — that path is for Cloudflare Workers, not Pages.
 
 ### 3c. Add environment variables
 
@@ -199,5 +199,8 @@ In Supabase **Authentication → URL Configuration**:
 | `401 Unauthorized` from Worker | Ensure the Supabase JWT is being sent — check `NEXT_PUBLIC_API_BASE_URL` is set correctly in Pages env vars |
 | CORS errors in browser | Verify `Access-Control-Allow-Origin` in the Worker matches the Pages domain exactly |
 | Supabase auth redirect fails | Add the Pages URL to **Supabase → Authentication → URL Configuration → Redirect URLs** |
-| Pages build fails | Ensure `@cloudflare/next-on-pages` is installed and the build command is set correctly |
+| Pages build fails | Ensure the build command is `npx @cloudflare/next-on-pages@1` and the project is a **Pages** project (not a Workers deployment) |
 | Worker 500 errors | Check Worker logs in **Cloudflare dashboard → Workers & Pages → BibleApp-api → Logs** |
+| "Node.js middleware is not currently supported" (cause: middleware file) | Ensure there is no `middleware.ts` or `proxy.ts` at the repo root. Route-level auth protection in server layouts/pages is sufficient. |
+| "Node.js middleware is not currently supported" (cause: wrong deploy mode) | Ensure BibleApp is set up as a **Pages** project (not a Worker). Do not use `npx wrangler deploy` for the frontend. |
+| Build deployed via `npx wrangler deploy` instead of Pages | Delete the Workers deployment and re-create the project under **Workers & Pages → Create application → Pages → Connect to Git**. Use build command `npx @cloudflare/next-on-pages@1`. |
