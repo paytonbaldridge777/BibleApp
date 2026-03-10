@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from '@/lib/db/supabase-server';
 import { redirect } from 'next/navigation';
 import DashboardClient from './DashboardClient';
 import type { DailyGuidance, SpiritualProfile } from '@/types';
+export const runtime = 'edge';
 
 export default async function DashboardPage() {
   const supabase = await createServerSupabaseClient();
