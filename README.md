@@ -1,7 +1,7 @@
 # 🌿 Shepherd — Personalized Bible Guidance
 
 Shepherd is a production-ready web application that delivers daily, personalized Bible guidance based on each user's spiritual journey, needs, and preferences. It combines Scripture curation with AI-generated devotionals, prayers, and reflections.
-*Bump2 to force new build
+*Bump3 to force new build
 
 ---
 
