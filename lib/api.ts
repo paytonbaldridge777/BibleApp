@@ -1,13 +1,19 @@
 import { createBrowserSupabaseClient } from '@/lib/db/supabase';
 import type { OnboardingAnswers } from '@/types';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+const RAW_API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+const API_BASE = RAW_API_BASE.replace(/\/+$/, ''); // remove trailing slashes
 
 if (!API_BASE && typeof window !== 'undefined') {
   console.warn(
     '[api] NEXT_PUBLIC_API_BASE_URL is not set. API requests will fail. ' +
       'Set this variable to your Cloudflare Worker URL.'
   );
+}
+
+function normalizePath(path: string) {
+  if (!path.startsWith('/')) return `/${path}`;
+  return `/${path.replace(/^\/+/, '')}`; // exactly one leading slash
 }
 
 async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
@@ -19,11 +25,10 @@ async function apiFetch(path: string, init: RequestInit = {}): Promise<Response>
 
   const headers = new Headers(init.headers as HeadersInit);
   headers.set('Content-Type', 'application/json');
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`);
-  }
+  if (token) headers.set('Authorization', `Bearer ${token}`);
 
-  return fetch(`${API_BASE}${path}`, { ...init, headers });
+  const url = `${API_BASE}${normalizePath(path)}`;
+  return fetch(url, { ...init, headers });
 }
 
 export async function postOnboarding(data: OnboardingAnswers): Promise<void> {
