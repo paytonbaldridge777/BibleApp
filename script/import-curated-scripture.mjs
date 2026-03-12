@@ -1,6 +1,10 @@
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createClient } from "@supabase/supabase-js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -8,6 +12,15 @@ const rootDir = path.resolve(__dirname, "..");
 
 const BIBLE_JSON_PATH = path.join(rootDir, "bibles", "web.json");
 const CURATED_SEED_PATH = path.join(rootDir, "data", "curated-scripture-seed.json");
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceRoleKey) {
+  throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in environment.");
+}
+
+const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 function normalizeBookName(bookName) {
   return bookName.replace(/\s+/g, " ").trim().toLowerCase();
@@ -76,17 +89,8 @@ function getPassageFromBible(referenceObj, verseIndex) {
 }
 
 async function main() {
-  console.log("BIBLE_JSON_PATH:", BIBLE_JSON_PATH);
-  console.log("CURATED_SEED_PATH:", CURATED_SEED_PATH);
-
   const bibleRaw = await fs.readFile(BIBLE_JSON_PATH, "utf8");
   const curatedRaw = await fs.readFile(CURATED_SEED_PATH, "utf8");
-
-  console.log("bibleRaw length:", bibleRaw.length);
-  console.log("curatedRaw length:", curatedRaw.length);
-
-  console.log("bibleRaw first 200 chars:", bibleRaw.slice(0, 200));
-  console.log("curatedRaw first 200 chars:", curatedRaw.slice(0, 200));
 
   const bibleData = JSON.parse(bibleRaw);
   const curatedSeed = JSON.parse(curatedRaw);
@@ -131,17 +135,54 @@ async function main() {
 
   const passages = Array.from(uniquePassages.values());
 
-  console.log("Prepared passages:");
-  console.log(JSON.stringify(passages, null, 2));
+  const { data: existingThemes, error: themesError } = await supabase
+    .from("scripture_themes")
+    .select("id, slug");
 
-  console.log("\nPrepared theme mappings:");
-  console.log(JSON.stringify(themeMappings, null, 2));
+  if (themesError) {
+    throw themesError;
+  }
 
-  console.log(`\nTotal unique passages: ${passages.length}`);
-  console.log(`Total theme mappings: ${themeMappings.length}`);
+  const themeIdBySlug = new Map(existingThemes.map((t) => [t.slug, t.id]));
+
+  for (const mapping of themeMappings) {
+    if (!themeIdBySlug.has(mapping.theme_slug)) {
+      throw new Error(`Theme slug not found in DB: ${mapping.theme_slug}`);
+    }
+  }
+
+  const { data: insertedPassages, error: passagesError } = await supabase
+    .from("scripture_passages")
+    .upsert(passages, { onConflict: "reference" })
+    .select("id, reference");
+
+  if (passagesError) {
+    throw passagesError;
+  }
+
+  const passageIdByReference = new Map(insertedPassages.map((p) => [p.reference, p.id]));
+
+  const dbMappings = themeMappings.map((mapping) => ({
+    theme_id: themeIdBySlug.get(mapping.theme_slug),
+    passage_id: passageIdByReference.get(mapping.reference),
+    weight: mapping.weight,
+    notes: mapping.notes,
+  }));
+
+  const { error: mapError } = await supabase
+    .from("scripture_theme_map")
+    .upsert(dbMappings, { onConflict: "theme_id,passage_id" });
+
+  if (mapError) {
+    throw mapError;
+  }
+
+  console.log(`Imported ${passages.length} unique passages.`);
+  console.log(`Imported ${dbMappings.length} theme mappings.`);
 }
+
 main().catch((err) => {
-  console.error("Import prep failed:");
+  console.error("Import failed:");
   console.error(err);
   process.exit(1);
 });
