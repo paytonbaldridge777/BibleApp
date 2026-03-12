@@ -1,0 +1,29 @@
+{
+  "struggles": {
+    "finding-relevant-verses": ["wisdom", "purpose"],
+    "understanding-meaning": ["wisdom", "spiritual_growth"],
+    "knowing-where-to-start": ["purpose", "trust", "spiritual_growth"]
+  },
+  "seeking": {
+    "spiritual-growth": ["spiritual_growth"],
+    "wisdom": ["wisdom"],
+    "purpose": ["purpose"],
+    "peace": ["peace"],
+    "hope": ["hope"],
+    "forgiveness": ["forgiveness"],
+    "overcoming-fear": ["fear"],
+    "resisting-temptation": ["temptation"],
+    "prayer-life": ["prayer"],
+    "endurance": ["endurance"]
+  },
+  "familiarity": {
+    "beginner": ["trust", "peace", "spiritual_growth"],
+    "intermediate": [],
+    "advanced": []
+  },
+  "weights": {
+    "struggles": 2,
+    "seeking": 3,
+    "familiarity": 1
+  }
+}
