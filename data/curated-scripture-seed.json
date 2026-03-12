@@ -1,0 +1,72 @@
+[
+  {
+    "theme_slug": "peace",
+    "reference": "John 14:27",
+    "weight": 5,
+    "devotional_summary": "Jesus offers a peace that is deeper than circumstances.",
+    "notes": "Strong anchor verse for peace and reassurance."
+  },
+  {
+    "theme_slug": "peace",
+    "reference": "Philippians 4:6-7",
+    "weight": 5,
+    "devotional_summary": "Prayer and gratitude redirect anxiety and open the heart to God’s peace.",
+    "notes": "Also fits anxiety and prayer."
+  },
+  {
+    "theme_slug": "anxiety",
+    "reference": "Philippians 4:6-7",
+    "weight": 5,
+    "devotional_summary": "God invites anxious hearts to bring everything to Him in prayer.",
+    "notes": "Core anxiety verse."
+  },
+  {
+    "theme_slug": "anxiety",
+    "reference": "Matthew 6:34",
+    "weight": 4,
+    "devotional_summary": "Jesus teaches us not to borrow tomorrow’s worries today.",
+    "notes": "Good practical perspective verse."
+  },
+  {
+    "theme_slug": "hope",
+    "reference": "Jeremiah 29:11",
+    "weight": 4,
+    "devotional_summary": "God’s intentions toward His people are rooted in hope and future grace.",
+    "notes": "Use carefully in context; very popular verse."
+  },
+  {
+    "theme_slug": "hope",
+    "reference": "Romans 15:13",
+    "weight": 5,
+    "devotional_summary": "God fills believers with joy, peace, and hope through trust and the Spirit’s power.",
+    "notes": "Excellent hope verse."
+  },
+  {
+    "theme_slug": "fear",
+    "reference": "Isaiah 41:10",
+    "weight": 5,
+    "devotional_summary": "God reassures His people with His presence, strength, and help.",
+    "notes": "Core fear/courage verse."
+  },
+  {
+    "theme_slug": "fear",
+    "reference": "Joshua 1:9",
+    "weight": 5,
+    "devotional_summary": "Courage grows from remembering that God goes with us.",
+    "notes": "Also fits purpose and trust."
+  },
+  {
+    "theme_slug": "wisdom",
+    "reference": "James 1:5",
+    "weight": 5,
+    "devotional_summary": "God gives wisdom generously to those who ask Him.",
+    "notes": "Core wisdom verse."
+  },
+  {
+    "theme_slug": "wisdom",
+    "reference": "Proverbs 3:5-6",
+    "weight": 5,
+    "devotional_summary": "Trusting God above self-reliance leads to clearer direction.",
+    "notes": "Also fits trust and purpose."
+  }
+]
