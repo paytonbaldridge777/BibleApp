@@ -2,19 +2,21 @@
   "struggles": {
     "finding-relevant-verses": ["wisdom", "purpose"],
     "understanding-meaning": ["wisdom", "spiritual_growth"],
-    "knowing-where-to-start": ["purpose", "trust", "spiritual_growth"]
+    "staying-consistent": ["endurance", "spiritual_growth", "trust"],
+    "knowing-where-to-start": ["purpose", "trust", "spiritual_growth"],
+    "applying-to-daily-life": ["purpose", "wisdom", "spiritual_growth"]
   },
   "seeking": {
-    "spiritual-growth": ["spiritual_growth"],
-    "wisdom": ["wisdom"],
-    "purpose": ["purpose"],
     "peace": ["peace"],
     "hope": ["hope"],
+    "spiritual-growth": ["spiritual_growth"],
+    "strength": ["endurance", "trust"],
+    "wisdom": ["wisdom"],
+    "healing": ["hope", "peace"],
+    "freedom-from-addiction": ["addiction_strongholds", "temptation", "hope"],
+    "anxiety-relief": ["anxiety", "peace", "trust"],
     "forgiveness": ["forgiveness"],
-    "overcoming-fear": ["fear"],
-    "resisting-temptation": ["temptation"],
-    "prayer-life": ["prayer"],
-    "endurance": ["endurance"]
+    "purpose": ["purpose"]
   },
   "familiarity": {
     "beginner": ["trust", "peace", "spiritual_growth"],
@@ -25,5 +27,36 @@
     "struggles": 2,
     "seeking": 3,
     "familiarity": 1
+  },
+  "prompt_preferences": {
+    "content_types": {
+      "short-verses": {
+        "prefer_brief_passages": true,
+        "include_extra_explanation": false
+      },
+      "devotionals": {
+        "prefer_devotional_style": true
+      },
+      "prayers": {
+        "include_prayer": true
+      },
+      "study-explanations": {
+        "include_extra_explanation": true
+      },
+      "daily-encouragement": {
+        "prefer_encouraging_tone": true
+      }
+    },
+    "tone": {
+      "gentle": "gentle",
+      "direct": "direct",
+      "uplifting": "uplifting",
+      "reflective": "reflective"
+    },
+    "devotional_length": {
+      "very-short": "very-short",
+      "short": "short",
+      "medium": "medium"
+    }
   }
 }
