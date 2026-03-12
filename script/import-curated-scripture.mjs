@@ -76,8 +76,17 @@ function getPassageFromBible(referenceObj, verseIndex) {
 }
 
 async function main() {
+  console.log("BIBLE_JSON_PATH:", BIBLE_JSON_PATH);
+  console.log("CURATED_SEED_PATH:", CURATED_SEED_PATH);
+
   const bibleRaw = await fs.readFile(BIBLE_JSON_PATH, "utf8");
   const curatedRaw = await fs.readFile(CURATED_SEED_PATH, "utf8");
+
+  console.log("bibleRaw length:", bibleRaw.length);
+  console.log("curatedRaw length:", curatedRaw.length);
+
+  console.log("bibleRaw first 200 chars:", bibleRaw.slice(0, 200));
+  console.log("curatedRaw first 200 chars:", curatedRaw.slice(0, 200));
 
   const bibleData = JSON.parse(bibleRaw);
   const curatedSeed = JSON.parse(curatedRaw);
@@ -131,7 +140,6 @@ async function main() {
   console.log(`\nTotal unique passages: ${passages.length}`);
   console.log(`Total theme mappings: ${themeMappings.length}`);
 }
-
 main().catch((err) => {
   console.error("Import prep failed:");
   console.error(err);
