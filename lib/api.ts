@@ -43,15 +43,17 @@ export async function postOnboarding(data: OnboardingAnswers): Promise<void> {
 }
 
 export async function postGuidance(action: 'generate' | 'regenerate') {
-  const res = await apiFetch('/guidance', {
-    method: 'POST',
-    body: JSON.stringify({ action }),
-  });
-  if (!res.ok) {
-    const json = await res.json();
-    throw new Error(json.error ?? 'Failed to generate guidance');
-  }
-  return res.json();
+const res = await apiFetch('/guidance', {
+method: 'POST',
+body: JSON.stringify({ action }),
+});
+
+const json = await res.json();
+
+if (!res.ok) {
+throw new Error(json.error ?? 'Failed to generate guidance');
+}
+return json.guidance;
 }
 
 export async function postFeedback(
