@@ -72,13 +72,18 @@ export default function DashboardClient({
   setError('');
   try {
   const json = await postGuidance(action);
-  setGuidance(json.guidance);
+  setGuidance({
+  ...json.guidance,
+  verse_reference: json.passage?.reference,
+  verse_text: json.passage?.text,
+  theme: json.matched_theme?.name,
+  });
   } catch (err) {
   setError(err instanceof Error ? err.message : 'Something went wrong');
   } finally {
   setIsGenerating(false);
   }
-};
+  };
 
   const sendFeedback = async (type: 'helpful' | 'not_relevant' | 'favorite') => {
     if (!guidance) return;
@@ -181,7 +186,8 @@ export default function DashboardClient({
                   {/* Verse */}
                   <div className="bg-amber-50 rounded-xl p-5 border border-amber-100"> 
                     <p className="text-amber-700 text-xs font-semibold uppercase tracking-wide mb-2"> Today&apos;s Verse </p> 
-                    <p className="text-stone-500 text-sm"> Verse details not yet loaded. </p> 
+                    {guidance.verse_text ? ( <> <p className="text-stone-700 italic leading-relaxed mb-3"> “{guidance.verse_text}” </p> 
+                      <p className="text-stone-500 text-sm font-medium"> {guidance.verse_reference} </p> </> ) : ( <p className="text-stone-500 text-sm">Verse details not yet loaded.</p> )} 
                   </div>
 
                   {/* Devotional */}
