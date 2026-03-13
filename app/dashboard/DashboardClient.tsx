@@ -170,21 +170,16 @@ export default function DashboardClient({
                       <p className="text-white text-sm mt-0.5">{formatDate(today)}</p>
                     </div>
                     <span className="bg-white/20 text-white px-3 py-1 rounded-full text-xs font-medium capitalize">
-                      {guidance.theme}
+                      {guidance.title || 'Today’s Guidance'}
                     </span>
                   </div>
                 </div>
 
                 <div className="p-6 space-y-6">
                   {/* Verse */}
-                  <div className="bg-amber-50 rounded-xl p-5 border border-amber-100">
-                    <p className="text-amber-700 text-xs font-semibold uppercase tracking-wide mb-2">
-                      Today&apos;s Verse
-                    </p>
-                    <p className="text-stone-800 leading-relaxed italic mb-2">
-                      &ldquo;{guidance.verse_text}&rdquo;
-                    </p>
-                    <p className="text-amber-700 font-semibold text-sm">— {guidance.verse_reference}</p>
+                  <div className="bg-amber-50 rounded-xl p-5 border border-amber-100"> 
+                    <p className="text-amber-700 text-xs font-semibold uppercase tracking-wide mb-2"> Today&apos;s Verse </p> 
+                    <p className="text-stone-500 text-sm"> Verse details not yet loaded. </p> 
                   </div>
 
                   {/* Devotional */}
@@ -192,7 +187,7 @@ export default function DashboardClient({
                     <h3 className="font-semibold text-stone-900 mb-2 flex items-center gap-2">
                       <span>📖</span> Devotional
                     </h3>
-                    <p className="text-stone-700 leading-relaxed text-sm">{guidance.devotional}</p>
+                    <p className="text-stone-700 leading-relaxed text-sm">{guidance.devotional_text}</p>
                   </div>
 
                   {/* Prayer */}
@@ -200,7 +195,7 @@ export default function DashboardClient({
                     <h3 className="font-semibold text-stone-900 mb-2 flex items-center gap-2">
                       <span>🙏</span> Prayer
                     </h3>
-                    <p className="text-stone-700 leading-relaxed text-sm italic">{guidance.prayer}</p>
+                    <p className="text-stone-700 leading-relaxed text-sm italic">{guidance.prayer_text}</p>
                   </div>
 
                   {/* Reflection */}
@@ -208,7 +203,7 @@ export default function DashboardClient({
                     <h3 className="font-semibold text-stone-900 mb-2 flex items-center gap-2">
                       <span>💭</span> Reflection
                     </h3>
-                    <p className="text-stone-700 text-sm">{guidance.reflection}</p>
+                    <p className="text-stone-700 text-sm">{guidance.reflection_question}</p>
                   </div>
 
                   {/* Actions */}
