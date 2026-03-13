@@ -44,18 +44,24 @@ export interface ScriptureTheme {
 }
 
 export interface DailyGuidance {
-  id: string;
-  user_id: string;
-  date: string;
-  theme: string;
-  verse_reference: string;
-  verse_text: string;
-  devotional: string;
-  prayer: string;
-  reflection: string;
-  theme_id?: string;
-  created_at: string;
-  updated_at: string;
+id: string;
+user_id: string;
+guidance_date: string;
+title: string;
+devotional_text: string;
+prayer_text: string;
+reflection_question: string;
+theme_id?: string;
+passage_id?: string;
+created_at: string;
+updated_at?: string;
+date?: string;
+theme?: string;
+verse_reference?: string;
+verse_text?: string;
+devotional?: string;
+prayer?: string;
+reflection?: string;
 }
 
 export interface GuidanceFeedback {
