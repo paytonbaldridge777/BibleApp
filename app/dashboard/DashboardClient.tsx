@@ -64,20 +64,19 @@ export default function DashboardClient({
     router.push('/');
     router.refresh();
   };
-
+  
   const generateGuidance = async (action: 'generate' | 'regenerate') => {
-    setIsGenerating(true);
-    setError('');
-    try {
-      const json = await postGuidance(action);
-      setGuidance(json.guidance);
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+  setIsGenerating(true);
+  setError('');
+  try {
+  const json = await postGuidance(action);
+  setGuidance(json.guidance);
+  } catch (err) {
+  setError(err instanceof Error ? err.message : 'Something went wrong');
+  } finally {
+  setIsGenerating(false);
+  }
+};
 
   const sendFeedback = async (type: 'helpful' | 'not_relevant' | 'favorite') => {
     if (!guidance) return;
