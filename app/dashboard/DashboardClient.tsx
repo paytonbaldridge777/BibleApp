@@ -28,14 +28,16 @@ function formatDate(dateStr: string): string {
 
 function calculateStreak(guidanceList: DailyGuidance[]): number {
   if (!guidanceList.length) return 0;
-  const sorted = [...guidanceList].sort((a, b) => (b.date > a.date ? 1 : -1));
+  const sorted = [...guidanceList].sort((a, b) =>
+    (b.guidance_date > a.guidance_date ? 1 : -1)
+    );
   let streak = 0;
   const today = new Date();
   for (let i = 0; i < sorted.length; i++) {
     const expected = new Date(today);
     expected.setDate(today.getDate() - i);
     const expectedStr = expected.toISOString().split('T')[0];
-    if (sorted[i].date === expectedStr) {
+    if (sorted[i].guidance_date === expectedStr) {
       streak++;
     } else {
       break;
