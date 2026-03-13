@@ -53,7 +53,7 @@ const json = await res.json();
 if (!res.ok) {
 throw new Error(json.error ?? 'Failed to generate guidance');
 }
-return json.guidance;
+return json;
 }
 
 export async function postFeedback(
