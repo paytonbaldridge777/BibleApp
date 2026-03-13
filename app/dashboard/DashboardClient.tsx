@@ -187,7 +187,7 @@ export default function DashboardClient({
                   <div className="bg-amber-50 rounded-xl p-5 border border-amber-100"> 
                     <p className="text-amber-700 text-xs font-semibold uppercase tracking-wide mb-2"> Today&apos;s Verse </p> 
                     {guidance.verse_text ? ( <> <p className="text-stone-700 italic leading-relaxed mb-3"> “{guidance.verse_text}” </p> 
-                      <p className="text-stone-500 text-sm font-medium"> {guidance.verse_reference} </p> </> ) : ( <p className="text-stone-500 text-sm">Verse details not yet loaded.</p> )} 
+                      <p className="text-stone-500 text-sm font-medium"> {guidance.verse_reference} </p> </> ) : ( <p className="text-stone-500 text-sm">Verse details not yet loaded...</p> )} 
                   </div>
 
                   {/* Devotional */}
