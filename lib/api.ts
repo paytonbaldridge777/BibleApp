@@ -48,6 +48,15 @@ method: 'POST',
 body: JSON.stringify({ action }),
 });
 
+export async function getGuidance() {
+const res = await apiFetch('/guidance');
+const json = await res.json();
+if (!res.ok) {
+throw new Error(json.error ?? 'Failed to load guidance');
+}
+return json;
+}
+  
 const json = await res.json();
 
 if (!res.ok) {
