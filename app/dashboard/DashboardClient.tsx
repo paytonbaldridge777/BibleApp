@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/db/supabase';
-import { postGuidance, postFeedback } from '@/lib/api';
+import { getGuidance, postGuidance, postFeedback } from '@/lib/api';
 import type { DailyGuidance, SpiritualProfile } from '@/types';
 
 interface Props {
@@ -57,7 +57,27 @@ export default function DashboardClient({
   const [isGenerating, setIsGenerating] = useState(false);
   const [feedbackState, setFeedbackState] = useState<Record<string, string>>({});
   const [error, setError] = useState('');
-
+  useEffect(() => {
+  const loadGuidance = async () => {
+  try {
+  const json = await getGuidance();
+  
+      if (!json.guidance) return;
+  
+      setGuidance({
+        ...json.guidance,
+        verse_reference: json.passage?.reference,
+        verse_text: json.passage?.text,
+        theme: json.matched_theme?.name,
+      });
+    } catch (err) {
+      console.error('Failed to load guidance', err);
+    }
+  };
+  
+  loadGuidance();
+  
+  }, []);
   const streak = calculateStreak(recentGuidance);
 
   const handleLogout = async () => {
@@ -351,7 +371,7 @@ export default function DashboardClient({
                   {recentGuidance.slice(1, 7).map((g) => (
                     <div key={g.id} className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-stone-500">{g.date}</p>
+                        <p className="text-xs text-stone-500">{g.guidance_date}</p>
                         <p className="text-sm text-stone-700 capitalize">{g.theme}</p>
                       </div>
                       <span className="text-xs text-stone-400">{g.verse_reference}</span>
