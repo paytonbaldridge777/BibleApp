@@ -372,7 +372,7 @@ export default function DashboardClient({
                     <div key={g.id} className="flex items-center justify-between">
                       <div>
                         <p className="text-xs text-stone-500">{g.guidance_date}</p>
-                        <p className="text-sm text-stone-700 capitalize">{g.theme}</p>
+                        <p className="text-sm text-stone-700 capitalize">{g.title || 'Guidance'}</p> <span className="text-xs text-stone-400">{g.verse_reference || ''}</span>
                       </div>
                       <span className="text-xs text-stone-400">{g.verse_reference}</span>
                     </div>
