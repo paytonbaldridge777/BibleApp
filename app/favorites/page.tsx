@@ -87,7 +87,7 @@ export default async function FavoritesPage() {
                 <div key={item.id} className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
                   <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-100 px-6 py-4 flex items-center justify-between">
                     <div>
-                      <p className="text-stone-500 text-xs">{g.date}</p>
+                      <p className="text-stone-500 text-xs">{g.guidance_date}</p>
                       <span className="bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full text-xs font-medium capitalize">
                         {g.theme}
                       </span>
