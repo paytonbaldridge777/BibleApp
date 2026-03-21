@@ -105,11 +105,16 @@ export default function DashboardClient({
   }
   };
 
-  const sendFeedback = async (type: 'helpful' | 'not_relevant' | 'favorite') => {
-    if (!guidance) return;
+  const sendFeedback = async (helpful: boolean) => {
+  if (!guidance) return;  
     try {
-      await postFeedback(guidance.id, type);
-      setFeedbackState((prev) => ({ ...prev, [type]: 'sent' }));
+      await postFeedback({
+        guidance_id: guidance.id,
+        helpful,
+      });  
+      setFeedbackState({
+        [helpful ? 'helpful' : 'not_helpful']: 'sent',
+      });
     } catch {
       // silently fail feedback
     }
@@ -237,7 +242,7 @@ export default function DashboardClient({
                   {/* Actions */}
                   <div className="flex flex-wrap gap-2 pt-2 border-t border-stone-100">
                     <button
-                      onClick={() => sendFeedback('helpful')}
+                      onClick={() => sendFeedback(true)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
                         feedbackState['helpful'] === 'sent'
                           ? 'bg-green-100 border-green-300 text-green-700'
@@ -247,25 +252,15 @@ export default function DashboardClient({
                       <span>👍</span> {feedbackState['helpful'] === 'sent' ? 'Marked Helpful' : 'Helpful'}
                     </button>
                     <button
-                      onClick={() => sendFeedback('favorite')}
+                      onClick={() => sendFeedback(false)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
-                        feedbackState['favorite'] === 'sent'
-                          ? 'bg-amber-100 border-amber-300 text-amber-700'
-                          : 'border-stone-300 text-stone-600 hover:border-amber-300 hover:text-amber-700'
+                        feedbackState['not_helpful'] === 'sent'
+                          ? 'bg-red-100 border-red-300 text-red-700'
+                          : 'border-stone-300 text-stone-600 hover:border-red-300 hover:text-red-700'
                       }`}
                     >
-                      <span>⭐</span> {feedbackState['favorite'] === 'sent' ? 'Saved!' : 'Save as Favorite'}
-                    </button>
-                    <button
-                      onClick={() => sendFeedback('not_relevant')}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
-                        feedbackState['not_relevant'] === 'sent'
-                          ? 'bg-stone-100 border-stone-300 text-stone-500'
-                          : 'border-stone-300 text-stone-500 hover:border-stone-400'
-                      }`}
-                    >
-                      <span>🔄</span> {feedbackState['not_relevant'] === 'sent' ? 'Noted' : 'Not Relevant'}
-                    </button>
+                      <span>👎</span> {feedbackState['not_helpful'] === 'sent' ? 'Marked Not Helpful' : 'Not Helpful'}
+                    </button>                    
                     <button
                       onClick={() => generateGuidance('regenerate')}
                       disabled={isGenerating}
