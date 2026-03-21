@@ -2,7 +2,7 @@ import { createBrowserSupabaseClient } from '@/lib/db/supabase';
 import type { OnboardingAnswers } from '@/types';
 
 const RAW_API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
-const API_BASE = RAW_API_BASE.replace(/\/+$/, ''); // remove trailing slashes
+const API_BASE = RAW_API_BASE.replace(/\/+$/, '');
 
 if (!API_BASE && typeof window !== 'undefined') {
   console.warn(
@@ -13,7 +13,7 @@ if (!API_BASE && typeof window !== 'undefined') {
 
 function normalizePath(path: string) {
   if (!path.startsWith('/')) return `/${path}`;
-  return `/${path.replace(/^\/+/, '')}`; // exactly one leading slash
+  return `/${path.replace(/^\/+/, '')}`;
 }
 
 async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
@@ -36,6 +36,7 @@ export async function postOnboarding(data: OnboardingAnswers): Promise<void> {
     method: 'POST',
     body: JSON.stringify(data),
   });
+
   if (!res.ok) {
     const json = await res.json();
     throw new Error(json.error ?? 'Failed to save your profile');
@@ -43,26 +44,29 @@ export async function postOnboarding(data: OnboardingAnswers): Promise<void> {
 }
 
 export async function postGuidance(action: 'generate' | 'regenerate') {
-const res = await apiFetch('/guidance', {
-method: 'POST',
-body: JSON.stringify({ action }),
-});
+  const res = await apiFetch('/guidance', {
+    method: 'POST',
+    body: JSON.stringify({ action }),
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw new Error(json.error ?? 'Failed to generate guidance');
+  }
+
+  return json;
+}
 
 export async function getGuidance() {
-const res = await apiFetch('/guidance');
-const json = await res.json();
-if (!res.ok) {
-throw new Error(json.error ?? 'Failed to load guidance');
-}
-return json;
-}
-  
-const json = await res.json();
+  const res = await apiFetch('/guidance');
+  const json = await res.json();
 
-if (!res.ok) {
-throw new Error(json.error ?? 'Failed to generate guidance');
-}
-return json;
+  if (!res.ok) {
+    throw new Error(json.error ?? 'Failed to load guidance');
+  }
+
+  return json;
 }
 
 export async function postFeedback(payload: {
