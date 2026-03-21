@@ -65,15 +65,21 @@ throw new Error(json.error ?? 'Failed to generate guidance');
 return json;
 }
 
-export async function postFeedback(
-  guidanceId: string,
-  feedbackType: 'helpful' | 'not_relevant' | 'favorite'
-): Promise<void> {
+export async function postFeedback(payload: {
+  guidance_id: string;
+  helpful: boolean;
+  note?: string;
+}) {
   const res = await apiFetch('/feedback', {
     method: 'POST',
-    body: JSON.stringify({ guidance_id: guidanceId, feedback_type: feedbackType }),
+    body: JSON.stringify(payload),
   });
+
+  const json = await res.json();
+
   if (!res.ok) {
-    throw new Error('Failed to send feedback');
+    throw new Error(json.error ?? 'Failed to save feedback');
   }
+
+  return json;
 }
