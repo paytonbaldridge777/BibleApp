@@ -1,8 +1,12 @@
 import { createServerSupabaseClient } from '@/lib/db/supabase-server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import type { Favorite, DailyGuidance } from '@/types';
+import type { Favorite } from '@/types';
+
 export const runtime = 'edge';
+
+const RAW_API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+const API_BASE = RAW_API_BASE.replace(/\/+$/, '');
 
 export default async function FavoritesPage() {
   const supabase = await createServerSupabaseClient();
@@ -13,28 +17,49 @@ export default async function FavoritesPage() {
 
   if (!user) redirect('/auth/login');
 
-  const { data: favorites } = await supabase
-    .from('favorites')
-    .select(`
-      id,
-      user_id,
-      guidance_id,
-      created_at,
-      daily_guidance (
-        id,
-        date,
-        theme,
-        verse_reference,
-        verse_text,
-        devotional,
-        prayer,
-        reflection
-      )
-    `)
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  const items = (favorites ?? []) as unknown as (Favorite & { daily_guidance: DailyGuidance })[];
+  const token = session?.access_token;
+
+  if (!API_BASE || !token) {
+    return (
+      <div className="min-h-screen bg-stone-50">
+        <header className="bg-white border-b border-stone-200 sticky top-0 z-40">
+          <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <Link href="/dashboard" className="flex items-center gap-2">
+                <span className="text-xl">🌿</span>
+                <span className="text-lg font-bold text-amber-700">Shepherd</span>
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-4xl mx-auto px-4 py-8">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
+            Favorites could not be loaded because the API configuration is missing.
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  const res = await fetch(`${API_BASE}/favorites`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    cache: 'no-store',
+  });
+
+  let items: Favorite[] = [];
+
+  if (res.ok) {
+    const json = await res.json();
+    items = json.favorites ?? [];
+  }
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -46,9 +71,15 @@ export default async function FavoritesPage() {
               <span className="text-lg font-bold text-amber-700">Shepherd</span>
             </Link>
             <nav className="hidden sm:flex gap-4">
-              <Link href="/dashboard" className="text-sm text-stone-500 hover:text-stone-700">Dashboard</Link>
-              <Link href="/favorites" className="text-sm font-medium text-stone-800">Favorites</Link>
-              <Link href="/settings/profile" className="text-sm text-stone-500 hover:text-stone-700">Settings</Link>
+              <Link href="/dashboard" className="text-sm text-stone-500 hover:text-stone-700">
+                Dashboard
+              </Link>
+              <Link href="/favorites" className="text-sm font-medium text-stone-800">
+                Favorites
+              </Link>
+              <Link href="/settings/profile" className="text-sm text-stone-500 hover:text-stone-700">
+                Settings
+              </Link>
             </nav>
           </div>
         </div>
@@ -81,36 +112,58 @@ export default async function FavoritesPage() {
         ) : (
           <div className="grid gap-5">
             {items.map((item) => {
-              const g = item.daily_guidance;
+              const g = item.guidance;
               if (!g) return null;
+
               return (
-                <div key={item.id} className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+                <div
+                  key={item.id}
+                  className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden"
+                >
                   <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-100 px-6 py-4 flex items-center justify-between">
                     <div>
                       <p className="text-stone-500 text-xs">{g.guidance_date}</p>
                       <span className="bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full text-xs font-medium capitalize">
-                        {g.theme}
+                        {item.matched_theme?.name || g.title || 'Guidance'}
                       </span>
                     </div>
-                    <p className="text-amber-700 font-semibold text-sm">{g.verse_reference}</p>
+                    <p className="text-amber-700 font-semibold text-sm">
+                      {item.passage?.reference || g.verse_reference || ''}
+                    </p>
                   </div>
+
                   <div className="p-6 space-y-4">
                     <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
                       <p className="text-stone-800 italic text-sm leading-relaxed">
-                        &ldquo;{g.verse_text}&rdquo;
+                        &ldquo;{item.passage?.text || g.verse_text || 'Verse unavailable'}&rdquo;
                       </p>
                     </div>
+
                     <div>
-                      <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1">Devotional</p>
-                      <p className="text-stone-700 text-sm leading-relaxed">{g.devotional}</p>
+                      <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1">
+                        Devotional
+                      </p>
+                      <p className="text-stone-700 text-sm leading-relaxed">
+                        {g.devotional_text}
+                      </p>
                     </div>
+
                     <div>
-                      <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1">Prayer</p>
-                      <p className="text-stone-700 text-sm leading-relaxed italic">{g.prayer}</p>
+                      <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1">
+                        Prayer
+                      </p>
+                      <p className="text-stone-700 text-sm leading-relaxed italic">
+                        {g.prayer_text}
+                      </p>
                     </div>
+
                     <div className="bg-stone-50 rounded-lg p-3 border border-stone-100">
-                      <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1">Reflection</p>
-                      <p className="text-stone-700 text-sm">{g.reflection}</p>
+                      <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1">
+                        Reflection
+                      </p>
+                      <p className="text-stone-700 text-sm">
+                        {g.reflection_question}
+                      </p>
                     </div>
                   </div>
                 </div>
