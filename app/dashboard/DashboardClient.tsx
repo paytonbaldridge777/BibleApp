@@ -4,7 +4,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/db/supabase';
-import { getGuidance, postGuidance, postFeedback } from '@/lib/api';
+import {
+  getGuidance,
+  postGuidance,
+  postFeedback,
+  saveFavorite,
+} from '@/lib/api';
 import type { DailyGuidance, SpiritualProfile } from '@/types';
 
 interface Props {
@@ -22,27 +27,36 @@ function getGreeting(): string {
 }
 
 function formatDate(dateStr: string): string {
-  const date = new Date(dateStr + 'T00:00:00');
-  return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const date = new Date(`${dateStr}T00:00:00`);
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
 }
 
 function calculateStreak(guidanceList: DailyGuidance[]): number {
   if (!guidanceList.length) return 0;
+
   const sorted = [...guidanceList].sort((a, b) =>
-    (b.guidance_date > a.guidance_date ? 1 : -1)
-    );
+    b.guidance_date > a.guidance_date ? 1 : -1
+  );
+
   let streak = 0;
   const today = new Date();
+
   for (let i = 0; i < sorted.length; i++) {
     const expected = new Date(today);
     expected.setDate(today.getDate() - i);
     const expectedStr = expected.toISOString().split('T')[0];
+
     if (sorted[i].guidance_date === expectedStr) {
       streak++;
     } else {
       break;
     }
   }
+
   return streak;
 }
 
@@ -55,103 +69,111 @@ export default function DashboardClient({
   const router = useRouter();
   const [guidance, setGuidance] = useState<DailyGuidance | null>(todayGuidance);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [feedbackState, setFeedbackState] = useState<Record<string, string>>({});
+  const [feedbackState, setFeedbackState] = useState<Record<string, 'sent'>>({});
   const [error, setError] = useState('');
+  const [favoriteSaved, setFavoriteSaved] = useState(false);
+
+  const streak = calculateStreak(recentGuidance);
+  const today = new Date().toISOString().split('T')[0];
+
   useEffect(() => {
-  const loadGuidance = async () => {
-  try {
-  const json = await getGuidance();
-  
-      if (!json.guidance) return;
-  
+    const loadGuidance = async () => {
+      try {
+        const json = await getGuidance();
+
+        if (!json.guidance) return;
+
+        setGuidance({
+          ...json.guidance,
+          verse_reference: json.passage?.reference,
+          verse_text: json.passage?.text,
+          theme: json.matched_theme?.name,
+        });
+      } catch (err) {
+        console.error('Failed to load guidance', err);
+      }
+    };
+
+    loadGuidance();
+  }, []);
+
+  const handleLogout = async () => {
+    const supabase = createBrowserSupabaseClient();
+    await supabase.auth.signOut();
+    router.push('/');
+  };
+
+  const generateGuidance = async (action: 'generate' | 'regenerate') => {
+    setIsGenerating(true);
+    setError('');
+
+    try {
+      const json = await postGuidance(action);
       setGuidance({
         ...json.guidance,
         verse_reference: json.passage?.reference,
         verse_text: json.passage?.text,
         theme: json.matched_theme?.name,
       });
+      setFavoriteSaved(false);
+      setFeedbackState({});
     } catch (err) {
-      console.error('Failed to load guidance', err);
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setIsGenerating(false);
     }
   };
-  
-  loadGuidance();
-  
-  }, []);
-  const streak = calculateStreak(recentGuidance);
 
-  const handleLogout = async () => {
-    const supabase = createBrowserSupabaseClient();
-    await supabase.auth.signOut();
-    router.push('/');
-    router.refresh();
-  };
-  
-  const generateGuidance = async (action: 'generate' | 'regenerate') => {
-  setIsGenerating(true);
-  setError('');
-  try {
-  const json = await postGuidance(action);
-  setGuidance({
-  ...json.guidance,
-  verse_reference: json.passage?.reference,
-  verse_text: json.passage?.text,
-  theme: json.matched_theme?.name,
-  });
-  } catch (err) {
-  setError(err instanceof Error ? err.message : 'Something went wrong');
-  } finally {
-  setIsGenerating(false);
-  }
+  const sendFeedback = async (helpful: boolean) => {
+    if (!guidance) return;
+
+    try {
+      await postFeedback({
+        guidance_id: guidance.id,
+        helpful,
+      });
+
+      setFeedbackState((prev) => ({
+        ...prev,
+        [helpful ? 'helpful' : 'not_helpful']: 'sent',
+      }));
+    } catch {
+      // silently fail feedback
+    }
   };
 
-const sendFeedback = async (helpful: boolean) => {
-  if (!guidance) return;
+  const handleSaveFavorite = async () => {
+    if (!guidance) return;
 
-  try {
-    await postFeedback({
-      guidance_id: guidance.id,
-      helpful,
-    });
-
-    setFeedbackState((prev) => ({
-      ...prev,
-      [helpful ? 'helpful' : 'not_helpful']: 'sent',
-    }));
-  } catch {
-    // silently fail feedback
-  }
-};
-
-  const today = new Date().toISOString().split('T')[0];
+    try {
+      await saveFavorite(guidance.id);
+      setFavoriteSaved(true);
+    } catch {
+      // silently fail favorite save
+    }
+  };
 
   return (
     <div className="min-h-screen bg-stone-50">
-      {/* Header */}
-      <header className="bg-white border-b border-stone-200 sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <span className="text-xl">🌿</span>
-              <span className="text-lg font-bold text-amber-700">Shepherd</span>
-            </Link>
-            <nav className="hidden sm:flex items-center gap-4">
-              <Link href="/dashboard" className="text-sm font-medium text-stone-700 hover:text-stone-900">
-                Dashboard
-              </Link>
-              <Link href="/favorites" className="text-sm text-stone-500 hover:text-stone-700">
+      <header className="border-b border-stone-200 bg-white">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold text-stone-800">Shepherd Dashboard</h1>
+            <div className="mt-2 flex items-center gap-4 text-sm">
+              <Link href="/favorites" className="text-stone-600 hover:text-stone-900">
                 Favorites
               </Link>
-              <Link href="/settings/profile" className="text-sm text-stone-500 hover:text-stone-700">
+              <Link href="/settings/profile" className="text-stone-600 hover:text-stone-900">
                 Settings
               </Link>
-            </nav>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-stone-500 hidden sm:block">{user.email}</span>
+
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-stone-600">{user.email}</span>
             <button
               onClick={handleLogout}
-              className="text-sm text-stone-600 hover:text-stone-900 border border-stone-300 hover:border-stone-400 px-3 py-1.5 rounded-lg transition-colors"
+              className="text-sm text-stone-600 hover:text-stone-900"
             >
               Logout
             </button>
@@ -159,227 +181,221 @@ const sendFeedback = async (helpful: boolean) => {
         </div>
       </header>
 
-      {/* Disclaimer Banner */}
-      <div className="bg-amber-50 border-b border-amber-100 px-4 py-2.5 text-center">
-        <p className="text-xs text-amber-800">
-          Shepherd provides spiritual encouragement only. For mental health support, please consult
-          a professional.{' '}
-          <strong>In crisis? Call or text 988.</strong>
-        </p>
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Shepherd provides spiritual encouragement only. For mental health support, please consult a professional. In crisis? Call or text 988.
+        </div>
       </div>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        {/* Welcome + streak */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-stone-900">
-              {getGreeting()} {user.email ? ` — ${user.email.split('@')[0]}` : ''}
-            </h1>
-            <p className="text-stone-500 mt-0.5">{formatDate(today)}</p>
+      <main className="max-w-7xl mx-auto px-6 pb-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold text-stone-800">
+              {getGreeting()}
+              {user.email ? ` — ${user.email.split('@')[0]}` : ''}
+            </h2>
+            <p className="text-stone-600 mt-1">{formatDate(today)}</p>
+            {streak > 0 && (
+              <div className="mt-3 inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-sm text-amber-800">
+                {streak} day{streak !== 1 ? 's' : ''} streak
+              </div>
+            )}
           </div>
-          {streak > 0 && (
-            <div className="flex items-center gap-2 bg-amber-100 text-amber-800 px-4 py-2 rounded-full text-sm font-semibold">
-              <span>🔥</span> {streak} day{streak !== 1 ? 's' : ''} streak
+
+          {error && (
+            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+              {error}
+            </div>
+          )}
+
+          {guidance ? (
+            <div className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden">
+              <div className="bg-amber-600 px-6 py-5 text-white">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-amber-100 text-sm">Today&apos;s Guidance</p>
+                    <h3 className="text-2xl font-semibold mt-1">{formatDate(guidance.guidance_date)}</h3>
+                  </div>
+                  <span className="bg-white/20 text-white px-3 py-1 rounded-full text-xs font-medium capitalize">
+                    {guidance.title || 'Today’s Guidance'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-6">
+                <div className="bg-amber-50 rounded-xl p-5 border border-amber-100">
+                  <p className="text-amber-700 text-xs font-semibold uppercase tracking-wide mb-2">
+                    Today&apos;s Verse
+                  </p>
+                  {guidance.verse_text ? (
+                    <>
+                      <p className="text-stone-700 italic leading-relaxed mb-3">
+                        “{guidance.verse_text}”
+                      </p>
+                      <p className="text-stone-500 text-sm font-medium">
+                        {guidance.verse_reference}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-stone-500 text-sm">Verse details not yet loaded.</p>
+                  )}
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-semibold text-stone-800 mb-2">Devotional</h4>
+                  <p className="text-stone-700 leading-relaxed text-sm">
+                    {guidance.devotional_text}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-semibold text-stone-800 mb-2">Prayer</h4>
+                  <p className="text-stone-700 leading-relaxed text-sm italic">
+                    {guidance.prayer_text}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-semibold text-stone-800 mb-2">Reflection</h4>
+                  <p className="text-stone-700 text-sm">
+                    {guidance.reflection_question}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <button
+                    onClick={() => sendFeedback(true)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                      feedbackState['helpful'] === 'sent'
+                        ? 'bg-green-100 border-green-300 text-green-700'
+                        : 'border-stone-300 text-stone-600 hover:border-green-300 hover:text-green-700'
+                    }`}
+                  >
+                    👍 {feedbackState['helpful'] === 'sent' ? 'Marked Helpful' : 'Helpful'}
+                  </button>
+
+                  <button
+                    onClick={() => sendFeedback(false)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                      feedbackState['not_helpful'] === 'sent'
+                        ? 'bg-red-100 border-red-300 text-red-700'
+                        : 'border-stone-300 text-stone-600 hover:border-red-300 hover:text-red-700'
+                    }`}
+                  >
+                    👎 {feedbackState['not_helpful'] === 'sent' ? 'Marked Not Helpful' : 'Not Helpful'}
+                  </button>
+
+                  <button
+                    onClick={handleSaveFavorite}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                      favoriteSaved
+                        ? 'bg-amber-100 border-amber-300 text-amber-700'
+                        : 'border-stone-300 text-stone-600 hover:border-amber-300 hover:text-amber-700'
+                    }`}
+                  >
+                    ⭐ {favoriteSaved ? 'Saved to Favorites' : 'Save as Favorite'}
+                  </button>
+
+                  <button
+                    onClick={() => generateGuidance('regenerate')}
+                    disabled={isGenerating}
+                    className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-stone-300 text-stone-600 hover:border-stone-400 transition-colors disabled:opacity-50"
+                  >
+                    ✨ {isGenerating ? 'Regenerating...' : 'Regenerate'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-8 text-center">
+              <h3 className="text-2xl font-semibold text-stone-800 mb-3">
+                Ready for today&apos;s guidance?
+              </h3>
+              <p className="text-stone-600 mb-6">
+                Shepherd will select a verse and create a personalized devotional, prayer, and reflection just for you.
+              </p>
+              <button
+                onClick={() => generateGuidance('generate')}
+                disabled={isGenerating}
+                className="bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white px-8 py-3 rounded-xl font-semibold transition-colors"
+              >
+                {isGenerating ? 'Generating your guidance...' : "Generate Today's Guidance"}
+              </button>
             </div>
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main content */}
-          <div className="lg:col-span-2 space-y-6">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-                {error}
+        <aside className="space-y-6">
+          <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-stone-800">Your Profile</h3>
+              <Link href="/settings/profile" className="text-sm text-amber-700 hover:text-amber-800">
+                Edit
+              </Link>
+            </div>
+
+            <div className="space-y-4 text-sm">
+              <div>
+                <p className="text-stone-500 mb-1">Experience</p>
+                <p className="text-stone-800">{profile.bible_experience_level}</p>
               </div>
-            )}
 
-            {/* Today's Guidance Card */}
-            {guidance ? (
-              <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
-                <div className="bg-gradient-to-r from-amber-600 to-orange-500 px-6 py-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-amber-100 text-xs font-medium uppercase tracking-wide">
-                        Today&apos;s Guidance
-                      </p>
-                      <p className="text-white text-sm mt-0.5">{formatDate(today)}</p>
-                    </div>
-                    <span className="bg-white/20 text-white px-3 py-1 rounded-full text-xs font-medium capitalize">
-                      {guidance.title || 'Today’s Guidance'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-6 space-y-6">
-                  {/* Verse */}
-                  <div className="bg-amber-50 rounded-xl p-5 border border-amber-100"> 
-                    <p className="text-amber-700 text-xs font-semibold uppercase tracking-wide mb-2"> Today&apos;s Verse </p> 
-                    {guidance.verse_text ? ( <> <p className="text-stone-700 italic leading-relaxed mb-3"> “{guidance.verse_text}” </p> 
-                      <p className="text-stone-500 text-sm font-medium"> {guidance.verse_reference} </p> </> ) : ( <p className="text-stone-500 text-sm">Verse details not yet loaded...</p> )} 
-                  </div>
-
-                  {/* Devotional */}
-                  <div>
-                    <h3 className="font-semibold text-stone-900 mb-2 flex items-center gap-2">
-                      <span>📖</span> Devotional
-                    </h3>
-                    <p className="text-stone-700 leading-relaxed text-sm">{guidance.devotional_text}</p>
-                  </div>
-
-                  {/* Prayer */}
-                  <div>
-                    <h3 className="font-semibold text-stone-900 mb-2 flex items-center gap-2">
-                      <span>🙏</span> Prayer
-                    </h3>
-                    <p className="text-stone-700 leading-relaxed text-sm italic">{guidance.prayer_text}</p>
-                  </div>
-
-                  {/* Reflection */}
-                  <div className="bg-stone-50 rounded-xl p-4 border border-stone-100">
-                    <h3 className="font-semibold text-stone-900 mb-2 flex items-center gap-2">
-                      <span>💭</span> Reflection
-                    </h3>
-                    <p className="text-stone-700 text-sm">{guidance.reflection_question}</p>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex flex-wrap gap-2 pt-2 border-t border-stone-100">
-                    <button
-                      onClick={() => sendFeedback(true)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
-                        feedbackState['helpful'] === 'sent'
-                          ? 'bg-green-100 border-green-300 text-green-700'
-                          : 'border-stone-300 text-stone-600 hover:border-green-300 hover:text-green-700'
-                      }`}
-                    >
-                      <span>👍</span> {feedbackState['helpful'] === 'sent' ? 'Marked Helpful' : 'Helpful'}
-                    </button>
-                    <button
-                      onClick={() => sendFeedback(false)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
-                        feedbackState['not_helpful'] === 'sent'
-                          ? 'bg-red-100 border-red-300 text-red-700'
-                          : 'border-stone-300 text-stone-600 hover:border-red-300 hover:text-red-700'
-                      }`}
-                    >
-                      <span>👎</span> {feedbackState['not_helpful'] === 'sent' ? 'Marked Not Helpful' : 'Not Helpful'}
-                    </button>              
-                    <button
-                      onClick={() => generateGuidance('regenerate')}
-                      disabled={isGenerating}
-                      className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-stone-300 text-stone-600 hover:border-stone-400 transition-colors disabled:opacity-50"
-                    >
-                      <span>✨</span> {isGenerating ? 'Regenerating...' : 'Regenerate'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-10 text-center">
-                <div className="text-5xl mb-4">🌅</div>
-                <h2 className="text-xl font-bold text-stone-900 mb-2">
-                  Ready for today&apos;s guidance?
-                </h2>
-                <p className="text-stone-600 mb-6 text-sm">
-                  Shepherd will select a verse and create a personalized devotional, prayer, and
-                  reflection just for you.
-                </p>
-                <button
-                  onClick={() => generateGuidance('generate')}
-                  disabled={isGenerating}
-                  className="bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white px-8 py-3 rounded-xl font-semibold transition-colors"
-                >
-                  {isGenerating ? 'Generating your guidance...' : "Generate Today's Guidance"}
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-5">
-            {/* Profile Summary */}
-            <div className="bg-white rounded-xl border border-stone-200 p-5">
-              <h3 className="font-semibold text-stone-900 mb-3 flex items-center justify-between">
-                Your Profile
-                <Link
-                  href="/settings/profile"
-                  className="text-xs text-amber-600 hover:text-amber-700 font-medium"
-                >
-                  Edit
-                </Link>
-              </h3>
-              <div className="space-y-2.5">
+              {profile.current_needs?.length > 0 && (
                 <div>
-                  <p className="text-xs text-stone-500 uppercase tracking-wide mb-1">Experience</p>
-                  <span className="bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full text-xs font-medium capitalize">
-                    {profile.bible_experience_level}
-                  </span>
-                </div>
-                {profile.current_needs?.length > 0 && (
-                  <div>
-                    <p className="text-xs text-stone-500 uppercase tracking-wide mb-1">Seeking</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {profile.current_needs.slice(0, 3).map((need) => (
-                        <span
-                          key={need}
-                          className="bg-stone-100 text-stone-700 px-2 py-0.5 rounded-full text-xs capitalize"
-                        >
-                          {need.replace(/-/g, ' ')}
-                        </span>
-                      ))}
-                    </div>
+                  <p className="text-stone-500 mb-2">Seeking</p>
+                  <div className="flex flex-wrap gap-2">
+                    {profile.current_needs.slice(0, 3).map((need) => (
+                      <span
+                        key={need}
+                        className="rounded-full bg-stone-100 px-2.5 py-1 text-stone-700 text-xs"
+                      >
+                        {need.replace(/-/g, ' ')}
+                      </span>
+                    ))}
                   </div>
-                )}
-                <div>
-                  <p className="text-xs text-stone-500 uppercase tracking-wide mb-1">Tone</p>
-                  <span className="text-stone-700 text-xs capitalize">{profile.tone_preference}</span>
                 </div>
+              )}
+
+              <div>
+                <p className="text-stone-500 mb-1">Tone</p>
+                <p className="text-stone-800">{profile.tone_preference}</p>
               </div>
+
               {profile.profile_summary && (
-                <p className="text-xs text-stone-500 mt-3 leading-relaxed border-t border-stone-100 pt-3">
+                <div className="rounded-lg bg-stone-50 p-3 text-stone-600">
                   {profile.profile_summary}
-                </p>
+                </div>
               )}
             </div>
+          </div>
 
-            {/* Quick Links */}
-            <div className="bg-white rounded-xl border border-stone-200 p-5">
-              <h3 className="font-semibold text-stone-900 mb-3">Quick Links</h3>
-              <div className="space-y-2">
-                <Link
-                  href="/favorites"
-                  className="flex items-center gap-2 text-sm text-stone-600 hover:text-amber-700 transition-colors"
-                >
-                  <span>⭐</span> Saved Favorites
-                </Link>
-                <Link
-                  href="/settings/profile"
-                  className="flex items-center gap-2 text-sm text-stone-600 hover:text-amber-700 transition-colors"
-                >
-                  <span>⚙️</span> Update Profile
-                </Link>
+          <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-5">
+            <h3 className="text-lg font-semibold text-stone-800 mb-4">Quick Links</h3>
+            <div className="space-y-3 text-sm">
+              <Link href="/favorites" className="block text-stone-700 hover:text-stone-900">
+                ⭐ Saved Favorites
+              </Link>
+              <Link href="/settings/profile" className="block text-stone-700 hover:text-stone-900">
+                ⚙️ Update Profile
+              </Link>
+            </div>
+          </div>
+
+          {recentGuidance.length > 1 && (
+            <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-5">
+              <h3 className="text-lg font-semibold text-stone-800 mb-4">Recent Guidance</h3>
+              <div className="space-y-3">
+                {recentGuidance.slice(1, 7).map((g) => (
+                  <div key={g.id} className="rounded-lg border border-stone-100 bg-stone-50 p-3">
+                    <p className="text-xs text-stone-500">{g.guidance_date}</p>
+                    <p className="text-sm text-stone-700 capitalize">{g.title || 'Guidance'}</p>
+                    <span className="text-xs text-stone-400">{g.verse_reference || ''}</span>
+                  </div>
+                ))}
               </div>
             </div>
-
-            {/* Recent History */}
-            {recentGuidance.length > 1 && (
-              <div className="bg-white rounded-xl border border-stone-200 p-5">
-                <h3 className="font-semibold text-stone-900 mb-3">Recent Guidance</h3>
-                <div className="space-y-2">
-                  {recentGuidance.slice(1, 7).map((g) => (
-                    <div key={g.id} className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-stone-500">{g.guidance_date}</p>
-                        <p className="text-sm text-stone-700 capitalize">{g.title || 'Guidance'}</p> <span className="text-xs text-stone-400">{g.verse_reference || ''}</span>
-                      </div>
-                      <span className="text-xs text-stone-400">{g.verse_reference}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+          )}
+        </aside>
       </main>
     </div>
   );
