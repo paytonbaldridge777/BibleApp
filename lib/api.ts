@@ -21,9 +21,10 @@ async function apiFetch(path: string, init: RequestInit = {}): Promise<Response>
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  const token = session?.access_token;
 
+  const token = session?.access_token;
   const headers = new Headers(init.headers as HeadersInit);
+
   headers.set('Content-Type', 'application/json');
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
@@ -83,6 +84,47 @@ export async function postFeedback(payload: {
 
   if (!res.ok) {
     throw new Error(json.error ?? 'Failed to save feedback');
+  }
+
+  return json;
+}
+
+export async function saveFavorite(guidanceId: string) {
+  const res = await apiFetch('/favorites', {
+    method: 'POST',
+    body: JSON.stringify({ guidance_id: guidanceId }),
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw new Error(json.error ?? 'Failed to save favorite');
+  }
+
+  return json;
+}
+
+export async function getFavorites() {
+  const res = await apiFetch('/favorites');
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw new Error(json.error ?? 'Failed to load favorites');
+  }
+
+  return json;
+}
+
+export async function removeFavorite(guidanceId: string) {
+  const res = await apiFetch('/favorites', {
+    method: 'DELETE',
+    body: JSON.stringify({ guidance_id: guidanceId }),
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw new Error(json.error ?? 'Failed to remove favorite');
   }
 
   return json;
