@@ -44,38 +44,44 @@ export interface ScriptureTheme {
 }
 
 export interface DailyGuidance {
-id: string;
-user_id: string;
-guidance_date: string;
-title: string;
-devotional_text: string;
-prayer_text: string;
-reflection_question: string;
-theme_id?: string;
-passage_id?: string;
-created_at: string;
-updated_at?: string;
-date?: string;
-theme?: string;
-verse_reference?: string;
-verse_text?: string;
-devotional?: string;
-prayer?: string;
-reflection?: string;
+  id: string;
+  user_id: string;
+  guidance_date: string;
+  title: string;
+  devotional_text: string;
+  prayer_text: string;
+  reflection_question: string;
+  theme_id?: string;
+  passage_id?: string;
+  created_at: string;
+  updated_at?: string;
+  theme?: string;
+  verse_reference?: string;
+  verse_text?: string;
 }
 
 export interface GuidanceFeedback {
   id: string;
   user_id: string;
   guidance_id: string;
-  feedback_type: 'helpful' | 'not_relevant' | 'favorite';
+  helpful: boolean;
+  note?: string | null;
   created_at: string;
 }
 
 export interface Favorite {
   id: string;
-  user_id: string;
-  guidance_id: string;
   created_at: string;
-  daily_guidance?: DailyGuidance;
+  guidance: DailyGuidance;
+  passage?: {
+    id: string;
+    reference: string;
+    text: string;
+    translation?: string | null;
+  } | null;
+  matched_theme?: {
+    id: string;
+    slug: string;
+    name: string;
+  } | null;
 }
