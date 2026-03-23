@@ -105,20 +105,23 @@ export default function DashboardClient({
   }
   };
 
-  const sendFeedback = async (helpful: boolean) => {
-  if (!guidance) return;  
-    try {
-      await postFeedback({
-        guidance_id: guidance.id,
-        helpful,
-      });  
-      setFeedbackState({
-        [helpful ? 'helpful' : 'not_helpful']: 'sent',
-      });
-    } catch {
-      // silently fail feedback
-    }
-  };
+const sendFeedback = async (helpful: boolean) => {
+  if (!guidance) return;
+
+  try {
+    await postFeedback({
+      guidance_id: guidance.id,
+      helpful,
+    });
+
+    setFeedbackState((prev) => ({
+      ...prev,
+      [helpful ? 'helpful' : 'not_helpful']: 'sent',
+    }));
+  } catch {
+    // silently fail feedback
+  }
+};
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -260,7 +263,7 @@ export default function DashboardClient({
                       }`}
                     >
                       <span>👎</span> {feedbackState['not_helpful'] === 'sent' ? 'Marked Not Helpful' : 'Not Helpful'}
-                    </button>                    
+                    </button>              
                     <button
                       onClick={() => generateGuidance('regenerate')}
                       disabled={isGenerating}
