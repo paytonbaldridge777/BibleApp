@@ -119,6 +119,8 @@ export default async function FavoritesPage() {
                 <div
                   key={item.id}
                   className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden"
+                  data-guidance-source={g.generation_source ?? 'unknown'}
+                  data-guidance-id={g.id}
                 >
                   <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-100 px-6 py-4 flex items-center justify-between">
                     <div>
