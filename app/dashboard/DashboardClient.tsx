@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/db/supabase';
 import {
-  getGuidance,
   postGuidance,
   postFeedback,
   saveFavorite,
@@ -35,10 +34,11 @@ function formatDate(dateStr: string): string {
   });
 }
 
-function calculateStreak(guidanceList: DailyGuidance[]): number {
-  if (!guidanceList.length) return 0;
+function calculateStreak(guidanceList: DailyGuidance[], todayGuidance: DailyGuidance | null): number {
+  const combined = todayGuidance ? [todayGuidance, ...guidanceList] : [...guidanceList];
+  if (!combined.length) return 0;
 
-  const sorted = [...guidanceList].sort((a, b) =>
+  const sorted = [...combined].sort((a, b) =>
     b.guidance_date > a.guidance_date ? 1 : -1
   );
 
@@ -73,29 +73,8 @@ export default function DashboardClient({
   const [error, setError] = useState('');
   const [favoriteSaved, setFavoriteSaved] = useState(false);
 
-  const streak = calculateStreak(recentGuidance);
+  const streak = calculateStreak(recentGuidance, guidance);
   const today = new Date().toISOString().split('T')[0];
-
-  useEffect(() => {
-    const loadGuidance = async () => {
-      try {
-        const json = await getGuidance();
-
-        if (!json.guidance) return;
-
-        setGuidance({
-          ...json.guidance,
-          verse_reference: json.passage?.reference,
-          verse_text: json.passage?.text,
-          theme: json.matched_theme?.name,
-        });
-      } catch (err) {
-        console.error('Failed to load guidance', err);
-      }
-    };
-
-    loadGuidance();
-  }, []);
 
   const handleLogout = async () => {
     const supabase = createBrowserSupabaseClient();
@@ -117,6 +96,7 @@ export default function DashboardClient({
       });
       setFavoriteSaved(false);
       setFeedbackState({});
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -162,6 +142,9 @@ export default function DashboardClient({
             <div className="mt-2 flex items-center gap-4 text-sm">
               <Link href="/favorites" className="text-stone-600 hover:text-stone-900">
                 Favorites
+              </Link>
+              <Link href="/history" className="text-stone-600 hover:text-stone-900">
+                History
               </Link>
               <Link href="/settings/profile" className="text-stone-600 hover:text-stone-900">
                 Settings
@@ -209,7 +192,8 @@ export default function DashboardClient({
           )}
 
           {guidance ? (
-            <div className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden"
+            <div
+              className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden"
               data-guidance-source={guidance.generation_source ?? 'unknown'}
               data-guidance-id={guidance.id}
             >
@@ -304,7 +288,7 @@ export default function DashboardClient({
                     disabled={isGenerating}
                     className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-stone-300 text-stone-600 hover:border-stone-400 transition-colors disabled:opacity-50"
                   >
-                    ✨ {isGenerating ? 'Regenerating...' : 'Regenerate'}
+                    ✨ {isGenerating ? 'Regenerating...' : 'Regenerate Today'}
                   </button>
                 </div>
               </div>
@@ -315,15 +299,24 @@ export default function DashboardClient({
                 Ready for today&apos;s guidance?
               </h3>
               <p className="text-stone-600 mb-6">
-                Shepherd will select a verse and create a personalized devotional, prayer, and reflection just for you.
+                You have not generated guidance for today yet. Create today&apos;s verse, devotional, prayer, and reflection here.
               </p>
               <button
                 onClick={() => generateGuidance('generate')}
                 disabled={isGenerating}
                 className="bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white px-8 py-3 rounded-xl font-semibold transition-colors"
               >
-                {isGenerating ? 'Generating your guidance...' : "Generate Today's Guidance"}
+                {isGenerating ? 'Generating today\'s guidance...' : "Generate Today's Guidance"}
               </button>
+              {recentGuidance.length > 0 && (
+                <p className="text-sm text-stone-500 mt-4">
+                  Looking for an older entry? Visit{' '}
+                  <Link href="/history" className="text-amber-700 hover:text-amber-800 font-medium">
+                    Guidance History
+                  </Link>
+                  .
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -378,17 +371,25 @@ export default function DashboardClient({
               <Link href="/favorites" className="block text-stone-700 hover:text-stone-900">
                 ⭐ Saved Favorites
               </Link>
+              <Link href="/history" className="block text-stone-700 hover:text-stone-900">
+                🗂️ Guidance History
+              </Link>
               <Link href="/settings/profile" className="block text-stone-700 hover:text-stone-900">
                 ⚙️ Update Profile
               </Link>
             </div>
           </div>
 
-          {recentGuidance.length > 1 && (
+          {recentGuidance.length > 0 && (
             <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-5">
-              <h3 className="text-lg font-semibold text-stone-800 mb-4">Recent Guidance</h3>
+              <div className="flex items-center justify-between mb-4 gap-3">
+                <h3 className="text-lg font-semibold text-stone-800">Previous Guidance</h3>
+                <Link href="/history" className="text-sm text-amber-700 hover:text-amber-800">
+                  View all
+                </Link>
+              </div>
               <div className="space-y-3">
-                {recentGuidance.slice(1, 7).map((g) => (
+                {recentGuidance.slice(0, 6).map((g) => (
                   <div key={g.id} className="rounded-lg border border-stone-100 bg-stone-50 p-3">
                     <p className="text-xs text-stone-500">{g.guidance_date}</p>
                     <p className="text-sm text-stone-700 capitalize">{g.title || 'Guidance'}</p>
