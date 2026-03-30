@@ -53,8 +53,12 @@ export async function postGuidance(action: 'generate' | 'regenerate') {
   const json = await res.json();
 
   if (!res.ok) {
-    throw new Error(json.error ?? 'Failed to generate guidance');
-  }
+  const message = json.details
+    ? `${json.error ?? 'Failed to generate guidance'}: ${json.details}`
+    : (json.error ?? 'Failed to generate guidance');
+
+  throw new Error(message);
+}
 
   return json;
 }
