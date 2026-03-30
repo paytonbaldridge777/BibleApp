@@ -15,7 +15,6 @@ export default async function DashboardPage() {
     redirect('/auth/login');
   }
 
-  // Fetch spiritual profile
   const { data: profile } = await supabase
     .from('spiritual_profiles')
     .select('*')
@@ -26,21 +25,21 @@ export default async function DashboardPage() {
     redirect('/onboarding');
   }
 
-  // Fetch today's guidance
   const today = new Date().toISOString().split('T')[0];
+
   const { data: todayGuidance } = await supabase
     .from('daily_guidance')
     .select('*')
     .eq('user_id', user.id)
-    .eq('date', today)
+    .eq('guidance_date', today)
     .maybeSingle();
 
-  // Fetch recent guidance (last 7 days)
   const { data: recentGuidance } = await supabase
     .from('daily_guidance')
     .select('*')
     .eq('user_id', user.id)
-    .order('date', { ascending: false })
+    .neq('guidance_date', today)
+    .order('guidance_date', { ascending: false })
     .limit(7);
 
   return (
