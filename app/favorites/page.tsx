@@ -91,7 +91,7 @@ export default async function FavoritesPage() {
           <p className="text-stone-500 mt-1">
             {items.length > 0
               ? `${items.length} saved guidance${items.length !== 1 ? 's' : ''}`
-              : 'No favorites saved yet'}
+              : 'No favorites have been saved yet'}
           </p>
         </div>
 
