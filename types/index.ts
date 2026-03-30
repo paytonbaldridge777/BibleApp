@@ -58,6 +58,7 @@ export interface DailyGuidance {
   theme?: string;
   verse_reference?: string;
   verse_text?: string;
+  generation_source?: 'ai' | 'template' | 'unknown';
 }
 
 export interface GuidanceFeedback {
