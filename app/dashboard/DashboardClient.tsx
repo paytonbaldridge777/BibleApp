@@ -209,7 +209,10 @@ export default function DashboardClient({
           )}
 
           {guidance ? (
-            <div className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden">
+            <div className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden"
+              data-guidance-source={guidance.generation_source ?? 'unknown'}
+              data-guidance-id={guidance.id}
+            >
               <div className="bg-amber-600 px-6 py-5 text-white">
                 <div className="flex items-start justify-between gap-4">
                   <div>
