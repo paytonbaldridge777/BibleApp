@@ -26,15 +26,11 @@ export function selectThemeForUser(
   profile: SpiritualProfile,
   feedbackHistory: GuidanceFeedback[]
 ): ScriptureTheme {
-  const notRelevantIds = new Set(
-    feedbackHistory
-      .filter((f) => f.feedback_type === 'not_relevant')
-      .map((f) => f.guidance_id)
-  );
+  const notRelevantIds = new Set<string>();
 
   const helpfulThemeIds = new Set(
     feedbackHistory
-      .filter((f) => f.feedback_type === 'helpful' || f.feedback_type === 'favorite')
+      .filter((f) => f.helpful === true)
       .map((f) => f.guidance_id)
   );
 
