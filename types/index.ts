@@ -67,8 +67,23 @@ export interface GuidanceFeedback {
 
 export interface Favorite {
   id: string;
-  user_id: string;
-  guidance_id: string;
   created_at: string;
-  daily_guidance?: DailyGuidance;
+  guidance_id?: string;
+  guidance?: DailyGuidance;
+  passage?: {
+    id: string;
+    reference: string;
+    text: string;
+    translation?: string | null;
+    book_name?: string;
+    chapter?: number;
+    verse_start?: number;
+    verse_end?: number | null;
+    testament?: string | null;
+  } | null;
+  matched_theme?: {
+    id: string;
+    slug: string;
+    name: string;
+  } | null;
 }
