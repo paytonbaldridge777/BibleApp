@@ -69,7 +69,7 @@ export interface Favorite {
   id: string;
   created_at: string;
   guidance_id?: string;
-  gguidance?: DailyGuidance | null;
+  guidance?: DailyGuidance | null;
   passage?: {
     id: string;
     reference: string;
