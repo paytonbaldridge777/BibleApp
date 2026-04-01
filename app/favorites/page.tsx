@@ -39,7 +39,7 @@ export default async function FavoritesPage() {
 
         <main className="max-w-4xl mx-auto px-4 py-8">
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
-            Favorites could not be loaded because the API configuration is missing.
+            Favorites could not be loaded due to the API configuration is missing.
           </div>
         </main>
       </div>
