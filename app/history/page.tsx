@@ -5,6 +5,25 @@ import type { DailyGuidance } from '@/types';
 
 export const runtime = 'edge';
 
+type HistoryItem = DailyGuidance & {
+  passage?: {
+    id: string;
+    reference: string;
+    text: string;
+    translation?: string | null;
+    book_name?: string;
+    chapter?: number;
+    verse_start?: number;
+    verse_end?: number | null;
+    testament?: string | null;
+  } | null;
+  matched_theme?: {
+    id: string;
+    slug: string;
+    name: string;
+  } | null;
+};
+
 export default async function HistoryPage() {
   const supabase = await createServerSupabaseClient();
 
@@ -21,7 +40,48 @@ export default async function HistoryPage() {
     .order('guidance_date', { ascending: false })
     .limit(60);
 
-  const items = (history ?? []) as DailyGuidance[];
+  const rawItems = (history ?? []) as DailyGuidance[];
+
+  const items: HistoryItem[] = await Promise.all(
+    rawItems.map(async (g) => {
+      let passage: HistoryItem['passage'] = null;
+      let matched_theme: HistoryItem['matched_theme'] = null;
+
+      if (g.passage_id) {
+        const { data: passageData } = await supabase
+          .from('scripture_passages')
+          .select('id, reference')
+          .eq('id', g.passage_id)
+          .maybeSingle();
+
+        if (passageData) {
+          passage = {
+            id: passageData.id,
+            reference: passageData.reference,
+            text: '',
+          };
+        }
+      }
+
+      if (g.theme_id) {
+        const { data: themeData } = await supabase
+          .from('scripture_themes')
+          .select('id, slug, name')
+          .eq('id', g.theme_id)
+          .maybeSingle();
+
+        if (themeData) {
+          matched_theme = themeData;
+        }
+      }
+
+      return {
+        ...g,
+        passage,
+        matched_theme,
+      };
+    })
+  );
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -88,7 +148,7 @@ export default async function HistoryPage() {
                       {g.title || 'Guidance'}
                     </span>
                     <p className="text-amber-700 font-semibold text-sm">
-                      {g.verse_reference || ''}
+                      {g.passage?.reference || ''}
                     </p>
                   </div>
                 </div>
@@ -96,9 +156,20 @@ export default async function HistoryPage() {
                 <div className="p-6 space-y-4">
                   <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
                     <p className="text-stone-800 italic text-sm leading-relaxed">
-                      &ldquo;{g.verse_text || 'Verse unavailable'}&rdquo;
+                      &ldquo;{g.passage?.text || 'Verse unavailable'}&rdquo;
                     </p>
                   </div>
+
+                  {g.context_text && (
+                    <div>
+                      <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1">
+                        Biblical Context
+                      </p>
+                      <p className="text-stone-700 text-sm leading-relaxed">
+                        {g.context_text}
+                      </p>
+                    </div>
+                  )}
 
                   <div>
                     <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1">
