@@ -6,8 +6,8 @@ const API_BASE = RAW_API_BASE.replace(/\/+$/, '');
 
 if (!API_BASE && typeof window !== 'undefined') {
   console.warn(
-    '[api] NEXT_PUBLIC_API_BASE_URL is not set. API requests will fail. ' +
-      'Set this variable to your Cloudflare Worker URL.'
+    '[api] NEXT_PUBLIC_API_BASE_URL is not set. API requests will fail.' +
+      ' Set this variable to your Cloudflare Worker URL.'
   );
 }
 
@@ -29,8 +29,52 @@ async function apiFetch(path: string, init: RequestInit = {}): Promise<Response>
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
   const url = `${API_BASE}${normalizePath(path)}`;
-  return fetch(url, { ...init, headers });
+
+  return fetch(url, {
+    ...init,
+    headers,
+  });
 }
+
+export type GuidanceTheme = {
+  id: string;
+  slug: string;
+  name: string;
+};
+
+export type GuidancePassage = {
+  id: string;
+  reference: string;
+  text: string;
+  translation?: string | null;
+  book_name?: string;
+  chapter?: number;
+  verse_start?: number;
+  verse_end?: number | null;
+  testament?: string | null;
+};
+
+export type DailyGuidance = {
+  id: string;
+  user_id: string;
+  theme_id: string | null;
+  passage_id: string | null;
+  guidance_date: string;
+  title: string | null;
+  context_text: string | null;
+  devotional_text: string | null;
+  prayer_text: string | null;
+  reflection_question: string | null;
+  generation_source?: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type GuidanceResponse = {
+  guidance: DailyGuidance | null;
+  passage: GuidancePassage | null;
+  matched_theme: GuidanceTheme | null;
+};
 
 export async function postOnboarding(data: OnboardingAnswers): Promise<void> {
   const res = await apiFetch('/onboarding', {
@@ -44,7 +88,9 @@ export async function postOnboarding(data: OnboardingAnswers): Promise<void> {
   }
 }
 
-export async function postGuidance(action: 'generate' | 'regenerate') {
+export async function postGuidance(
+  action: 'generate' | 'regenerate'
+): Promise<GuidanceResponse> {
   const res = await apiFetch('/guidance', {
     method: 'POST',
     body: JSON.stringify({ action }),
@@ -53,17 +99,13 @@ export async function postGuidance(action: 'generate' | 'regenerate') {
   const json = await res.json();
 
   if (!res.ok) {
-  const message = json.details
-    ? `${json.error ?? 'Failed to generate guidance'}: ${json.details}`
-    : (json.error ?? 'Failed to generate guidance');
-
-  throw new Error(message);
-}
+    throw new Error(json.error ?? 'Failed to generate guidance');
+  }
 
   return json;
 }
 
-export async function getGuidance() {
+export async function getGuidance(): Promise<GuidanceResponse> {
   const res = await apiFetch('/guidance');
   const json = await res.json();
 
@@ -88,47 +130,6 @@ export async function postFeedback(payload: {
 
   if (!res.ok) {
     throw new Error(json.error ?? 'Failed to save feedback');
-  }
-
-  return json;
-}
-
-export async function saveFavorite(guidanceId: string) {
-  const res = await apiFetch('/favorites', {
-    method: 'POST',
-    body: JSON.stringify({ guidance_id: guidanceId }),
-  });
-
-  const json = await res.json();
-
-  if (!res.ok) {
-    throw new Error(json.error ?? 'Failed to save favorite');
-  }
-
-  return json;
-}
-
-export async function getFavorites() {
-  const res = await apiFetch('/favorites');
-  const json = await res.json();
-
-  if (!res.ok) {
-    throw new Error(json.error ?? 'Failed to load favorites');
-  }
-
-  return json;
-}
-
-export async function removeFavorite(guidanceId: string) {
-  const res = await apiFetch('/favorites', {
-    method: 'DELETE',
-    body: JSON.stringify({ guidance_id: guidanceId }),
-  });
-
-  const json = await res.json();
-
-  if (!res.ok) {
-    throw new Error(json.error ?? 'Failed to remove favorite');
   }
 
   return json;
