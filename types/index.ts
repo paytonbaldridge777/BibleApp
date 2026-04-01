@@ -36,53 +36,39 @@ export interface SpiritualProfile {
 
 export interface ScriptureTheme {
   id: string;
-  theme: string;
-  tags: string[];
-  verse_reference: string;
-  verse_text: string;
-  short_explanation: string;
+  slug: string;
+  name: string;
+  description?: string | null;
 }
 
 export interface DailyGuidance {
   id: string;
   user_id: string;
+  theme_id: string | null;
+  passage_id: string | null;
   guidance_date: string;
-  title: string;
-  devotional_text: string;
-  prayer_text: string;
-  reflection_question: string;
-  theme_id?: string;
-  passage_id?: string;
-  created_at: string;
+  title: string | null;
+  context_text: string | null;
+  devotional_text: string | null;
+  prayer_text: string | null;
+  reflection_question: string | null;
+  generation_source?: string | null;
+  created_at?: string;
   updated_at?: string;
-  theme?: string;
-  verse_reference?: string;
-  verse_text?: string;
-  generation_source?: 'ai' | 'template' | 'unknown';
 }
 
 export interface GuidanceFeedback {
   id: string;
   user_id: string;
   guidance_id: string;
-  helpful: boolean;
-  note?: string | null;
+  feedback_type: 'helpful' | 'not_relevant' | 'favorite';
   created_at: string;
 }
 
 export interface Favorite {
   id: string;
+  user_id: string;
+  guidance_id: string;
   created_at: string;
-  guidance: DailyGuidance;
-  passage?: {
-    id: string;
-    reference: string;
-    text: string;
-    translation?: string | null;
-  } | null;
-  matched_theme?: {
-    id: string;
-    slug: string;
-    name: string;
-  } | null;
+  daily_guidance?: DailyGuidance;
 }
