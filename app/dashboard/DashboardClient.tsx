@@ -1,21 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/db/supabase';
-import {
-  postGuidance,
-  postFeedback,
-  saveFavorite,
-} from '@/lib/api';
-import type { DailyGuidance, SpiritualProfile } from '@/types';
+import { getGuidance, postGuidance, postFeedback } from '@/lib/api';
+import type { DailyGuidance, GuidancePassage, GuidanceTheme } from '@/lib/api';
+import type { SpiritualProfile } from '@/types';
 
 interface Props {
   user: { id: string; email: string };
   profile: SpiritualProfile;
-  todayGuidance: DailyGuidance | null;
-  recentGuidance: DailyGuidance[];
+  todayGuidance: (DailyGuidance & {
+    passage?: GuidancePassage | null;
+    matched_theme?: GuidanceTheme | null;
+  }) | null;
+  recentGuidance: Array<
+    DailyGuidance & {
+      passage?: GuidancePassage | null;
+      matched_theme?: GuidanceTheme | null;
+    }
+  >;
 }
 
 function getGreeting(): string {
@@ -26,7 +31,7 @@ function getGreeting(): string {
 }
 
 function formatDate(dateStr: string): string {
-  const date = new Date(`${dateStr}T00:00:00`);
+  const date = new Date(dateStr + 'T00:00:00');
   return date.toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
@@ -34,11 +39,10 @@ function formatDate(dateStr: string): string {
   });
 }
 
-function calculateStreak(guidanceList: DailyGuidance[], todayGuidance: DailyGuidance | null): number {
-  const combined = todayGuidance ? [todayGuidance, ...guidanceList] : [...guidanceList];
-  if (!combined.length) return 0;
+function calculateStreak(guidanceList: DailyGuidance[]): number {
+  if (!guidanceList.length) return 0;
 
-  const sorted = [...combined].sort((a, b) =>
+  const sorted = [...guidanceList].sort((a, b) =>
     b.guidance_date > a.guidance_date ? 1 : -1
   );
 
@@ -60,6 +64,25 @@ function calculateStreak(guidanceList: DailyGuidance[], todayGuidance: DailyGuid
   return streak;
 }
 
+type GuidanceViewModel = DailyGuidance & {
+  passage?: GuidancePassage | null;
+  matched_theme?: GuidanceTheme | null;
+};
+
+function toGuidanceViewModel(json: {
+  guidance: DailyGuidance | null;
+  passage: GuidancePassage | null;
+  matched_theme: GuidanceTheme | null;
+}): GuidanceViewModel | null {
+  if (!json.guidance) return null;
+
+  return {
+    ...json.guidance,
+    passage: json.passage,
+    matched_theme: json.matched_theme,
+  };
+}
+
 export default function DashboardClient({
   user,
   profile,
@@ -67,19 +90,33 @@ export default function DashboardClient({
   recentGuidance,
 }: Props) {
   const router = useRouter();
-  const [guidance, setGuidance] = useState<DailyGuidance | null>(todayGuidance);
+  const [guidance, setGuidance] = useState<GuidanceViewModel | null>(todayGuidance);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [feedbackState, setFeedbackState] = useState<Record<string, 'sent'>>({});
+  const [feedbackState, setFeedbackState] = useState<Record<string, string>>({});
   const [error, setError] = useState('');
-  const [favoriteSaved, setFavoriteSaved] = useState(false);
 
-  const streak = calculateStreak(recentGuidance, guidance);
-  const today = new Date().toISOString().split('T')[0];
+  useEffect(() => {
+    const loadGuidance = async () => {
+      try {
+        const json = await getGuidance();
+        const mapped = toGuidanceViewModel(json);
+        if (!mapped) return;
+        setGuidance(mapped);
+      } catch (err) {
+        console.error('Failed to load guidance', err);
+      }
+    };
+
+    loadGuidance();
+  }, []);
+
+  const streak = calculateStreak(recentGuidance);
 
   const handleLogout = async () => {
     const supabase = createBrowserSupabaseClient();
     await supabase.auth.signOut();
     router.push('/');
+    router.refresh();
   };
 
   const generateGuidance = async (action: 'generate' | 'regenerate') => {
@@ -88,14 +125,7 @@ export default function DashboardClient({
 
     try {
       const json = await postGuidance(action);
-      setGuidance({
-        ...json.guidance,
-        verse_reference: json.passage?.reference,
-        verse_text: json.passage?.text,
-        theme: json.matched_theme?.name,
-      });
-      setFavoriteSaved(false);
-      setFeedbackState({});
+      setGuidance(toGuidanceViewModel(json));
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -122,41 +152,31 @@ export default function DashboardClient({
     }
   };
 
-  const handleSaveFavorite = async () => {
-    if (!guidance) return;
-
-    try {
-      await saveFavorite(guidance.id);
-      setFavoriteSaved(true);
-    } catch {
-      // silently fail favorite save
-    }
-  };
+  const today = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <main className="min-h-screen bg-stone-50 text-stone-900">
       <header className="border-b border-stone-200 bg-white">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold text-stone-800">Shepherd Dashboard</h1>
-            <div className="mt-2 flex items-center gap-4 text-sm">
-              <Link href="/favorites" className="text-stone-600 hover:text-stone-900">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-6">
+            <Link href="/dashboard" className="text-xl font-semibold text-amber-700">
+              Shepherd
+            </Link>
+            <nav className="flex items-center gap-4 text-sm text-stone-600">
+              <Link href="/favorites" className="hover:text-stone-900">
                 Favorites
               </Link>
-              <Link href="/history" className="text-stone-600 hover:text-stone-900">
-                History
-              </Link>
-              <Link href="/settings/profile" className="text-stone-600 hover:text-stone-900">
+              <Link href="/settings" className="hover:text-stone-900">
                 Settings
               </Link>
-            </div>
+            </nav>
           </div>
 
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-stone-600">{user.email}</span>
+          <div className="flex items-center gap-4 text-sm">
+            <span className="text-stone-600">{user.email}</span>
             <button
               onClick={handleLogout}
-              className="text-sm text-stone-600 hover:text-stone-900"
+              className="rounded-lg border border-stone-300 px-3 py-1.5 text-stone-700 hover:bg-stone-100"
             >
               Logout
             </button>
@@ -164,186 +184,191 @@ export default function DashboardClient({
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Shepherd provides spiritual encouragement only. For mental health support, please consult a professional. In crisis? Call or text 988.
+      <div className="border-b border-amber-200 bg-amber-50">
+        <div className="mx-auto max-w-6xl px-6 py-3 text-sm text-amber-900">
+          Shepherd provides spiritual encouragement only. For mental health support,
+          please consult a professional. In crisis? Call or text 988.
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-6 pb-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <div className="mb-6">
-            <h2 className="text-3xl font-bold text-stone-800">
-              {getGreeting()}
-              {user.email ? ` — ${user.email.split('@')[0]}` : ''}
-            </h2>
-            <p className="text-stone-600 mt-1">{formatDate(today)}</p>
+      <div className="mx-auto grid max-w-6xl gap-8 px-6 py-8 lg:grid-cols-[1fr_320px]">
+        <section className="space-y-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                {getGreeting()}
+                {user.email ? ` — ${user.email.split('@')[0]}` : ''}
+              </h1>
+              <p className="mt-1 text-stone-600">{formatDate(today)}</p>
+            </div>
+
             {streak > 0 && (
-              <div className="mt-3 inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-sm text-amber-800">
+              <div className="rounded-full bg-amber-100 px-4 py-2 text-sm font-medium text-amber-800">
                 {streak} day{streak !== 1 ? 's' : ''} streak
               </div>
             )}
           </div>
 
           {error && (
-            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
               {error}
             </div>
           )}
 
           {guidance ? (
-            <div
-              className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden"
-              data-guidance-source={guidance.generation_source ?? 'unknown'}
-              data-guidance-id={guidance.id}
-            >
-              <div className="bg-amber-600 px-6 py-5 text-white">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-amber-100 text-sm">Today&apos;s Guidance</p>
-                    <h3 className="text-2xl font-semibold mt-1">{formatDate(guidance.guidance_date)}</h3>
-                  </div>
-                  <span className="bg-white/20 text-white px-3 py-1 rounded-full text-xs font-medium capitalize">
-                    {guidance.title || 'Today’s Guidance'}
-                  </span>
-                </div>
+            <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+              <div className="mb-6">
+                <p className="text-sm font-medium uppercase tracking-wide text-amber-700">
+                  Today&apos;s Guidance
+                </p>
+                <p className="mt-1 text-sm text-stone-500">{formatDate(today)}</p>
+                <h2 className="mt-3 text-2xl font-semibold text-stone-900">
+                  {guidance.title || 'Today’s Guidance'}
+                </h2>
+                {guidance.matched_theme?.name && (
+                  <p className="mt-2 text-sm text-stone-600">
+                    Theme: {guidance.matched_theme.name}
+                  </p>
+                )}
               </div>
 
-              <div className="p-6 space-y-6">
-                <div className="bg-amber-50 rounded-xl p-5 border border-amber-100">
-                  <p className="text-amber-700 text-xs font-semibold uppercase tracking-wide mb-2">
+              <div className="space-y-6">
+                <section>
+                  <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-stone-500">
                     Today&apos;s Verse
-                  </p>
-                  {guidance.verse_text ? (
+                  </h3>
+                  {guidance.passage?.text ? (
                     <>
-                      <p className="text-stone-700 italic leading-relaxed mb-3">
-                        “{guidance.verse_text}”
+                      <p className="text-lg leading-8 text-stone-800">
+                        “{guidance.passage.text}”
                       </p>
-                      <p className="text-stone-500 text-sm font-medium">
-                        {guidance.verse_reference}
+                      <p className="mt-3 text-sm font-medium text-stone-600">
+                        {guidance.passage.reference}
                       </p>
                     </>
                   ) : (
-                    <p className="text-stone-500 text-sm">Verse details not yet loaded.</p>
+                    <p className="text-stone-500">Verse details not yet loaded...</p>
                   )}
-                </div>
+                </section>
 
-                <div>
-                  <h4 className="text-lg font-semibold text-stone-800 mb-2">Devotional</h4>
-                  <p className="text-stone-700 leading-relaxed text-sm">
+                {guidance.context_text && (
+                  <section>
+                    <h3 className="mb-2 text-base font-semibold text-stone-900">
+                      Biblical Context
+                    </h3>
+                    <p className="whitespace-pre-line leading-7 text-stone-700">
+                      {guidance.context_text}
+                    </p>
+                  </section>
+                )}
+
+                <section>
+                  <h3 className="mb-2 text-base font-semibold text-stone-900">
+                    Devotional
+                  </h3>
+                  <p className="whitespace-pre-line leading-7 text-stone-700">
                     {guidance.devotional_text}
                   </p>
-                </div>
+                </section>
 
-                <div>
-                  <h4 className="text-lg font-semibold text-stone-800 mb-2">Prayer</h4>
-                  <p className="text-stone-700 leading-relaxed text-sm italic">
+                <section>
+                  <h3 className="mb-2 text-base font-semibold text-stone-900">
+                    Prayer
+                  </h3>
+                  <p className="whitespace-pre-line leading-7 text-stone-700">
                     {guidance.prayer_text}
                   </p>
-                </div>
+                </section>
 
-                <div>
-                  <h4 className="text-lg font-semibold text-stone-800 mb-2">Reflection</h4>
-                  <p className="text-stone-700 text-sm">
+                <section>
+                  <h3 className="mb-2 text-base font-semibold text-stone-900">
+                    Reflection
+                  </h3>
+                  <p className="leading-7 text-stone-700">
                     {guidance.reflection_question}
                   </p>
-                </div>
+                </section>
 
                 <div className="flex flex-wrap items-center gap-3 pt-2">
                   <button
                     onClick={() => sendFeedback(true)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                    className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
                       feedbackState['helpful'] === 'sent'
-                        ? 'bg-green-100 border-green-300 text-green-700'
+                        ? 'border-green-300 bg-green-100 text-green-700'
                         : 'border-stone-300 text-stone-600 hover:border-green-300 hover:text-green-700'
                     }`}
                   >
-                    👍 {feedbackState['helpful'] === 'sent' ? 'Marked Helpful' : 'Helpful'}
+                    {feedbackState['helpful'] === 'sent' ? 'Marked Helpful' : 'Helpful'}
                   </button>
 
                   <button
                     onClick={() => sendFeedback(false)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                    className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
                       feedbackState['not_helpful'] === 'sent'
-                        ? 'bg-red-100 border-red-300 text-red-700'
+                        ? 'border-red-300 bg-red-100 text-red-700'
                         : 'border-stone-300 text-stone-600 hover:border-red-300 hover:text-red-700'
                     }`}
                   >
-                    👎 {feedbackState['not_helpful'] === 'sent' ? 'Marked Not Helpful' : 'Not Helpful'}
-                  </button>
-
-                  <button
-                    onClick={handleSaveFavorite}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
-                      favoriteSaved
-                        ? 'bg-amber-100 border-amber-300 text-amber-700'
-                        : 'border-stone-300 text-stone-600 hover:border-amber-300 hover:text-amber-700'
-                    }`}
-                  >
-                    ⭐ {favoriteSaved ? 'Saved to Favorites' : 'Save as Favorite'}
+                    {feedbackState['not_helpful'] === 'sent'
+                      ? 'Marked Not Helpful'
+                      : 'Not Helpful'}
                   </button>
 
                   <button
                     onClick={() => generateGuidance('regenerate')}
                     disabled={isGenerating}
-                    className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-stone-300 text-stone-600 hover:border-stone-400 transition-colors disabled:opacity-50"
+                    className="ml-auto rounded-lg border border-stone-300 px-3 py-1.5 text-sm font-medium text-stone-600 transition-colors hover:border-stone-400 disabled:opacity-50"
                   >
-                    ✨ {isGenerating ? 'Regenerating...' : 'Regenerate Today'}
+                    ✨ {isGenerating ? 'Regenerating...' : 'Regenerate'}
                   </button>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-8 text-center">
-              <h3 className="text-2xl font-semibold text-stone-800 mb-3">
+            <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm">
+              <h2 className="text-2xl font-semibold text-stone-900">
                 Ready for today&apos;s guidance?
-              </h3>
-              <p className="text-stone-600 mb-6">
-                You have not generated guidance for today yet. Create today&apos;s verse, devotional, prayer, and reflection here.
+              </h2>
+              <p className="mx-auto mt-3 max-w-2xl text-stone-600">
+                Shepherd will select a verse and create a personalized devotional,
+                prayer, reflection, and biblical context just for you.
               </p>
               <button
                 onClick={() => generateGuidance('generate')}
                 disabled={isGenerating}
-                className="bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white px-8 py-3 rounded-xl font-semibold transition-colors"
+                className="mt-6 rounded-xl bg-amber-600 px-8 py-3 font-semibold text-white transition-colors hover:bg-amber-700 disabled:bg-amber-400"
               >
-                {isGenerating ? 'Generating today\'s guidance...' : "Generate Today's Guidance"}
+                {isGenerating ? 'Generating your guidance...' : "Generate Today's Guidance"}
               </button>
-              {recentGuidance.length > 0 && (
-                <p className="text-sm text-stone-500 mt-4">
-                  Looking for an older entry? Visit{' '}
-                  <Link href="/history" className="text-amber-700 hover:text-amber-800 font-medium">
-                    Guidance History
-                  </Link>
-                  .
-                </p>
-              )}
             </div>
           )}
-        </div>
+        </section>
 
         <aside className="space-y-6">
-          <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-stone-800">Your Profile</h3>
-              <Link href="/settings/profile" className="text-sm text-amber-700 hover:text-amber-800">
+          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-base font-semibold text-stone-900">Your Profile</h3>
+              <Link href="/settings" className="text-sm text-amber-700 hover:text-amber-800">
                 Edit
               </Link>
             </div>
 
             <div className="space-y-4 text-sm">
               <div>
-                <p className="text-stone-500 mb-1">Experience</p>
-                <p className="text-stone-800">{profile.bible_experience_level}</p>
+                <p className="text-stone-500">Experience</p>
+                <p className="mt-1 font-medium text-stone-800">
+                  {profile.bible_experience_level}
+                </p>
               </div>
 
               {profile.current_needs?.length > 0 && (
                 <div>
-                  <p className="text-stone-500 mb-2">Seeking</p>
-                  <div className="flex flex-wrap gap-2">
+                  <p className="text-stone-500">Seeking</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
                     {profile.current_needs.slice(0, 3).map((need) => (
                       <span
                         key={need}
-                        className="rounded-full bg-stone-100 px-2.5 py-1 text-stone-700 text-xs"
+                        className="rounded-full bg-stone-100 px-3 py-1 text-stone-700"
                       >
                         {need.replace(/-/g, ' ')}
                       </span>
@@ -353,54 +378,56 @@ export default function DashboardClient({
               )}
 
               <div>
-                <p className="text-stone-500 mb-1">Tone</p>
-                <p className="text-stone-800">{profile.tone_preference}</p>
+                <p className="text-stone-500">Tone</p>
+                <p className="mt-1 font-medium capitalize text-stone-800">
+                  {profile.tone_preference}
+                </p>
               </div>
 
               {profile.profile_summary && (
-                <div className="rounded-lg bg-stone-50 p-3 text-stone-600">
+                <p className="rounded-xl bg-stone-50 p-3 leading-6 text-stone-700">
                   {profile.profile_summary}
-                </div>
+                </p>
               )}
             </div>
           </div>
 
-          <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-5">
-            <h3 className="text-lg font-semibold text-stone-800 mb-4">Quick Links</h3>
-            <div className="space-y-3 text-sm">
-              <Link href="/favorites" className="block text-stone-700 hover:text-stone-900">
+          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+            <h3 className="mb-3 text-base font-semibold text-stone-900">Quick Links</h3>
+            <div className="flex flex-col gap-3 text-sm">
+              <Link href="/favorites" className="text-stone-700 hover:text-stone-900">
                 ⭐ Saved Favorites
               </Link>
-              <Link href="/history" className="block text-stone-700 hover:text-stone-900">
-                🗂️ Guidance History
-              </Link>
-              <Link href="/settings/profile" className="block text-stone-700 hover:text-stone-900">
+              <Link href="/settings" className="text-stone-700 hover:text-stone-900">
                 ⚙️ Update Profile
               </Link>
             </div>
           </div>
 
-          {recentGuidance.length > 0 && (
-            <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-5">
-              <div className="flex items-center justify-between mb-4 gap-3">
-                <h3 className="text-lg font-semibold text-stone-800">Previous Guidance</h3>
-                <Link href="/history" className="text-sm text-amber-700 hover:text-amber-800">
-                  View all
-                </Link>
-              </div>
+          {recentGuidance.length > 1 && (
+            <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+              <h3 className="mb-3 text-base font-semibold text-stone-900">
+                Recent Guidance
+              </h3>
               <div className="space-y-3">
-                {recentGuidance.slice(0, 6).map((g) => (
-                  <div key={g.id} className="rounded-lg border border-stone-100 bg-stone-50 p-3">
-                    <p className="text-xs text-stone-500">{g.guidance_date}</p>
-                    <p className="text-sm text-stone-700 capitalize">{g.title || 'Guidance'}</p>
-                    <span className="text-xs text-stone-400">{g.verse_reference || ''}</span>
+                {recentGuidance.slice(1, 7).map((g) => (
+                  <div key={g.id} className="rounded-xl bg-stone-50 p-3">
+                    <p className="text-xs uppercase tracking-wide text-stone-500">
+                      {g.guidance_date}
+                    </p>
+                    <p className="mt-1 font-medium text-stone-800">
+                      {g.title || 'Guidance'}
+                    </p>
+                    {g.passage?.reference && (
+                      <p className="mt-1 text-sm text-stone-600">{g.passage.reference}</p>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
           )}
         </aside>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
