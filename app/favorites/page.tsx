@@ -130,14 +130,14 @@ export default async function FavoritesPage() {
                       </span>
                     </div>
                     <p className="text-amber-700 font-semibold text-sm">
-                      {item.passage?.reference || g.verse_reference || ''}
+                      {item.passage?.reference || ''}
                     </p>
                   </div>
 
                   <div className="p-6 space-y-4">
                     <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
                       <p className="text-stone-800 italic text-sm leading-relaxed">
-                        &ldquo;{item.passage?.text || g.verse_text || 'Verse unavailable'}&rdquo;
+                        &ldquo;{item.passage?.text || 'Verse unavailable'}&rdquo;
                       </p>
                     </div>
 
