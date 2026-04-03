@@ -39,14 +39,14 @@ function ProgressBar({ step }: { step: number }) {
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-2">
-        <span className="text-sm font-medium text-stone-600">
+        <span className="text-sm font-medium text-ink-600">
           Step {step} of {TOTAL_STEPS}
         </span>
-        <span className="text-sm text-stone-400">{Math.round((step / TOTAL_STEPS) * 100)}%</span>
+        <span className="text-sm text-ink-400">{Math.round((step / TOTAL_STEPS) * 100)}%</span>
       </div>
-      <div className="w-full bg-stone-200 rounded-full h-2">
+      <div className="w-full bg-parchment-300 rounded-full h-2">
         <div
-          className="bg-amber-500 h-2 rounded-full transition-all duration-300"
+          className="bg-navy-700 h-2 rounded-full transition-all duration-300"
           style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
         />
       </div>
@@ -130,42 +130,42 @@ export default function OnboardingPage() {
 
   if (showCrisisNotice) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-amber-50 to-stone-50 flex items-center justify-center px-4">
-        <div className="w-full max-w-lg bg-white rounded-2xl border border-amber-200 shadow-sm p-8">
+      <div className="min-h-screen bg-gradient-to-b from-gold-100 to-parchment-100 flex items-center justify-center px-4">
+        <div className="w-full max-w-lg bg-parchment-50 rounded-2xl border border-gold-300 shadow-sm p-8">
           <div className="text-center mb-6">
             <div className="text-4xl mb-3">💛</div>
-            <h2 className="text-xl font-bold text-stone-900 mb-2">We Care About You</h2>
-            <p className="text-stone-600 text-sm leading-relaxed">
+            <h2 className="text-xl font-bold font-serif text-ink-900 mb-2">We Care About You</h2>
+            <p className="text-ink-600 text-sm leading-relaxed">
               We noticed something in what you shared that makes us want to pause and check in. If
               you&apos;re going through a difficult time, you are not alone, and there are people
               who can help right now.
             </p>
           </div>
 
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6 space-y-3">
-            <h3 className="font-semibold text-stone-900 text-sm">Free, confidential support:</h3>
+          <div className="bg-gold-100 border border-gold-300 rounded-xl p-5 mb-6 space-y-3">
+            <h3 className="font-semibold text-ink-900 text-sm">Free, confidential support:</h3>
             <div className="space-y-2">
               <div className="flex items-start gap-3">
-                <span className="text-amber-600">📞</span>
+                <span className="text-navy-700">📞</span>
                 <div>
-                  <p className="font-semibold text-stone-900 text-sm">988 Suicide &amp; Crisis Lifeline</p>
-                  <p className="text-stone-600 text-xs">Call or text <strong>988</strong> (US) — available 24/7</p>
+                  <p className="font-semibold text-ink-900 text-sm">988 Suicide &amp; Crisis Lifeline</p>
+                  <p className="text-ink-600 text-xs">Call or text <strong>988</strong> (US) — available 24/7</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-amber-600">💬</span>
+                <span className="text-navy-700">💬</span>
                 <div>
-                  <p className="font-semibold text-stone-900 text-sm">Crisis Text Line</p>
-                  <p className="text-stone-600 text-xs">
+                  <p className="font-semibold text-ink-900 text-sm">Crisis Text Line</p>
+                  <p className="text-ink-600 text-xs">
                     Text <strong>HOME</strong> to <strong>741741</strong> — available 24/7
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-amber-600">🚨</span>
+                <span className="text-navy-700">🚨</span>
                 <div>
-                  <p className="font-semibold text-stone-900 text-sm">Emergency Services</p>
-                  <p className="text-stone-600 text-xs">Call <strong>911</strong> for immediate danger</p>
+                  <p className="font-semibold text-ink-900 text-sm">Emergency Services</p>
+                  <p className="text-ink-600 text-xs">Call <strong>911</strong> for immediate danger</p>
                 </div>
               </div>
             </div>
@@ -177,9 +177,9 @@ export default function OnboardingPage() {
                 type="checkbox"
                 checked={crisisConfirmed}
                 onChange={(e) => setCrisisConfirmed(e.target.checked)}
-                className="mt-0.5 w-4 h-4 text-amber-600 rounded"
+                className="mt-0.5 w-4 h-4 text-navy-700 rounded"
               />
-              <span className="text-sm text-stone-700">
+              <span className="text-sm text-ink-700">
                 I have seen these resources. I am safe and would like to continue with Shepherd for
                 spiritual encouragement.
               </span>
@@ -193,14 +193,14 @@ export default function OnboardingPage() {
                 }
               }}
               disabled={!crisisConfirmed}
-              className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-white py-3 rounded-lg font-semibold transition-colors"
+              className="w-full bg-navy-700 hover:bg-navy-800 disabled:bg-navy-300 text-white py-3 rounded-lg font-semibold transition-colors"
             >
               Continue with Shepherd
             </button>
 
             <button
               onClick={() => setShowCrisisNotice(false)}
-              className="w-full border border-stone-300 hover:border-stone-400 text-stone-700 py-3 rounded-lg font-medium transition-colors"
+              className="w-full border border-parchment-400 hover:border-parchment-400 hover:bg-parchment-200 text-ink-700 py-3 rounded-lg font-medium transition-colors"
             >
               Go back and edit my response
             </button>
@@ -211,25 +211,25 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-stone-50 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-b from-gold-100 to-parchment-100 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-xl">
         <div className="text-center mb-8">
           <div className="text-3xl mb-2">🌿</div>
-          <h1 className="text-2xl font-bold text-stone-900">Let&apos;s personalize your experience</h1>
-          <p className="text-stone-600 text-sm mt-1">
+          <h1 className="text-2xl font-bold font-serif text-ink-900">Let&apos;s personalize your experience</h1>
+          <p className="text-ink-600 text-sm mt-1">
             Answer a few questions so Shepherd can guide you better.
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-8">
+        <div className="bg-parchment-50 rounded-2xl border border-parchment-300 shadow-sm p-8">
           <ProgressBar step={step} />
 
           {step === 1 && (
             <div>
-              <h2 className="text-lg font-semibold text-stone-900 mb-1">
+              <h2 className="text-lg font-semibold font-serif text-ink-900 mb-1">
                 What do you struggle with most when reading the Bible?
               </h2>
-              <p className="text-stone-500 text-sm mb-5">Select all that apply.</p>
+              <p className="text-ink-500 text-sm mb-5">Select all that apply.</p>
               <div className="space-y-3">
                 {[
                   { value: 'finding-relevant-verses', label: 'Finding verses that feel relevant to my life' },
@@ -242,17 +242,17 @@ export default function OnboardingPage() {
                     key={opt.value}
                     className={`flex items-center gap-3 p-3.5 rounded-lg border cursor-pointer transition-colors ${
                       data.struggles.includes(opt.value)
-                        ? 'border-amber-400 bg-amber-50'
-                        : 'border-stone-200 hover:border-stone-300'
+                        ? 'border-gold-400 bg-gold-100'
+                        : 'border-parchment-300 hover:border-parchment-400 bg-white'
                     }`}
                   >
                     <input
                       type="checkbox"
                       checked={data.struggles.includes(opt.value)}
                       onChange={() => toggleArrayValue('struggles', opt.value)}
-                      className="w-4 h-4 text-amber-600 rounded"
+                      className="w-4 h-4 text-navy-700 rounded"
                     />
-                    <span className="text-stone-800 text-sm">{opt.label}</span>
+                    <span className="text-ink-800 text-sm">{opt.label}</span>
                   </label>
                 ))}
               </div>
@@ -261,14 +261,14 @@ export default function OnboardingPage() {
 
           {step === 2 && (
             <div>
-              <h2 className="text-lg font-semibold text-stone-900 mb-1">
+              <h2 className="text-lg font-semibold font-serif text-ink-900 mb-1">
                 What are you most seeking right now?
               </h2>
-              <p className="text-stone-500 text-sm mb-5">Select all that apply.</p>
+              <p className="text-ink-500 text-sm mb-5">Select all that apply.</p>
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { value: 'peace', label: '☮️ Peace' },
-                  { value: 'hope', label: '✨ Hope' },
+                  { value: 'hope', label: '✦ Hope' },
                   { value: 'spiritual-growth', label: '🌱 Spiritual Growth' },
                   { value: 'strength', label: '💪 Strength' },
                   { value: 'wisdom', label: '📖 Wisdom' },
@@ -282,17 +282,17 @@ export default function OnboardingPage() {
                     key={opt.value}
                     className={`flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition-colors ${
                       data.seeking.includes(opt.value)
-                        ? 'border-amber-400 bg-amber-50'
-                        : 'border-stone-200 hover:border-stone-300'
+                        ? 'border-gold-400 bg-gold-100'
+                        : 'border-parchment-300 hover:border-parchment-400 bg-white'
                     }`}
                   >
                     <input
                       type="checkbox"
                       checked={data.seeking.includes(opt.value)}
                       onChange={() => toggleArrayValue('seeking', opt.value)}
-                      className="w-4 h-4 text-amber-600 rounded"
+                      className="w-4 h-4 text-navy-700 rounded"
                     />
-                    <span className="text-stone-800 text-sm">{opt.label}</span>
+                    <span className="text-ink-800 text-sm">{opt.label}</span>
                   </label>
                 ))}
               </div>
@@ -301,10 +301,10 @@ export default function OnboardingPage() {
 
           {step === 3 && (
             <div>
-              <h2 className="text-lg font-semibold text-stone-900 mb-1">
+              <h2 className="text-lg font-semibold font-serif text-ink-900 mb-1">
                 How familiar are you with the Bible?
               </h2>
-              <p className="text-stone-500 text-sm mb-5">This helps us set the right depth.</p>
+              <p className="text-ink-500 text-sm mb-5">This helps us set the right depth.</p>
               <div className="space-y-3">
                 {[
                   {
@@ -327,8 +327,8 @@ export default function OnboardingPage() {
                     key={opt.value}
                     className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
                       data.familiarity === opt.value
-                        ? 'border-amber-400 bg-amber-50'
-                        : 'border-stone-200 hover:border-stone-300'
+                        ? 'border-gold-400 bg-gold-100'
+                        : 'border-parchment-300 hover:border-parchment-400 bg-white'
                     }`}
                   >
                     <input
@@ -337,11 +337,11 @@ export default function OnboardingPage() {
                       value={opt.value}
                       checked={data.familiarity === opt.value}
                       onChange={() => setRadioValue('familiarity', opt.value)}
-                      className="mt-0.5 w-4 h-4 text-amber-600"
+                      className="mt-0.5 w-4 h-4 text-navy-700"
                     />
                     <div>
-                      <p className="font-medium text-stone-800 text-sm">{opt.label}</p>
-                      <p className="text-stone-500 text-xs mt-0.5">{opt.desc}</p>
+                      <p className="font-medium text-ink-800 text-sm">{opt.label}</p>
+                      <p className="text-ink-500 text-xs mt-0.5">{opt.desc}</p>
                     </div>
                   </label>
                 ))}
@@ -352,10 +352,10 @@ export default function OnboardingPage() {
           {step === 4 && (
             <div>
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-stone-900 mb-1">
+                <h2 className="text-lg font-semibold font-serif text-ink-900 mb-1">
                   What content helps you most?
                 </h2>
-                <p className="text-stone-500 text-sm mb-4">Select all that apply.</p>
+                <p className="text-ink-500 text-sm mb-4">Select all that apply.</p>
                 <div className="space-y-2.5">
                   {[
                     { value: 'short-verses', label: 'Short, focused verses' },
@@ -368,27 +368,27 @@ export default function OnboardingPage() {
                       key={opt.value}
                       className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
                         data.content_types.includes(opt.value)
-                          ? 'border-amber-400 bg-amber-50'
-                          : 'border-stone-200 hover:border-stone-300'
+                          ? 'border-gold-400 bg-gold-100'
+                          : 'border-parchment-300 hover:border-parchment-400 bg-white'
                       }`}
                     >
                       <input
                         type="checkbox"
                         checked={data.content_types.includes(opt.value)}
                         onChange={() => toggleArrayValue('content_types', opt.value)}
-                        className="w-4 h-4 text-amber-600 rounded"
+                        className="w-4 h-4 text-navy-700 rounded"
                       />
-                      <span className="text-stone-800 text-sm">{opt.label}</span>
+                      <span className="text-ink-800 text-sm">{opt.label}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               <div>
-                <h2 className="text-lg font-semibold text-stone-900 mb-1">
+                <h2 className="text-lg font-semibold font-serif text-ink-900 mb-1">
                   What tone do you prefer?
                 </h2>
-                <p className="text-stone-500 text-sm mb-4">Choose one.</p>
+                <p className="text-ink-500 text-sm mb-4">Choose one.</p>
                 <div className="grid grid-cols-2 gap-3">
                   {[
                     { value: 'gentle', label: '🌸 Gentle & Compassionate' },
@@ -400,8 +400,8 @@ export default function OnboardingPage() {
                       key={opt.value}
                       className={`flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition-colors ${
                         data.tone === opt.value
-                          ? 'border-amber-400 bg-amber-50'
-                          : 'border-stone-200 hover:border-stone-300'
+                          ? 'border-gold-400 bg-gold-100'
+                          : 'border-parchment-300 hover:border-parchment-400 bg-white'
                       }`}
                     >
                       <input
@@ -410,9 +410,9 @@ export default function OnboardingPage() {
                         value={opt.value}
                         checked={data.tone === opt.value}
                         onChange={() => setRadioValue('tone', opt.value)}
-                        className="w-4 h-4 text-amber-600"
+                        className="w-4 h-4 text-navy-700"
                       />
-                      <span className="text-stone-800 text-sm">{opt.label}</span>
+                      <span className="text-ink-800 text-sm">{opt.label}</span>
                     </label>
                   ))}
                 </div>
@@ -423,10 +423,10 @@ export default function OnboardingPage() {
           {step === 5 && (
             <div>
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-stone-900 mb-1">
+                <h2 className="text-lg font-semibold font-serif text-ink-900 mb-1">
                   How long would you like daily devotionals?
                 </h2>
-                <p className="text-stone-500 text-sm mb-4">Choose what fits your schedule.</p>
+                <p className="text-ink-500 text-sm mb-4">Choose what fits your schedule.</p>
                 <div className="space-y-3">
                   {[
                     { value: 'very-short', label: 'Quick — just a few sentences', desc: '~1 minute read' },
@@ -437,8 +437,8 @@ export default function OnboardingPage() {
                       key={opt.value}
                       className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
                         data.devotional_length === opt.value
-                          ? 'border-amber-400 bg-amber-50'
-                          : 'border-stone-200 hover:border-stone-300'
+                          ? 'border-gold-400 bg-gold-100'
+                          : 'border-parchment-300 hover:border-parchment-400 bg-white'
                       }`}
                     >
                       <input
@@ -447,11 +447,11 @@ export default function OnboardingPage() {
                         value={opt.value}
                         checked={data.devotional_length === opt.value}
                         onChange={() => setRadioValue('devotional_length', opt.value)}
-                        className="mt-0.5 w-4 h-4 text-amber-600"
+                        className="mt-0.5 w-4 h-4 text-navy-700"
                       />
                       <div>
-                        <p className="font-medium text-stone-800 text-sm">{opt.label}</p>
-                        <p className="text-stone-500 text-xs mt-0.5">{opt.desc}</p>
+                        <p className="font-medium text-ink-800 text-sm">{opt.label}</p>
+                        <p className="text-ink-500 text-xs mt-0.5">{opt.desc}</p>
                       </div>
                     </label>
                   ))}
@@ -459,17 +459,17 @@ export default function OnboardingPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1.5">
-                  Anything else you&apos;d like guidance with? <span className="text-stone-400 font-normal">(optional)</span>
+                <label className="block text-sm font-medium text-ink-700 mb-1.5">
+                  Anything else you&apos;d like guidance with? <span className="text-ink-400 font-normal">(optional)</span>
                 </label>
                 <textarea
                   value={data.free_text}
                   onChange={(e) => setData((prev) => ({ ...prev, free_text: e.target.value }))}
                   placeholder="Share anything that's on your heart..."
                   rows={4}
-                  className="w-full px-4 py-3 border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition resize-none"
+                  className="w-full px-4 py-3 border border-parchment-300 rounded-lg text-ink-900 bg-white placeholder-ink-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent transition resize-none font-serif italic"
                 />
-                <p className="text-xs text-stone-400 mt-1">
+                <p className="text-xs text-ink-400 mt-1">
                   If you share something indicating a crisis, we&apos;ll show you helpful resources.
                 </p>
               </div>
@@ -487,7 +487,7 @@ export default function OnboardingPage() {
             {step > 1 && (
               <button
                 onClick={handleBack}
-                className="flex-1 border border-stone-300 hover:border-stone-400 text-stone-700 py-3 rounded-lg font-medium transition-colors"
+                className="flex-1 border border-parchment-400 hover:border-parchment-400 hover:bg-parchment-200 text-ink-700 py-3 rounded-lg font-medium transition-colors"
               >
                 Back
               </button>
@@ -496,7 +496,7 @@ export default function OnboardingPage() {
               <button
                 onClick={handleNext}
                 disabled={!canProceed()}
-                className="flex-1 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-white py-3 rounded-lg font-semibold transition-colors"
+                className="flex-1 bg-navy-700 hover:bg-navy-800 disabled:bg-navy-300 text-white py-3 rounded-lg font-semibold transition-colors"
               >
                 Continue
               </button>
@@ -504,7 +504,7 @@ export default function OnboardingPage() {
               <button
                 onClick={handleSubmit}
                 disabled={!canProceed() || isLoading}
-                className="flex-1 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-white py-3 rounded-lg font-semibold transition-colors"
+                className="flex-1 bg-navy-700 hover:bg-navy-800 disabled:bg-navy-300 text-white py-3 rounded-lg font-semibold transition-colors"
               >
                 {isLoading ? 'Setting up your profile...' : 'Start My Journey'}
               </button>
