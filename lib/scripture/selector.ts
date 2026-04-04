@@ -22,40 +22,49 @@ const STRUGGLES_TO_TAGS: Record<string, string[]> = {
   'applying-to-daily-life': ['applying-to-daily-life', 'renewal', 'practical'],
 };
 
+type LocalScriptureTheme = ScriptureTheme & {
+  tags: string[];
+};
+
 export function selectThemeForUser(
   profile: SpiritualProfile,
   feedbackHistory: GuidanceFeedback[]
 ): ScriptureTheme {
-  const notRelevantIds = new Set<string>();
-
-  const helpfulThemeIds = new Set(
+  const notRelevantGuidanceIds = new Set(
     feedbackHistory
-      .filter((f) => f.helpful === true)
+      .filter((f) => f.feedback_type === 'not_relevant')
       .map((f) => f.guidance_id)
   );
 
-  // Build desired tags from user profile
+  const helpfulGuidanceIds = new Set(
+    feedbackHistory
+      .filter((f) => f.feedback_type === 'helpful')
+      .map((f) => f.guidance_id)
+  );
+
   const desiredTags = new Set<string>();
+
   for (const need of profile.current_needs ?? []) {
     const tags = NEEDS_TO_TAGS[need] ?? [need];
     tags.forEach((t) => desiredTags.add(t));
   }
+
   for (const struggle of profile.main_struggles ?? []) {
     const tags = STRUGGLES_TO_TAGS[struggle] ?? [struggle];
     tags.forEach((t) => desiredTags.add(t));
   }
 
-  // Score each theme
-  const scored = scriptureThemes.map((theme) => {
-    if (notRelevantIds.has(theme.id)) return { theme, score: -999 };
-
+  const scored = (scriptureThemes as LocalScriptureTheme[]).map((theme) => {
     let score = 0;
+
     const matchCount = theme.tags.filter((t) => desiredTags.has(t)).length;
     score += matchCount * 10;
 
-    if (helpfulThemeIds.has(theme.id)) score += 5;
+    // These are guidance IDs, not theme IDs, so don't use them for scoring theme matches.
+    // Keeping the sets here only so the feedback model remains aligned if reused later.
+    void notRelevantGuidanceIds;
+    void helpfulGuidanceIds;
 
-    // Add randomness
     score += Math.random() * 3;
 
     return { theme, score };
@@ -66,11 +75,9 @@ export function selectThemeForUser(
     .sort((a, b) => b.score - a.score);
 
   if (candidates.length > 0) {
-    // Pick randomly from top 5 candidates
     const topN = candidates.slice(0, Math.min(5, candidates.length));
     return topN[Math.floor(Math.random() * topN.length)].theme;
   }
 
-  // Fallback: random theme
   return scriptureThemes[Math.floor(Math.random() * scriptureThemes.length)];
 }

@@ -1,6 +1,14 @@
 import type { ScriptureTheme } from '@/types';
 
-export const scriptureThemes: ScriptureTheme[] = [
+type LocalScriptureTheme = ScriptureTheme & {
+  tags: string[];
+  theme?: string;
+  verse_reference?: string;
+  verse_text?: string;
+  short_explanation?: string;
+};
+
+export const scriptureThemes: LocalScriptureTheme[] = [
   {
     id: 'peace-philippians',
     theme: 'peace',
