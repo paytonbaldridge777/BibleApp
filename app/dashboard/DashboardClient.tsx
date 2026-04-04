@@ -166,7 +166,7 @@ export default function DashboardClient({
               <Link href="/favorites" className="hover:text-ink-900">
                 Favorites
               </Link>
-              <Link href="/settings" className="hover:text-ink-900">
+              <Link href="/settings/profile" className="hover:text-ink-900">
                 Settings
               </Link>
             </nav>
