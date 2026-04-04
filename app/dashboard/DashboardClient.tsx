@@ -223,7 +223,7 @@ export default function DashboardClient({
                 </p>
                 <p className="mt-1 text-sm text-ink-500">{formatDate(today)}</p>
                 <h2 className="mt-3 text-2xl font-semibold font-serif text-ink-900">
-                  {guidance.title || 'Today's Guidance'}
+                  {guidance.title || "Today's Guidance"}
                 </h2>
                 {guidance.matched_theme?.name && (
                   <p className="mt-2 text-sm text-ink-600">
