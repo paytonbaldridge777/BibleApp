@@ -1,7 +1,5 @@
 import type { ScriptureTheme, SpiritualProfile } from '@/types';
 
-import type { ScriptureTheme, SpiritualProfile } from '@/types';
-
 export function buildGuidanceSystemPrompt(
   theme: ScriptureTheme,
   profile: SpiritualProfile
