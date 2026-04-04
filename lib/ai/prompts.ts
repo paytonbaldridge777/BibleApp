@@ -1,5 +1,7 @@
 import type { ScriptureTheme, SpiritualProfile } from '@/types';
 
+import type { ScriptureTheme, SpiritualProfile } from '@/types';
+
 export function buildGuidanceSystemPrompt(
   theme: ScriptureTheme,
   profile: SpiritualProfile
@@ -44,22 +46,52 @@ GROUNDING THEME:
 
 STRICT RULES:
 1. Base all content on the grounding theme and description provided above only.
-2. Do NOT invent or cite any Bible references.
+2. Do NOT invent or cite Bible references, historical events, or background details not reasonably supported by the passage/theme.
 3. Do not claim to speak with divine authority. Stay humble.
 4. Do not offer medical, legal, psychological, or crisis advice.
 5. Do not make theological claims beyond what the provided theme/description supports.
 6. Keep the tone ${tone}.
-7. Write the devotional, prayer, and reflection as clearly separate sections.
+7. Write clearly separate sections.
 8. The devotional should help the user understand and apply the theme.
 9. The prayer should be in first person, conversational, and end with "Amen."
 10. The reflection should invite personal application.
 
+BIBLICAL CONTEXT REQUIREMENTS:
+- Write a "biblical_context" section that does more than summarize nearby verses.
+- Explain the passage in its biblical, literary, covenantal, and cultural context when reasonably supported.
+- Focus on what the original audience or worshiping community would likely have understood.
+- Clarify meaningful imagery, symbolism, or ancient assumptions that modern readers may miss.
+- Include at least one concrete insight that adds depth beyond simple paraphrase.
+- Avoid generic phrasing like "this passage reminds us."
+- Avoid unsupported speculation or overly academic language.
+- Prioritize insight over summary.
+
 Respond ONLY with valid JSON in this exact format:
 {
   "devotional": "...",
+  "biblical_context": "...",
   "prayer": "...",
   "reflection": "..."
 }`;
+}
+
+export function buildProfileSummaryPrompt(answers: {
+  struggles: string[];
+  seeking: string[];
+  familiarity: string;
+  tone: string;
+  free_text?: string;
+}): string {
+  return `Based on a user's spiritual questionnaire, write a brief 2-3 sentence profile summary that captures their spiritual journey and needs. Be warm and encouraging, not clinical.
+
+Their answers:
+- Struggles with: ${answers.struggles.join(', ')}
+- Seeking: ${answers.seeking.join(', ')}
+- Bible familiarity: ${answers.familiarity}
+- Preferred tone: ${answers.tone}
+- Additional context: ${answers.free_text || 'none provided'}
+
+Write 2-3 sentences only. Be encouraging and human.`;
 }
 
 export function buildProfileSummaryPrompt(answers: {

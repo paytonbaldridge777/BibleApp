@@ -11,7 +11,7 @@ function getOpenAIClient(): OpenAI | null {
 function buildFallbackGuidance(
   theme: ScriptureTheme,
   profile: SpiritualProfile
-): { devotional: string; prayer: string; reflection: string } {
+): { devotional: string; biblical_context: string; prayer: string; reflection: string } {
   const firstNeed = profile.current_needs?.[0] ?? 'guidance';
   const toneWord =
     profile.tone_preference === 'gentle'
@@ -21,17 +21,20 @@ function buildFallbackGuidance(
       : 'invites';
 
   return {
-    devotional: `Today's reflection on ${theme.name}. ${theme.description ?? ''} Take a moment to sit with this verse and consider how it speaks to your current situation.`,
-    prayer: `Lord, I come to You today seeking ${firstNeed}. This verse ${toneWord} me to trust You more deeply. Help me to carry its truth with me throughout this day. Amen.`,
-    reflection: `Today, consider one practical way you can apply this truth${theme.description ? `: ${theme.description}` : '.'} Write it down or share it with someone you trust.`,
-  };
+  devotional: `Today's reflection on ${theme.name}.
+	${theme.description ?? ''} Take a moment to sit with this verse and consider how it speaks to your current situation.`,
+	  biblical_context: `This passage centers on ${theme.name.toLowerCase()}. In Scripture, this theme is presented as part of God's ongoing relationship with His people, offering wisdom, correction, and hope. Consider how the original hearers would have understood these words as guidance meant to shape both faith and daily life.`,
+	  prayer: `Lord, I come to You today seeking ${firstNeed}. This verse ${toneWord} me to trust You more deeply. Help me to carry its truth with me throughout this day.
+	Amen.`,
+	  reflection: `Today, consider one practical way you can apply this truth${theme.description ? `: ${theme.description}` : '.'} Write it down or share it with someone you trust.`,
+	};
 }
 
 export async function generateDailyGuidance(params: {
   theme: ScriptureTheme;
   profile: SpiritualProfile;
   today: string;
-}): Promise<{ devotional: string; prayer: string; reflection: string }> {
+}): Promise<{ devotional: string; biblical_context: string; prayer: string; reflection: string }> {
   const client = getOpenAIClient();
 
   if (!client) {
@@ -58,21 +61,23 @@ export async function generateDailyGuidance(params: {
     const content = response.choices[0]?.message?.content;
     if (!content) return buildFallbackGuidance(params.theme, params.profile);
 
-    const parsed = JSON.parse(content) as {
-      devotional?: string;
-      prayer?: string;
-      reflection?: string;
-    };
+	const parsed = JSON.parse(content) as {
+	  devotional?: string;
+	  biblical_context?: string;
+	  prayer?: string;
+	  reflection?: string;
+	};
 
-    if (!parsed.devotional || !parsed.prayer || !parsed.reflection) {
-      return buildFallbackGuidance(params.theme, params.profile);
-    }
+	if (!parsed.devotional || !parsed.biblical_context || !parsed.prayer || !parsed.reflection) {
+	  return buildFallbackGuidance(params.theme, params.profile);
+	}
 
-    return {
-      devotional: parsed.devotional,
-      prayer: parsed.prayer,
-      reflection: parsed.reflection,
-    };
+	return {
+	  devotional: parsed.devotional,
+	  biblical_context: parsed.biblical_context,
+	  prayer: parsed.prayer,
+	  reflection: parsed.reflection,
+	};
   } catch (error) {
     console.error('OpenAI guidance generation failed:', error);
     return buildFallbackGuidance(params.theme, params.profile);
