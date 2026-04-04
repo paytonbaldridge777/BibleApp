@@ -21,9 +21,9 @@ function buildFallbackGuidance(
       : 'invites';
 
   return {
-    devotional: `Today's reflection on ${theme.theme}: "${theme.verse_text}" — ${theme.verse_reference}. ${theme.short_explanation} Take a moment to sit with this verse and consider how it speaks to your current situation.`,
-    prayer: `Lord, as I reflect on ${theme.verse_reference}, I come to You seeking ${firstNeed}. This verse ${toneWord} me to trust You more deeply. Help me to carry its truth with me throughout this day. Amen.`,
-    reflection: `Today, consider one practical way you can apply this truth: ${theme.short_explanation} Write it down or share it with someone you trust.`,
+    devotional: `Today's reflection on ${theme.name}. ${theme.description ?? ''} Take a moment to sit with this verse and consider how it speaks to your current situation.`,
+    prayer: `Lord, I come to You today seeking ${firstNeed}. This verse ${toneWord} me to trust You more deeply. Help me to carry its truth with me throughout this day. Amen.`,
+    reflection: `Today, consider one practical way you can apply this truth${theme.description ? `: ${theme.description}` : '.'} Write it down or share it with someone you trust.`,
   };
 }
 
