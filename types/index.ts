@@ -55,6 +55,7 @@ export interface DailyGuidance {
   generation_source?: string | null;
   created_at?: string;
   updated_at?: string;
+  biblical_context: string;
 }
 
 export interface GuidanceFeedback {
