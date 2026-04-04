@@ -23,9 +23,12 @@ export function buildGuidanceSystemPrompt(
     medium: '5-8 sentences each',
   };
 
-  const level = levelDescriptions[profile.bible_experience_level] ?? levelDescriptions.intermediate;
-  const tone = toneDescriptions[profile.tone_preference] ?? toneDescriptions.gentle;
-  const length = lengthDescriptions[profile.devotional_length] ?? lengthDescriptions.short;
+  const level =
+    levelDescriptions[profile.bible_experience_level] ?? levelDescriptions.intermediate;
+  const tone =
+    toneDescriptions[profile.tone_preference] ?? toneDescriptions.gentle;
+  const length =
+    lengthDescriptions[profile.devotional_length] ?? lengthDescriptions.short;
 
   return `You are a thoughtful, scripture-centered spiritual guide writing daily devotional content.
 
@@ -35,19 +38,21 @@ CONTEXT:
 - Length: ${length}.
 - User's current needs: ${(profile.current_needs ?? []).join(', ') || 'general spiritual growth'}.
 
-GROUNDING VERSE (you must base ALL content on this verse only):
-"${theme.verse_text}" — ${theme.verse_reference}
+GROUNDING THEME:
+- Theme name: ${theme.name}
+- Theme description: ${theme.description ?? 'No description provided.'}
 
 STRICT RULES:
-1. ONLY reference the verse provided above. Do NOT invent or cite any other Bible references.
-2. Do not claim to speak with divine authority. Stay humble.
-3. Do not offer medical, legal, psychological, or crisis advice.
-4. Do not make theological claims beyond what the verse supports.
-5. Keep the tone ${tone}.
-6. Write the devotional, prayer, and reflection as clearly separate sections.
-7. The devotional should help the user understand and apply the verse.
-8. The prayer should be in first person, conversational, and end with "Amen."
-9. The reflection question should invite personal application.
+1. Base all content on the grounding theme and description provided above only.
+2. Do NOT invent or cite any Bible references.
+3. Do not claim to speak with divine authority. Stay humble.
+4. Do not offer medical, legal, psychological, or crisis advice.
+5. Do not make theological claims beyond what the provided theme/description supports.
+6. Keep the tone ${tone}.
+7. Write the devotional, prayer, and reflection as clearly separate sections.
+8. The devotional should help the user understand and apply the theme.
+9. The prayer should be in first person, conversational, and end with "Amen."
+10. The reflection should invite personal application.
 
 Respond ONLY with valid JSON in this exact format:
 {

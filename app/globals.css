@@ -1,14 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap');
 @import "tailwindcss";
 
-:root {
-  --color-warm-50: #fdf8f0;
-  --color-warm-100: #fef3c7;
-  --color-warm-600: #d97706;
-  --color-warm-700: #b45309;
+@theme {
+  /* Parchment — aged manuscript warmth */
+  --color-parchment-50: #fffdf9;
+  --color-parchment-100: #fdf8f0;
+  --color-parchment-200: #f5ead7;
+  --color-parchment-300: #e8d4b0;
+  --color-parchment-400: #d4b896;
+  --color-parchment-900: #2a1e0e;
+
+  /* Navy — reverent, dignified */
+  --color-navy-50: #eff4fb;
+  --color-navy-100: #dce8f5;
+  --color-navy-200: #b9d1eb;
+  --color-navy-300: #8ab0d9;
+  --color-navy-400: #5a8fc7;
+  --color-navy-500: #3a72b0;
+  --color-navy-600: #2c5282;
+  --color-navy-700: #1e3a5f;
+  --color-navy-800: #152e4d;
+  --color-navy-900: #0d1f35;
+
+  /* Gold — illuminated manuscript */
+  --color-gold-50: #fefdf5;
+  --color-gold-100: #fef6e4;
+  --color-gold-200: #fde9b8;
+  --color-gold-300: #f0ce80;
+  --color-gold-400: #d4a544;
+  --color-gold-500: #b7922a;
+  --color-gold-600: #9a7820;
+  --color-gold-700: #7a5e16;
+  --color-gold-800: #5c460e;
+
+  /* Warm ink — like quill on parchment */
+  --color-ink-50: #fdf9f6;
+  --color-ink-100: #f4ece4;
+  --color-ink-200: #e6d4c7;
+  --color-ink-300: #cdb5a5;
+  --color-ink-400: #a89080;
+  --color-ink-500: #876e60;
+  --color-ink-600: #6b5448;
+  --color-ink-700: #503e34;
+  --color-ink-800: #362a22;
+  --color-ink-900: #1c1209;
+
+  /* Fonts */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Lora", Georgia, "Times New Roman", serif;
 }
 
 body {
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
+  background-color: var(--color-parchment-100);
+  color: var(--color-ink-900);
 }
 
 @layer utilities {

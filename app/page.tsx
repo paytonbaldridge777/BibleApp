@@ -2,25 +2,25 @@ import Link from 'next/link';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-parchment-100">
       {/* Header */}
-      <header className="bg-white border-b border-stone-200 sticky top-0 z-50">
+      <header className="bg-parchment-50 border-b border-parchment-300 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
               <span className="text-2xl">🌿</span>
-              <span className="text-xl font-bold text-amber-700">Shepherd</span>
+              <span className="text-xl font-bold font-serif text-navy-800">Shepherd</span>
             </div>
             <nav className="flex items-center gap-4">
               <Link
                 href="/auth/login"
-                className="text-stone-600 hover:text-stone-900 font-medium text-sm transition-colors"
+                className="text-ink-600 hover:text-ink-900 font-medium text-sm transition-colors"
               >
                 Login
               </Link>
               <Link
                 href="/auth/signup"
-                className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+                className="bg-navy-700 hover:bg-navy-800 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
               >
                 Get Started
               </Link>
@@ -30,45 +30,45 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="bg-gradient-to-b from-amber-50 to-stone-50 py-20 px-4">
+      <section className="bg-gradient-to-b from-gold-100 to-parchment-100 py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-800 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-            <span>✨</span> Daily personalized Bible guidance
+          <div className="inline-flex items-center gap-2 bg-gold-200 text-navy-800 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+            <span>✦</span> Daily personalized Bible guidance
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-stone-900 mb-6 leading-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-serif text-ink-900 mb-6 leading-tight">
             Daily Bible Guidance,{' '}
-            <span className="text-amber-600">Personalized for You</span>
+            <span className="text-navy-700">Personalized for You</span>
           </h1>
-          <p className="text-lg sm:text-xl text-stone-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-ink-600 mb-10 max-w-2xl mx-auto leading-relaxed">
             Shepherd meets you where you are — whether you're new to Scripture or a seasoned
             reader. Receive daily verses, devotionals, and prayers tailored to your journey.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/auth/signup"
-              className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-colors shadow-sm"
+              className="bg-navy-700 hover:bg-navy-800 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-colors shadow-sm"
             >
               Sign Up Free
             </Link>
             <a
               href="#how-it-works"
-              className="border border-stone-300 hover:border-stone-400 text-stone-700 px-8 py-4 rounded-xl font-semibold text-lg transition-colors"
+              className="border border-parchment-400 hover:border-parchment-400 text-ink-700 bg-parchment-50 hover:bg-parchment-200 px-8 py-4 rounded-xl font-semibold text-lg transition-colors"
             >
               Learn More
             </a>
           </div>
-          <p className="text-sm text-stone-500 mt-6">Free to use · No credit card required</p>
+          <p className="text-sm text-ink-500 mt-6">Free to use · No credit card required</p>
         </div>
       </section>
 
       {/* Features */}
-      <section className="py-20 px-4 bg-white">
+      <section className="py-20 px-4 bg-parchment-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-stone-900 mb-4">
+            <h2 className="text-3xl font-bold font-serif text-ink-900 mb-4">
               Everything you need for daily Scripture engagement
             </h2>
-            <p className="text-stone-600 max-w-xl mx-auto">
+            <p className="text-ink-600 max-w-xl mx-auto">
               Built around your needs, your pace, and your spiritual journey.
             </p>
           </div>
@@ -97,11 +97,11 @@ export default function LandingPage() {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className="bg-stone-50 rounded-xl p-6 border border-stone-100 hover:border-amber-200 transition-colors"
+                className="bg-parchment-100 rounded-xl p-6 border border-parchment-300 hover:border-gold-400 hover:shadow-sm transition-all"
               >
                 <div className="text-3xl mb-4">{feature.icon}</div>
-                <h3 className="font-semibold text-stone-900 mb-2">{feature.title}</h3>
-                <p className="text-stone-600 text-sm leading-relaxed">{feature.desc}</p>
+                <h3 className="font-semibold font-serif text-ink-900 mb-2">{feature.title}</h3>
+                <p className="text-ink-600 text-sm leading-relaxed">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -109,11 +109,11 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-20 px-4 bg-amber-50">
+      <section id="how-it-works" className="py-20 px-4 bg-gold-100">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-stone-900 mb-4">How Shepherd Works</h2>
-            <p className="text-stone-600">Three simple steps to personalized daily guidance.</p>
+            <h2 className="text-3xl font-bold font-serif text-ink-900 mb-4">How Shepherd Works</h2>
+            <p className="text-ink-600">Three simple steps to personalized daily guidance.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -134,11 +134,11 @@ export default function LandingPage() {
               },
             ].map((item) => (
               <div key={item.step} className="text-center">
-                <div className="w-12 h-12 bg-amber-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
+                <div className="w-12 h-12 bg-navy-700 text-white rounded-full flex items-center justify-center text-xl font-bold font-serif mx-auto mb-4">
                   {item.step}
                 </div>
-                <h3 className="font-semibold text-stone-900 mb-2 text-lg">{item.title}</h3>
-                <p className="text-stone-600 text-sm leading-relaxed">{item.desc}</p>
+                <h3 className="font-semibold font-serif text-ink-900 mb-2 text-lg">{item.title}</h3>
+                <p className="text-ink-600 text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -146,17 +146,17 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 px-4 bg-white">
+      <section className="py-20 px-4 bg-parchment-50">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-stone-900 mb-4">
+          <h2 className="text-3xl font-bold font-serif text-ink-900 mb-4">
             Begin your guided Scripture journey today
           </h2>
-          <p className="text-stone-600 mb-8">
+          <p className="text-ink-600 mb-8">
             Join others who start each day anchored in God's Word.
           </p>
           <Link
             href="/auth/signup"
-            className="bg-amber-600 hover:bg-amber-700 text-white px-10 py-4 rounded-xl font-semibold text-lg transition-colors shadow-sm inline-block"
+            className="bg-navy-700 hover:bg-navy-800 text-white px-10 py-4 rounded-xl font-semibold text-lg transition-colors shadow-sm inline-block"
           >
             Get Started Free
           </Link>
@@ -164,19 +164,19 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-stone-900 text-stone-300 py-12 px-4">
+      <footer className="bg-navy-900 text-navy-200 py-12 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">🌿</span>
-            <span className="text-lg font-bold text-white">Shepherd</span>
+            <span className="text-lg font-bold font-serif text-white">Shepherd</span>
           </div>
-          <p className="text-stone-400 text-sm leading-relaxed max-w-2xl mb-6">
-            <strong className="text-stone-300">Disclaimer:</strong> Shepherd is for spiritual
+          <p className="text-navy-300 text-sm leading-relaxed max-w-2xl mb-6">
+            <strong className="text-navy-200">Disclaimer:</strong> Shepherd is for spiritual
             encouragement and study assistance only. It is not a substitute for pastoral
             counseling, professional mental health support, or crisis intervention. If you are in
             crisis, please call or text{' '}
-            <strong className="text-amber-400">988</strong> (Suicide &amp; Crisis Lifeline) or
-            text <strong className="text-amber-400">HOME to 741741</strong> (Crisis Text Line).
+            <strong className="text-gold-300">988</strong> (Suicide &amp; Crisis Lifeline) or
+            text <strong className="text-gold-300">HOME to 741741</strong> (Crisis Text Line).
           </p>
           <div className="flex gap-6 text-sm">
             <Link href="/auth/login" className="hover:text-white transition-colors">
@@ -186,7 +186,7 @@ export default function LandingPage() {
               Sign Up
             </Link>
           </div>
-          <p className="text-stone-500 text-xs mt-6">
+          <p className="text-navy-400 text-xs mt-6">
             © {new Date().getFullYear()} Shepherd. All rights reserved.
           </p>
         </div>

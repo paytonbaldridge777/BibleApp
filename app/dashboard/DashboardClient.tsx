@@ -155,28 +155,28 @@ export default function DashboardClient({
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <main className="min-h-screen bg-stone-50 text-stone-900">
-      <header className="border-b border-stone-200 bg-white">
+    <main className="min-h-screen bg-parchment-100 text-ink-900">
+      <header className="border-b border-parchment-300 bg-parchment-50">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-6">
-            <Link href="/dashboard" className="text-xl font-semibold text-amber-700">
+            <Link href="/dashboard" className="text-xl font-bold font-serif text-navy-800">
               Shepherd
             </Link>
-            <nav className="flex items-center gap-4 text-sm text-stone-600">
-              <Link href="/favorites" className="hover:text-stone-900">
+            <nav className="flex items-center gap-4 text-sm text-ink-600">
+              <Link href="/favorites" className="hover:text-ink-900">
                 Favorites
               </Link>
-              <Link href="/settings" className="hover:text-stone-900">
+              <Link href="/settings" className="hover:text-ink-900">
                 Settings
               </Link>
             </nav>
           </div>
 
           <div className="flex items-center gap-4 text-sm">
-            <span className="text-stone-600">{user.email}</span>
+            <span className="text-ink-600">{user.email}</span>
             <button
               onClick={handleLogout}
-              className="rounded-lg border border-stone-300 px-3 py-1.5 text-stone-700 hover:bg-stone-100"
+              className="rounded-lg border border-parchment-400 px-3 py-1.5 text-ink-700 hover:bg-parchment-200 transition-colors"
             >
               Logout
             </button>
@@ -184,8 +184,8 @@ export default function DashboardClient({
         </div>
       </header>
 
-      <div className="border-b border-amber-200 bg-amber-50">
-        <div className="mx-auto max-w-6xl px-6 py-3 text-sm text-amber-900">
+      <div className="border-b border-gold-300 bg-gold-100">
+        <div className="mx-auto max-w-6xl px-6 py-3 text-sm text-navy-800">
           Shepherd provides spiritual encouragement only. For mental health support,
           please consult a professional. In crisis? Call or text 988.
         </div>
@@ -195,15 +195,15 @@ export default function DashboardClient({
         <section className="space-y-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">
+              <h1 className="text-3xl font-bold font-serif tracking-tight text-ink-900">
                 {getGreeting()}
                 {user.email ? ` — ${user.email.split('@')[0]}` : ''}
               </h1>
-              <p className="mt-1 text-stone-600">{formatDate(today)}</p>
+              <p className="mt-1 text-ink-600">{formatDate(today)}</p>
             </div>
 
             {streak > 0 && (
-              <div className="rounded-full bg-amber-100 px-4 py-2 text-sm font-medium text-amber-800">
+              <div className="rounded-full bg-gold-200 px-4 py-2 text-sm font-medium text-navy-800">
                 {streak} day{streak !== 1 ? 's' : ''} streak
               </div>
             )}
@@ -216,17 +216,17 @@ export default function DashboardClient({
           )}
 
           {guidance ? (
-            <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-6 shadow-sm">
               <div className="mb-6">
-                <p className="text-sm font-medium uppercase tracking-wide text-amber-700">
+                <p className="text-sm font-medium uppercase tracking-widest text-gold-600">
                   Today&apos;s Guidance
                 </p>
-                <p className="mt-1 text-sm text-stone-500">{formatDate(today)}</p>
-                <h2 className="mt-3 text-2xl font-semibold text-stone-900">
-                  {guidance.title || "Today’s Guidance"}
+                <p className="mt-1 text-sm text-ink-500">{formatDate(today)}</p>
+                <h2 className="mt-3 text-2xl font-semibold font-serif text-ink-900">
+                  {guidance.title || "Today's Guidance"}
                 </h2>
                 {guidance.matched_theme?.name && (
-                  <p className="mt-2 text-sm text-stone-600">
+                  <p className="mt-2 text-sm text-ink-600">
                     Theme: {guidance.matched_theme.name}
                   </p>
                 )}
@@ -234,57 +234,59 @@ export default function DashboardClient({
 
               <div className="space-y-6">
                 <section>
-                  <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-stone-500">
+                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-ink-500">
                     Today&apos;s Verse
                   </h3>
                   {guidance.passage?.text ? (
-                    <>
-                      <p className="text-lg leading-8 text-stone-800">
-                        “{guidance.passage.text}”
+                    <blockquote className="border-l-4 border-gold-400 pl-5 py-1">
+                      <p className="font-serif italic text-xl leading-9 text-ink-800">
+                        &ldquo;{guidance.passage.text}&rdquo;
                       </p>
-                      <p className="mt-3 text-sm font-medium text-stone-600">
-                        {guidance.passage.reference}
+                      <p className="mt-3 text-sm font-medium text-navy-700 not-italic">
+                        — {guidance.passage.reference}
                       </p>
-                    </>
+                    </blockquote>
                   ) : (
-                    <p className="text-stone-500">Verse details not yet loaded...</p>
+                    <p className="text-ink-500 font-serif italic">Verse details not yet loaded...</p>
                   )}
                 </section>
 
+                <div className="border-t border-parchment-300" />
+
                 {guidance.context_text && (
                   <section>
-                    <h3 className="mb-2 text-base font-semibold text-stone-900">
+                    <h3 className="mb-2 text-base font-semibold font-serif text-ink-900">
                       Biblical Context
                     </h3>
-                    <p className="whitespace-pre-line leading-7 text-stone-700">
+                    <p className="whitespace-pre-line leading-7 text-ink-700">
                       {guidance.context_text}
                     </p>
                   </section>
                 )}
 
                 <section>
-                  <h3 className="mb-2 text-base font-semibold text-stone-900">
+                  <h3 className="mb-2 text-base font-semibold font-serif text-ink-900">
                     Devotional
                   </h3>
-                  <p className="whitespace-pre-line leading-7 text-stone-700">
+                  <p className="whitespace-pre-line leading-7 text-ink-700">
                     {guidance.devotional_text}
                   </p>
                 </section>
 
                 <section>
-                  <h3 className="mb-2 text-base font-semibold text-stone-900">
+                  <h3 className="mb-2 text-base font-semibold font-serif text-ink-900">
                     Prayer
                   </h3>
-                  <p className="whitespace-pre-line leading-7 text-stone-700">
+                  <p className="whitespace-pre-line leading-7 text-ink-700 font-serif italic">
                     {guidance.prayer_text}
                   </p>
                 </section>
 
                 <section>
-                  <h3 className="mb-2 text-base font-semibold text-stone-900">
+                  <h3 className="mb-2 text-base font-semibold font-serif text-ink-900">
                     Reflection
                   </h3>
-                  <p className="leading-7 text-stone-700">
+                  <p className="leading-7 text-ink-700">
                     {guidance.reflection_question}
                   </p>
                 </section>
@@ -295,7 +297,7 @@ export default function DashboardClient({
                     className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
                       feedbackState['helpful'] === 'sent'
                         ? 'border-green-300 bg-green-100 text-green-700'
-                        : 'border-stone-300 text-stone-600 hover:border-green-300 hover:text-green-700'
+                        : 'border-parchment-400 text-ink-600 hover:border-green-300 hover:text-green-700'
                     }`}
                   >
                     {feedbackState['helpful'] === 'sent' ? 'Marked Helpful' : 'Helpful'}
@@ -306,7 +308,7 @@ export default function DashboardClient({
                     className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
                       feedbackState['not_helpful'] === 'sent'
                         ? 'border-red-300 bg-red-100 text-red-700'
-                        : 'border-stone-300 text-stone-600 hover:border-red-300 hover:text-red-700'
+                        : 'border-parchment-400 text-ink-600 hover:border-red-300 hover:text-red-700'
                     }`}
                   >
                     {feedbackState['not_helpful'] === 'sent'
@@ -317,26 +319,26 @@ export default function DashboardClient({
                   <button
                     onClick={() => generateGuidance('regenerate')}
                     disabled={isGenerating}
-                    className="ml-auto rounded-lg border border-stone-300 px-3 py-1.5 text-sm font-medium text-stone-600 transition-colors hover:border-stone-400 disabled:opacity-50"
+                    className="ml-auto rounded-lg border border-parchment-400 px-3 py-1.5 text-sm font-medium text-ink-600 transition-colors hover:border-navy-400 hover:text-navy-700 disabled:opacity-50"
                   >
-                    ✨ {isGenerating ? 'Regenerating...' : 'Regenerate'}
+                    ✦ {isGenerating ? 'Regenerating...' : 'Regenerate'}
                   </button>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm">
-              <h2 className="text-2xl font-semibold text-stone-900">
+            <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-8 text-center shadow-sm">
+              <h2 className="text-2xl font-semibold font-serif text-ink-900">
                 Ready for today&apos;s guidance?
               </h2>
-              <p className="mx-auto mt-3 max-w-2xl text-stone-600">
+              <p className="mx-auto mt-3 max-w-2xl text-ink-600">
                 Shepherd will select a verse and create a personalized devotional,
                 prayer, reflection, and biblical context just for you.
               </p>
               <button
                 onClick={() => generateGuidance('generate')}
                 disabled={isGenerating}
-                className="mt-6 rounded-xl bg-amber-600 px-8 py-3 font-semibold text-white transition-colors hover:bg-amber-700 disabled:bg-amber-400"
+                className="mt-6 rounded-xl bg-navy-700 px-8 py-3 font-semibold text-white transition-colors hover:bg-navy-800 disabled:bg-navy-400"
               >
                 {isGenerating ? 'Generating your guidance...' : "Generate Today's Guidance"}
               </button>
@@ -345,30 +347,30 @@ export default function DashboardClient({
         </section>
 
         <aside className="space-y-6">
-          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-5 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-stone-900">Your Profile</h3>
-              <Link href="/settings" className="text-sm text-amber-700 hover:text-amber-800">
+              <h3 className="text-base font-semibold font-serif text-ink-900">Your Profile</h3>
+              <Link href="/settings" className="text-sm text-navy-700 hover:text-navy-800">
                 Edit
               </Link>
             </div>
 
             <div className="space-y-4 text-sm">
               <div>
-                <p className="text-stone-500">Experience</p>
-                <p className="mt-1 font-medium text-stone-800">
+                <p className="text-ink-500">Experience</p>
+                <p className="mt-1 font-medium text-ink-800">
                   {profile.bible_experience_level}
                 </p>
               </div>
 
               {profile.current_needs?.length > 0 && (
                 <div>
-                  <p className="text-stone-500">Seeking</p>
+                  <p className="text-ink-500">Seeking</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {profile.current_needs.slice(0, 3).map((need) => (
                       <span
                         key={need}
-                        className="rounded-full bg-stone-100 px-3 py-1 text-stone-700"
+                        className="rounded-full bg-parchment-200 px-3 py-1 text-ink-700"
                       >
                         {need.replace(/-/g, ' ')}
                       </span>
@@ -378,48 +380,48 @@ export default function DashboardClient({
               )}
 
               <div>
-                <p className="text-stone-500">Tone</p>
-                <p className="mt-1 font-medium capitalize text-stone-800">
+                <p className="text-ink-500">Tone</p>
+                <p className="mt-1 font-medium capitalize text-ink-800">
                   {profile.tone_preference}
                 </p>
               </div>
 
               {profile.profile_summary && (
-                <p className="rounded-xl bg-stone-50 p-3 leading-6 text-stone-700">
+                <p className="rounded-xl bg-parchment-100 border border-parchment-300 p-3 leading-6 text-ink-700 font-serif italic text-sm">
                   {profile.profile_summary}
                 </p>
               )}
             </div>
           </div>
 
-          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-            <h3 className="mb-3 text-base font-semibold text-stone-900">Quick Links</h3>
+          <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-5 shadow-sm">
+            <h3 className="mb-3 text-base font-semibold font-serif text-ink-900">Quick Links</h3>
             <div className="flex flex-col gap-3 text-sm">
-              <Link href="/favorites" className="text-stone-700 hover:text-stone-900">
+              <Link href="/favorites" className="text-ink-700 hover:text-ink-900">
                 ⭐ Saved Favorites
               </Link>
-              <Link href="/settings" className="text-stone-700 hover:text-stone-900">
+              <Link href="/settings" className="text-ink-700 hover:text-ink-900">
                 ⚙️ Update Profile
               </Link>
             </div>
           </div>
 
           {recentGuidance.length > 1 && (
-            <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-              <h3 className="mb-3 text-base font-semibold text-stone-900">
+            <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-5 shadow-sm">
+              <h3 className="mb-3 text-base font-semibold font-serif text-ink-900">
                 Recent Guidance
               </h3>
               <div className="space-y-3">
                 {recentGuidance.slice(1, 7).map((g) => (
-                  <div key={g.id} className="rounded-xl bg-stone-50 p-3">
-                    <p className="text-xs uppercase tracking-wide text-stone-500">
+                  <div key={g.id} className="rounded-xl bg-parchment-100 border border-parchment-200 p-3">
+                    <p className="text-xs uppercase tracking-wide text-ink-500">
                       {g.guidance_date}
                     </p>
-                    <p className="mt-1 font-medium text-stone-800">
+                    <p className="mt-1 font-medium text-ink-800">
                       {g.title || 'Guidance'}
                     </p>
                     {g.passage?.reference && (
-                      <p className="mt-1 text-sm text-stone-600">{g.passage.reference}</p>
+                      <p className="mt-1 text-sm text-navy-700 font-serif italic">{g.passage.reference}</p>
                     )}
                   </div>
                 ))}
