@@ -73,24 +73,6 @@ Respond ONLY with valid JSON in this exact format:
 }`;
 }
 
-export function buildProfileSummaryPrompt(answers: {
-  struggles: string[];
-  seeking: string[];
-  familiarity: string;
-  tone: string;
-  free_text?: string;
-}): string {
-  return `Based on a user's spiritual questionnaire, write a brief 2-3 sentence profile summary that captures their spiritual journey and needs. Be warm and encouraging, not clinical.
-
-Their answers:
-- Struggles with: ${answers.struggles.join(', ')}
-- Seeking: ${answers.seeking.join(', ')}
-- Bible familiarity: ${answers.familiarity}
-- Preferred tone: ${answers.tone}
-- Additional context: ${answers.free_text || 'none provided'}
-
-Write 2-3 sentences only. Be encouraging and human.`;
-}
 
 export function buildProfileSummaryPrompt(answers: {
   struggles: string[];
