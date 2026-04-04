@@ -15,8 +15,8 @@ type LocalScriptureTheme = {
 export const scriptureThemes: LocalScriptureTheme[] = [
   {
     id: 'peace-philippians',
-	slug: peace;
-    name: Peace;
+	slug: peace,
+    name: Peace,
     theme: 'peace',
     tags: ['peace', 'anxiety', 'anxiety-relief', 'worry'],
     verse_reference: 'Philippians 4:6-7',
@@ -27,8 +27,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'hope-romans',
-	slug: hope;
-    name: Hope;
+	slug: hope,
+    name: Hope,
     theme: 'hope',
     tags: ['hope', 'spiritual-growth', 'endurance'],
     verse_reference: 'Romans 15:13',
@@ -39,8 +39,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'anxiety-matthew',
-	slug: anxiety;
-    name: Anxiety;
+	slug: anxiety,
+    name: Anxiety,
     theme: 'anxiety',
     tags: ['anxiety', 'anxiety-relief', 'peace', 'trust'],
     verse_reference: 'Matthew 6:34',
@@ -51,8 +51,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'forgiveness-colossians',
-	slug: forgiveness;
-    name: Forgiveness;
+	slug: forgiveness,
+    name: Forgiveness,
     theme: 'forgiveness',
     tags: ['forgiveness', 'healing', 'grace'],
     verse_reference: 'Colossians 3:13',
@@ -63,8 +63,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'wisdom-james',
-	slug: wisdom;
-    name: Wisdom;
+	slug: wisdom,
+    name: Wisdom,
     theme: 'wisdom',
     tags: ['wisdom', 'guidance', 'knowing-where-to-start'],
     verse_reference: 'James 1:5',
@@ -75,8 +75,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'strength-isaiah',
-	slug: strength;
-    name: strength;
+	slug: strength,
+    name: strength,
     theme: 'strength',
     tags: ['strength', 'endurance', 'perseverance', 'fatigue'],
     verse_reference: 'Isaiah 40:31',
@@ -87,8 +87,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'purpose-jeremiah',
-	slug: purpose;
-    name: Purpose;
+	slug: purpose,
+    name: Purpose,
     theme: 'purpose',
     tags: ['purpose', 'identity', 'hope', 'future'],
     verse_reference: 'Jeremiah 29:11',
@@ -99,8 +99,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'spiritual-growth-peter',
-	slug: spiritual-growth;
-    name: Spiritual-growth;
+	slug: spiritual-growth,
+    name: Spiritual-growth,
     theme: 'spiritual-growth',
     tags: ['spiritual-growth', 'growth', 'maturity', 'applying-to-daily-life'],
     verse_reference: '2 Peter 3:18',
@@ -111,8 +111,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'self-control-galatians',
-	slug: self-control;
-    name: Self-control;
+	slug: self-control,
+    name: Self-control,
     theme: 'self-control',
     tags: ['self-control', 'freedom-from-addiction', 'temptation', 'spirit'],
     verse_reference: 'Galatians 5:22-23',
@@ -123,8 +123,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'temptation-corinthians',
-	slug: temptation;
-    name: Temptation;
+	slug: temptation,
+    name: Temptation,
     theme: 'temptation',
     tags: ['temptation', 'freedom-from-addiction', 'self-control', 'strength'],
     verse_reference: '1 Corinthians 10:13',
@@ -135,8 +135,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'grief-psalm23',
-	slug: grief;
-    name: Grief;
+	slug: grief,
+    name: Grief,
     theme: 'grief',
     tags: ['grief', 'healing', 'comfort', 'loss'],
     verse_reference: 'Psalm 23:4',
@@ -147,8 +147,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'gratitude-psalm107',
-	slug: gratitude;
-    name: Gratitude;
+	slug: gratitude,
+    name: Gratitude,
     theme: 'gratitude',
     tags: ['gratitude', 'thankfulness', 'joy', 'praise'],
     verse_reference: 'Psalm 107:1',
@@ -159,8 +159,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'healing-psalm147',
-	slug: healing;
-    name: Healing;
+	slug: healing,
+    name: Healing,
     theme: 'healing',
     tags: ['healing', 'grief', 'brokenness', 'restoration'],
     verse_reference: 'Psalm 147:3',
@@ -171,8 +171,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'faith-hebrews',
-	slug: faith;
-    name: Faith;
+	slug: faith,
+    name: Faith,
     theme: 'faith',
     tags: ['faith', 'trust', 'hope', 'unseen'],
     verse_reference: 'Hebrews 11:1',
@@ -183,8 +183,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'courage-joshua',
-	slug: courage;
-    name: Courage;
+	slug: courage,
+    name: Courage,
     theme: 'courage',
     tags: ['courage', 'strength', 'fear', 'perseverance'],
     verse_reference: 'Joshua 1:9',
@@ -195,8 +195,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'love-john',
-	slug: love;
-    name: Love;
+	slug: love,
+    name: Love,
     theme: 'love',
     tags: ['love', 'relationship', 'grace', 'identity'],
     verse_reference: '1 John 4:19',
@@ -206,8 +206,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'patience-romans5',
-	slug: patience;
-    name: Patience;
+	slug: patience,
+    name: Patience,
     theme: 'patience',
     tags: ['patience', 'perseverance', 'spiritual-growth', 'endurance'],
     verse_reference: 'Romans 5:3-4',
@@ -218,8 +218,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'joy-nehemiah',
-	slug: joy;
-    name: Joy;
+	slug: joy,
+    name: Joy,
     theme: 'joy',
     tags: ['joy', 'strength', 'praise', 'gratitude'],
     verse_reference: 'Nehemiah 8:10',
@@ -230,8 +230,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'humility-proverbs',
-	slug: humility;
-    name: Humility;
+	slug: humility,
+    name: Humility,
     theme: 'humility',
     tags: ['humility', 'wisdom', 'spiritual-growth', 'pride'],
     verse_reference: 'Proverbs 3:34',
@@ -242,8 +242,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'trust-proverbs3',
-	slug: trust;
-    name: Trust;
+	slug: trust,
+    name: Trust,
     theme: 'trust',
     tags: ['trust', 'faith', 'guidance', 'surrender'],
     verse_reference: 'Proverbs 3:5-6',
@@ -254,8 +254,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'prayer-matthew7',
-	slug: prayer;
-    name: Prayer;
+	slug: prayer,
+    name: Prayer,
     theme: 'prayer',
     tags: ['prayer', 'seeking', 'relationship', 'ask'],
     verse_reference: 'Matthew 7:7-8',
@@ -266,8 +266,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'renewal-romans12',
-	slug: renewal;
-    name: Renewal;
+	slug: renewal,
+    name: Renewal,
     theme: 'renewal',
     tags: ['renewal', 'transformation', 'spiritual-growth', 'applying-to-daily-life'],
     verse_reference: 'Romans 12:2',
@@ -278,8 +278,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'guidance-psalm32',
-	slug: guidance;
-    name: Guidance;
+	slug: guidance,
+    name: Guidance,
     theme: 'guidance',
     tags: ['guidance', 'wisdom', 'knowing-where-to-start', 'direction'],
     verse_reference: 'Psalm 32:8',
@@ -290,8 +290,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'identity-ephesians',
-	slug: identity;
-    name: Identity;
+	slug: identity,
+    name: Identity,
     theme: 'identity',
     tags: ['identity', 'love', 'purpose', 'worth'],
     verse_reference: 'Ephesians 2:10',
@@ -302,8 +302,8 @@ export const scriptureThemes: LocalScriptureTheme[] = [
   },
   {
     id: 'perseverance-hebrews12',
-	slug: perseverance;
-    name: Perseverance;
+	slug: perseverance,
+    name: Perseverance,
     theme: 'perseverance',
     tags: ['perseverance', 'endurance', 'faith', 'strength', 'staying-consistent'],
     verse_reference: 'Hebrews 12:1',
