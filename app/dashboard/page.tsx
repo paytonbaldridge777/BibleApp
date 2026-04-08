@@ -60,6 +60,7 @@ async function enrichGuidance(
 }
 
 export default async function DashboardPage() {
+  try {
   const supabase = await createServerSupabaseClient();
 
   const {
@@ -116,4 +117,16 @@ export default async function DashboardPage() {
       recentGuidance={recentGuidance.filter(Boolean) as GuidanceWithRelations[]}
     />
   );
+} catch (err) {
+    const message =
+      err instanceof Error ? `${err.name}: ${err.message}\n${err.stack ?? ''}` : String(err);
+
+    return (
+      <pre style={{ padding: 16, whiteSpace: 'pre-wrap' }}>
+        Dashboard SSR error:
+        {'\n\n'}
+        {message}
+      </pre>
+    );
+  }
 }
