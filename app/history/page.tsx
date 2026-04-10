@@ -58,7 +58,7 @@ export default async function HistoryPage() {
           passage = {
             id: passageData.id,
             reference: passageData.reference,
-            text: '',
+            text: (g as any).verse_text ?? '',
           };
         }
       }
