@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/db/supabase';
@@ -81,6 +81,86 @@ function toGuidanceViewModel(json: {
     passage: json.passage,
     matched_theme: json.matched_theme,
   };
+}
+
+interface ContextExpanderProps {
+  showContext: boolean;
+  setShowContext: (v: boolean) => void;
+  contextThemes: { id: string; slug: string; name: string }[];
+  selectedThemeSlug: string | null;
+  setSelectedThemeSlug: (slug: string | null) => void;
+  contextFreeText: string;
+  setContextFreeText: (text: string) => void;
+}
+
+function ContextExpander({
+  showContext,
+  setShowContext,
+  contextThemes,
+  selectedThemeSlug,
+  setSelectedThemeSlug,
+  contextFreeText,
+  setContextFreeText,
+}: ContextExpanderProps) {
+  return (
+    <div className="rounded-xl border border-parchment-300 bg-parchment-50 overflow-hidden">
+      <button
+        onClick={() => setShowContext(!showContext)}
+        className="w-full flex items-center justify-between px-4 py-3 text-sm text-ink-600 hover:text-ink-900 hover:bg-parchment-100 transition-colors"
+      >
+        <span>Customize today&apos;s guidance</span>
+        <span className="text-ink-400">{showContext ? '▲' : '▼'}</span>
+      </button>
+
+      {showContext && (
+        <div className="px-4 pb-4 space-y-4 border-t border-parchment-200 pt-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-ink-500 mb-2">
+              What do you need today?
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {contextThemes.map((t) => (
+                <button
+                  key={t.slug}
+                  onClick={() => setSelectedThemeSlug(selectedThemeSlug === t.slug ? null : t.slug)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                    selectedThemeSlug === t.slug
+                      ? 'bg-navy-700 text-white border-navy-700'
+                      : 'bg-white text-ink-700 border-parchment-300 hover:border-navy-400'
+                  }`}
+                >
+                  {t.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-ink-500 mb-2">
+              Anything on your heart? <span className="font-normal normal-case text-ink-400">optional</span>
+            </p>
+            <textarea
+              value={contextFreeText}
+              onChange={(e) => setContextFreeText(e.target.value.slice(0, 500))}
+              placeholder="Share what you are going through today..."
+              rows={3}
+              className="w-full px-3 py-2 border border-parchment-300 rounded-lg text-sm text-ink-900 bg-white placeholder-ink-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent transition resize-none font-serif italic"
+            />
+            <p className="text-xs text-ink-400 mt-1 text-right">{contextFreeText.length}/500</p>
+          </div>
+
+          {(selectedThemeSlug || contextFreeText.trim()) && (
+            <button
+              onClick={() => { setSelectedThemeSlug(null); setContextFreeText(''); }}
+              className="text-xs text-ink-400 hover:text-ink-600 transition-colors"
+            >
+              Clear customization
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function DashboardClient({
@@ -175,67 +255,6 @@ export default function DashboardClient({
   };
 
   const today = new Date().toISOString().split('T')[0];
-  const ContextExpander = () => (
-    <div className="rounded-xl border border-parchment-300 bg-parchment-50 overflow-hidden">
-      <button
-        onClick={() => setShowContext((v) => !v)}
-        className="w-full flex items-center justify-between px-4 py-3 text-sm text-ink-600 hover:text-ink-900 hover:bg-parchment-100 transition-colors"
-      >
-        <span>Customize today&apos;s guidance</span>
-        <span className="text-ink-400">{showContext ? '▲' : '▼'}</span>
-      </button>
-
-      {showContext && (
-        <div className="px-4 pb-4 space-y-4 border-t border-parchment-200 pt-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-ink-500 mb-2">
-              What do you need today?
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {contextThemes.map((t) => (
-                <button
-                  key={t.slug}
-                  onClick={() => setSelectedThemeSlug(selectedThemeSlug === t.slug ? null : t.slug)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                    selectedThemeSlug === t.slug
-                      ? 'bg-navy-700 text-white border-navy-700'
-                      : 'bg-white text-ink-700 border-parchment-300 hover:border-navy-400'
-                  }`}
-                >
-                  {t.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-ink-500 mb-2">
-              Anything on your heart? <span className="font-normal normal-case text-ink-400">optional</span>
-            </p>
-            <textarea
-              value={contextFreeText}
-              onChange={(e) => setContextFreeText(e.target.value.slice(0, 500))}
-              placeholder="Share what you are going through today..."
-              rows={3}
-              className="w-full px-3 py-2 border border-parchment-300 rounded-lg text-sm text-ink-900 bg-white placeholder-ink-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent transition resize-none font-serif italic"
-            />
-            <p className="text-xs text-ink-400 mt-1 text-right">{contextFreeText.length}/500</p>
-          </div>
-
-          {(selectedThemeSlug || contextFreeText.trim()) && (
-            <button
-              onClick={() => { setSelectedThemeSlug(null); setContextFreeText(''); }}
-              className="text-xs text-ink-400 hover:text-ink-600 transition-colors"
-            >
-              Clear customization
-            </button>
-          )}
-        </div>
-      )}
-    </div>
-  );
-
-
 
   return (
     <main className="min-h-screen bg-parchment-100 text-ink-900">
@@ -377,7 +396,15 @@ export default function DashboardClient({
                   </p>
                 </section>
 
-                <ContextExpander />
+                <ContextExpander
+              showContext={showContext}
+              setShowContext={setShowContext}
+              contextThemes={contextThemes}
+              selectedThemeSlug={selectedThemeSlug}
+              setSelectedThemeSlug={setSelectedThemeSlug}
+              contextFreeText={contextFreeText}
+              setContextFreeText={setContextFreeText}
+            />
 
                 <div className="flex flex-wrap items-center gap-3 pt-2">
                   <button
@@ -426,7 +453,15 @@ export default function DashboardClient({
             </div>
           ) : (
             <div className="space-y-4">
-              <ContextExpander />
+              <ContextExpander
+              showContext={showContext}
+              setShowContext={setShowContext}
+              contextThemes={contextThemes}
+              selectedThemeSlug={selectedThemeSlug}
+              setSelectedThemeSlug={setSelectedThemeSlug}
+              contextFreeText={contextFreeText}
+              setContextFreeText={setContextFreeText}
+            />
               <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-8 text-center shadow-sm">
                 <h2 className="text-2xl font-semibold font-serif text-ink-900">
                   Ready for today&apos;s guidance?
