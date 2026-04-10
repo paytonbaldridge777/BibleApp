@@ -127,6 +127,7 @@ export default function DashboardClient({
       const json = await postGuidance(action);
       setGuidance(toGuidanceViewModel(json));
       router.refresh();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -324,7 +325,17 @@ export default function DashboardClient({
                     disabled={isGenerating}
                     className="ml-auto rounded-lg border border-parchment-400 px-3 py-1.5 text-sm font-medium text-ink-600 transition-colors hover:border-navy-400 hover:text-navy-700 disabled:opacity-50"
                   >
-                    ✦ {isGenerating ? 'Regenerating...' : 'Regenerate'}
+                    {isGenerating ? (
+                      <span className="flex items-center gap-1.5">
+                        <svg className="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                        </svg>
+                        Regenerating...
+                      </span>
+                    ) : (
+                      '✦ Regenerate'
+                    )}
                   </button>
                 </div>
               </div>
