@@ -166,6 +166,9 @@ export default function DashboardClient({
               <Link href="/favorites" className="hover:text-ink-900">
                 Favorites
               </Link>
+              <Link href="/history" className="hover:text-ink-900">
+                History
+              </Link>
               <Link href="/settings/profile" className="hover:text-ink-900">
                 Settings
               </Link>
@@ -400,6 +403,9 @@ export default function DashboardClient({
               <Link href="/favorites" className="text-ink-700 hover:text-ink-900">
                 ⭐ Saved Favorites
               </Link>
+              <Link href="/history" className="text-ink-700 hover:text-ink-900">
+                📖 Guidance History
+              </Link>
               <Link href="/settings" className="text-ink-700 hover:text-ink-900">
                 ⚙️ Update Profile
               </Link>
@@ -408,12 +414,17 @@ export default function DashboardClient({
 
           {recentGuidance.length > 1 && (
             <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-5 shadow-sm">
-              <h3 className="mb-3 text-base font-semibold font-serif text-ink-900">
-                Recent Guidance
-              </h3>
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-base font-semibold font-serif text-ink-900">
+                  Recent Guidance
+                </h3>
+                <Link href="/history" className="text-sm text-navy-700 hover:text-navy-800">
+                  View all
+                </Link>
+              </div>
               <div className="space-y-3">
-                {recentGuidance.slice(1, 7).map((g) => (
-                  <div key={g.id} className="rounded-xl bg-parchment-100 border border-parchment-200 p-3">
+                {recentGuidance.slice(0, 6).map((g) => (
+                  <Link key={g.id} href="/history" className="block rounded-xl bg-parchment-100 border border-parchment-200 p-3 hover:border-parchment-400 transition-colors">
                     <p className="text-xs uppercase tracking-wide text-ink-500">
                       {g.guidance_date}
                     </p>
@@ -423,7 +434,7 @@ export default function DashboardClient({
                     {g.passage?.reference && (
                       <p className="mt-1 text-sm text-navy-700 font-serif italic">{g.passage.reference}</p>
                     )}
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
