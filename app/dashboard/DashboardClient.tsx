@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/db/supabase';
@@ -95,6 +95,24 @@ export default function DashboardClient({
   const [feedbackState, setFeedbackState] = useState<Record<string, string>>({});
   const [error, setError] = useState('');
 
+  // Situational context state
+  const [showContext, setShowContext] = useState(false);
+  const [contextThemes, setContextThemes] = useState<{ id: string; slug: string; name: string }[]>([]);
+  const [selectedThemeSlug, setSelectedThemeSlug] = useState<string | null>(null);
+  const [contextFreeText, setContextFreeText] = useState('');
+
+  useEffect(() => {
+    const loadThemes = async () => {
+      const supabase = createBrowserSupabaseClient();
+      const { data } = await supabase
+        .from('scripture_themes')
+        .select('id, slug, name')
+        .order('name');
+      if (data) setContextThemes(data);
+    };
+    loadThemes();
+  }, []);
+
   useEffect(() => {
     const loadGuidance = async () => {
       try {
@@ -124,7 +142,10 @@ export default function DashboardClient({
     setError('');
 
     try {
-      const json = await postGuidance(action);
+      const context = (selectedThemeSlug || contextFreeText.trim())
+        ? { theme_slug: selectedThemeSlug ?? undefined, free_text: contextFreeText.trim() || undefined }
+        : undefined;
+      const json = await postGuidance(action, context);
       setGuidance(toGuidanceViewModel(json));
       router.refresh();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -154,6 +175,67 @@ export default function DashboardClient({
   };
 
   const today = new Date().toISOString().split('T')[0];
+  const ContextExpander = () => (
+    <div className="rounded-xl border border-parchment-300 bg-parchment-50 overflow-hidden">
+      <button
+        onClick={() => setShowContext((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 text-sm text-ink-600 hover:text-ink-900 hover:bg-parchment-100 transition-colors"
+      >
+        <span>Customize today&apos;s guidance</span>
+        <span className="text-ink-400">{showContext ? '▲' : '▼'}</span>
+      </button>
+
+      {showContext && (
+        <div className="px-4 pb-4 space-y-4 border-t border-parchment-200 pt-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-ink-500 mb-2">
+              What do you need today?
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {contextThemes.map((t) => (
+                <button
+                  key={t.slug}
+                  onClick={() => setSelectedThemeSlug(selectedThemeSlug === t.slug ? null : t.slug)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                    selectedThemeSlug === t.slug
+                      ? 'bg-navy-700 text-white border-navy-700'
+                      : 'bg-white text-ink-700 border-parchment-300 hover:border-navy-400'
+                  }`}
+                >
+                  {t.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-ink-500 mb-2">
+              Anything on your heart? <span className="font-normal normal-case text-ink-400">optional</span>
+            </p>
+            <textarea
+              value={contextFreeText}
+              onChange={(e) => setContextFreeText(e.target.value.slice(0, 500))}
+              placeholder="Share what you are going through today..."
+              rows={3}
+              className="w-full px-3 py-2 border border-parchment-300 rounded-lg text-sm text-ink-900 bg-white placeholder-ink-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent transition resize-none font-serif italic"
+            />
+            <p className="text-xs text-ink-400 mt-1 text-right">{contextFreeText.length}/500</p>
+          </div>
+
+          {(selectedThemeSlug || contextFreeText.trim()) && (
+            <button
+              onClick={() => { setSelectedThemeSlug(null); setContextFreeText(''); }}
+              className="text-xs text-ink-400 hover:text-ink-600 transition-colors"
+            >
+              Clear customization
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
+
 
   return (
     <main className="min-h-screen bg-parchment-100 text-ink-900">
@@ -295,6 +377,8 @@ export default function DashboardClient({
                   </p>
                 </section>
 
+                <ContextExpander />
+
                 <div className="flex flex-wrap items-center gap-3 pt-2">
                   <button
                     onClick={() => sendFeedback(true)}
@@ -341,21 +425,24 @@ export default function DashboardClient({
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-8 text-center shadow-sm">
-              <h2 className="text-2xl font-semibold font-serif text-ink-900">
-                Ready for today&apos;s guidance?
-              </h2>
-              <p className="mx-auto mt-3 max-w-2xl text-ink-600">
-                Shepherd will select a verse and create a personalized devotional,
-                prayer, reflection, and biblical context just for you.
-              </p>
-              <button
-                onClick={() => generateGuidance('generate')}
-                disabled={isGenerating}
-                className="mt-6 rounded-xl bg-navy-700 px-8 py-3 font-semibold text-white transition-colors hover:bg-navy-800 disabled:bg-navy-400"
-              >
-                {isGenerating ? 'Generating your guidance...' : "Generate Today's Guidance"}
-              </button>
+            <div className="space-y-4">
+              <ContextExpander />
+              <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-8 text-center shadow-sm">
+                <h2 className="text-2xl font-semibold font-serif text-ink-900">
+                  Ready for today&apos;s guidance?
+                </h2>
+                <p className="mx-auto mt-3 max-w-2xl text-ink-600">
+                  Shepherd will select a verse and create a personalized devotional,
+                  prayer, reflection, and biblical context just for you.
+                </p>
+                <button
+                  onClick={() => generateGuidance('generate')}
+                  disabled={isGenerating}
+                  className="mt-6 rounded-xl bg-navy-700 px-8 py-3 font-semibold text-white transition-colors hover:bg-navy-800 disabled:bg-navy-400"
+                >
+                  {isGenerating ? 'Generating your guidance...' : "Generate Today's Guidance"}
+                </button>
+              </div>
             </div>
           )}
         </section>

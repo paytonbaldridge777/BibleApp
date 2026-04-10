@@ -90,11 +90,12 @@ export async function postOnboarding(data: OnboardingAnswers): Promise<void> {
 }
 
 export async function postGuidance(
-  action: 'generate' | 'regenerate'
+  action: 'generate' | 'regenerate',
+  context?: { theme_slug?: string; free_text?: string }
 ): Promise<GuidanceResponse> {
   const res = await apiFetch('/guidance', {
     method: 'POST',
-    body: JSON.stringify({ action }),
+    body: JSON.stringify({ action, ...context }),
   });
 
   const json = await res.json();
