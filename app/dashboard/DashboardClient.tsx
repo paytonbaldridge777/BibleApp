@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -41,26 +40,21 @@ function formatDate(dateStr: string): string {
 
 function calculateStreak(guidanceList: DailyGuidance[]): number {
   if (!guidanceList.length) return 0;
-
   const sorted = [...guidanceList].sort((a, b) =>
     b.guidance_date > a.guidance_date ? 1 : -1
   );
-
   let streak = 0;
   const today = new Date();
-
   for (let i = 0; i < sorted.length; i++) {
     const expected = new Date(today);
     expected.setDate(today.getDate() - i);
     const expectedStr = expected.toISOString().split('T')[0];
-
     if (sorted[i].guidance_date === expectedStr) {
       streak++;
     } else {
       break;
     }
   }
-
   return streak;
 }
 
@@ -75,7 +69,6 @@ function toGuidanceViewModel(json: {
   matched_theme: GuidanceTheme | null;
 }): GuidanceViewModel | null {
   if (!json.guidance) return null;
-
   return {
     ...json.guidance,
     passage: json.passage,
@@ -91,6 +84,8 @@ interface ContextExpanderProps {
   setSelectedThemeSlug: (slug: string | null) => void;
   contextFreeText: string;
   setContextFreeText: (text: string) => void;
+  onGenerate: () => void;
+  isGenerating: boolean;
 }
 
 function ContextExpander({
@@ -101,6 +96,8 @@ function ContextExpander({
   setSelectedThemeSlug,
   contextFreeText,
   setContextFreeText,
+  onGenerate,
+  isGenerating,
 }: ContextExpanderProps) {
   return (
     <div className="rounded-xl border border-parchment-300 bg-parchment-50 overflow-hidden">
@@ -122,7 +119,9 @@ function ContextExpander({
               {contextThemes.map((t) => (
                 <button
                   key={t.slug}
-                  onClick={() => setSelectedThemeSlug(selectedThemeSlug === t.slug ? null : t.slug)}
+                  onClick={() =>
+                    setSelectedThemeSlug(selectedThemeSlug === t.slug ? null : t.slug)
+                  }
                   className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                     selectedThemeSlug === t.slug
                       ? 'bg-navy-700 text-white border-navy-700'
@@ -137,7 +136,8 @@ function ContextExpander({
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-ink-500 mb-2">
-              Anything on your heart? <span className="font-normal normal-case text-ink-400">optional</span>
+              Anything on your heart?{' '}
+              <span className="font-normal normal-case text-ink-400">optional</span>
             </p>
             <textarea
               value={contextFreeText}
@@ -151,12 +151,49 @@ function ContextExpander({
 
           {(selectedThemeSlug || contextFreeText.trim()) && (
             <button
-              onClick={() => { setSelectedThemeSlug(null); setContextFreeText(''); }}
+              onClick={() => {
+                setSelectedThemeSlug(null);
+                setContextFreeText('');
+              }}
               className="text-xs text-ink-400 hover:text-ink-600 transition-colors"
             >
               Clear customization
             </button>
           )}
+
+          <button
+            onClick={onGenerate}
+            disabled={isGenerating}
+            className="w-full rounded-xl bg-navy-700 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-navy-800 disabled:bg-navy-400"
+          >
+            {isGenerating ? (
+              <span className="flex items-center justify-center gap-1.5">
+                <svg
+                  className="animate-spin h-3.5 w-3.5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+                Generating...
+              </span>
+            ) : (
+              "Generate Today's Guidance"
+            )}
+          </button>
         </div>
       )}
     </div>
@@ -204,7 +241,6 @@ export default function DashboardClient({
         console.error('Failed to load guidance', err);
       }
     };
-
     loadGuidance();
   }, []);
 
@@ -220,11 +256,14 @@ export default function DashboardClient({
   const generateGuidance = async (action: 'generate' | 'regenerate') => {
     setIsGenerating(true);
     setError('');
-
     try {
-      const context = (selectedThemeSlug || contextFreeText.trim())
-        ? { theme_slug: selectedThemeSlug ?? undefined, free_text: contextFreeText.trim() || undefined }
-        : undefined;
+      const context =
+        selectedThemeSlug || contextFreeText.trim()
+          ? {
+              theme_slug: selectedThemeSlug ?? undefined,
+              free_text: contextFreeText.trim() || undefined,
+            }
+          : undefined;
       const json = await postGuidance(action, context);
       setGuidance(toGuidanceViewModel(json));
       router.refresh();
@@ -238,13 +277,11 @@ export default function DashboardClient({
 
   const sendFeedback = async (helpful: boolean) => {
     if (!guidance) return;
-
     try {
       await postFeedback({
         guidance_id: guidance.id,
         helpful,
       });
-
       setFeedbackState((prev) => ({
         ...prev,
         [helpful ? 'helpful' : 'not_helpful']: 'sent',
@@ -276,7 +313,6 @@ export default function DashboardClient({
               </Link>
             </nav>
           </div>
-
           <div className="flex items-center gap-4 text-sm">
             <span className="text-ink-600">{user.email}</span>
             <button
@@ -291,8 +327,8 @@ export default function DashboardClient({
 
       <div className="border-b border-gold-300 bg-gold-100">
         <div className="mx-auto max-w-6xl px-6 py-3 text-sm text-navy-800">
-          Shepherd provides spiritual encouragement only. For mental health support,
-          please consult a professional. In crisis? Call or text 988.
+          Shepherd provides spiritual encouragement only. For mental health support, please consult a
+          professional. In crisis? Call or text 988.
         </div>
       </div>
 
@@ -306,7 +342,6 @@ export default function DashboardClient({
               </h1>
               <p className="mt-1 text-ink-600">{formatDate(today)}</p>
             </div>
-
             {streak > 0 && (
               <div className="rounded-full bg-gold-200 px-4 py-2 text-sm font-medium text-navy-800">
                 {streak} day{streak !== 1 ? 's' : ''} streak
@@ -379,9 +414,7 @@ export default function DashboardClient({
                 </section>
 
                 <section>
-                  <h3 className="mb-2 text-base font-semibold font-serif text-ink-900">
-                    Prayer
-                  </h3>
+                  <h3 className="mb-2 text-base font-semibold font-serif text-ink-900">Prayer</h3>
                   <p className="whitespace-pre-line leading-7 text-ink-700 font-serif italic">
                     {guidance.prayer_text}
                   </p>
@@ -391,20 +424,20 @@ export default function DashboardClient({
                   <h3 className="mb-2 text-base font-semibold font-serif text-ink-900">
                     Reflection
                   </h3>
-                  <p className="leading-7 text-ink-700">
-                    {guidance.reflection_question}
-                  </p>
+                  <p className="leading-7 text-ink-700">{guidance.reflection_question}</p>
                 </section>
 
                 <ContextExpander
-              showContext={showContext}
-              setShowContext={setShowContext}
-              contextThemes={contextThemes}
-              selectedThemeSlug={selectedThemeSlug}
-              setSelectedThemeSlug={setSelectedThemeSlug}
-              contextFreeText={contextFreeText}
-              setContextFreeText={setContextFreeText}
-            />
+                  showContext={showContext}
+                  setShowContext={setShowContext}
+                  contextThemes={contextThemes}
+                  selectedThemeSlug={selectedThemeSlug}
+                  setSelectedThemeSlug={setSelectedThemeSlug}
+                  contextFreeText={contextFreeText}
+                  setContextFreeText={setContextFreeText}
+                  onGenerate={() => generateGuidance('regenerate')}
+                  isGenerating={isGenerating}
+                />
 
                 <div className="flex flex-wrap items-center gap-3 pt-2">
                   <button
@@ -417,7 +450,6 @@ export default function DashboardClient({
                   >
                     {feedbackState['helpful'] === 'sent' ? 'Marked Helpful' : 'Helpful'}
                   </button>
-
                   <button
                     onClick={() => sendFeedback(false)}
                     className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
@@ -426,11 +458,8 @@ export default function DashboardClient({
                         : 'border-parchment-400 text-ink-600 hover:border-red-300 hover:text-red-700'
                     }`}
                   >
-                    {feedbackState['not_helpful'] === 'sent'
-                      ? 'Marked Not Helpful'
-                      : 'Not Helpful'}
+                    {feedbackState['not_helpful'] === 'sent' ? 'Marked Not Helpful' : 'Not Helpful'}
                   </button>
-
                   <button
                     onClick={() => generateGuidance('regenerate')}
                     disabled={isGenerating}
@@ -438,9 +467,25 @@ export default function DashboardClient({
                   >
                     {isGenerating ? (
                       <span className="flex items-center gap-1.5">
-                        <svg className="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                        <svg
+                          className="animate-spin h-3.5 w-3.5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                          />
                         </svg>
                         Regenerating...
                       </span>
@@ -454,21 +499,23 @@ export default function DashboardClient({
           ) : (
             <div className="space-y-4">
               <ContextExpander
-              showContext={showContext}
-              setShowContext={setShowContext}
-              contextThemes={contextThemes}
-              selectedThemeSlug={selectedThemeSlug}
-              setSelectedThemeSlug={setSelectedThemeSlug}
-              contextFreeText={contextFreeText}
-              setContextFreeText={setContextFreeText}
-            />
+                showContext={showContext}
+                setShowContext={setShowContext}
+                contextThemes={contextThemes}
+                selectedThemeSlug={selectedThemeSlug}
+                setSelectedThemeSlug={setSelectedThemeSlug}
+                contextFreeText={contextFreeText}
+                setContextFreeText={setContextFreeText}
+                onGenerate={() => generateGuidance('generate')}
+                isGenerating={isGenerating}
+              />
               <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-8 text-center shadow-sm">
                 <h2 className="text-2xl font-semibold font-serif text-ink-900">
                   Ready for today&apos;s guidance?
                 </h2>
                 <p className="mx-auto mt-3 max-w-2xl text-ink-600">
-                  Shepherd will select a verse and create a personalized devotional,
-                  prayer, reflection, and biblical context just for you.
+                  Shepherd will select a verse and create a personalized devotional, prayer,
+                  reflection, and biblical context just for you.
                 </p>
                 <button
                   onClick={() => generateGuidance('generate')}
@@ -490,15 +537,11 @@ export default function DashboardClient({
                 Edit
               </Link>
             </div>
-
             <div className="space-y-4 text-sm">
               <div>
                 <p className="text-ink-500">Experience</p>
-                <p className="mt-1 font-medium text-ink-800">
-                  {profile.bible_experience_level}
-                </p>
+                <p className="mt-1 font-medium text-ink-800">{profile.bible_experience_level}</p>
               </div>
-
               {profile.current_needs?.length > 0 && (
                 <div>
                   <p className="text-ink-500">Seeking</p>
@@ -514,14 +557,12 @@ export default function DashboardClient({
                   </div>
                 </div>
               )}
-
               <div>
                 <p className="text-ink-500">Tone</p>
                 <p className="mt-1 font-medium capitalize text-ink-800">
                   {profile.tone_preference}
                 </p>
               </div>
-
               {profile.profile_summary && (
                 <p className="rounded-xl bg-parchment-100 border border-parchment-300 p-3 leading-6 text-ink-700 font-serif italic text-sm">
                   {profile.profile_summary}
@@ -557,15 +598,19 @@ export default function DashboardClient({
               </div>
               <div className="space-y-3">
                 {recentGuidance.slice(0, 6).map((g) => (
-                  <Link key={g.id} href="/history" className="block rounded-xl bg-parchment-100 border border-parchment-200 p-3 hover:border-parchment-400 transition-colors">
+                  <Link
+                    key={g.id}
+                    href="/history"
+                    className="block rounded-xl bg-parchment-100 border border-parchment-200 p-3 hover:border-parchment-400 transition-colors"
+                  >
                     <p className="text-xs uppercase tracking-wide text-ink-500">
                       {g.guidance_date}
                     </p>
-                    <p className="mt-1 font-medium text-ink-800">
-                      {g.title || 'Guidance'}
-                    </p>
+                    <p className="mt-1 font-medium text-ink-800">{g.title || 'Guidance'}</p>
                     {g.passage?.reference && (
-                      <p className="mt-1 text-sm text-navy-700 font-serif italic">{g.passage.reference}</p>
+                      <p className="mt-1 text-sm text-navy-700 font-serif italic">
+                        {g.passage.reference}
+                      </p>
                     )}
                   </Link>
                 ))}
