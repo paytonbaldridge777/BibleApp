@@ -302,6 +302,9 @@ export default function DashboardClient({
               Shepherd
             </Link>
             <nav className="flex items-center gap-4 text-sm text-ink-600">
+              <Link href="/explore" className="hover:text-ink-900">
+                Explore
+              </Link>
               <Link href="/favorites" className="hover:text-ink-900">
                 Favorites
               </Link>
@@ -574,6 +577,9 @@ export default function DashboardClient({
           <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-5 shadow-sm">
             <h3 className="mb-3 text-base font-semibold font-serif text-ink-900">Quick Links</h3>
             <div className="flex flex-col gap-3 text-sm">
+              <Link href="/explore" className="text-ink-700 hover:text-ink-900">
+                🔍 Passage Study
+              </Link>
               <Link href="/favorites" className="text-ink-700 hover:text-ink-900">
                 ⭐ Saved Favorites
               </Link>

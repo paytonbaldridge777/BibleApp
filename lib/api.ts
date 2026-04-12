@@ -21,19 +21,14 @@ async function apiFetch(path: string, init: RequestInit = {}): Promise<Response>
   const {
     data: { session },
   } = await supabase.auth.getSession();
-
   const token = session?.access_token;
-  const headers = new Headers(init.headers as HeadersInit);
 
+  const headers = new Headers(init.headers as HeadersInit);
   headers.set('Content-Type', 'application/json');
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
   const url = `${API_BASE}${normalizePath(path)}`;
-
-  return fetch(url, {
-    ...init,
-    headers,
-  });
+  return fetch(url, { ...init, headers });
 }
 
 export type GuidanceTheme = {
@@ -77,12 +72,18 @@ export type GuidanceResponse = {
   matched_theme: GuidanceTheme | null;
 };
 
+export type InterpretResponse = {
+  reference: string;
+  text: string;
+  context_text: string;
+  reflection_question: string;
+};
+
 export async function postOnboarding(data: OnboardingAnswers): Promise<void> {
   const res = await apiFetch('/onboarding', {
     method: 'POST',
     body: JSON.stringify(data),
   });
-
   if (!res.ok) {
     const json = await res.json();
     throw new Error(json.error ?? 'Failed to save your profile');
@@ -97,24 +98,19 @@ export async function postGuidance(
     method: 'POST',
     body: JSON.stringify({ action, ...context }),
   });
-
   const json = await res.json();
-
   if (!res.ok) {
     throw new Error(json.error ?? 'Failed to generate guidance');
   }
-
   return json;
 }
 
 export async function getGuidance(): Promise<GuidanceResponse> {
   const res = await apiFetch('/guidance');
   const json = await res.json();
-
   if (!res.ok) {
     throw new Error(json.error ?? 'Failed to load guidance');
   }
-
   return json;
 }
 
@@ -127,12 +123,26 @@ export async function postFeedback(payload: {
     method: 'POST',
     body: JSON.stringify(payload),
   });
-
   const json = await res.json();
-
   if (!res.ok) {
     throw new Error(json.error ?? 'Failed to save feedback');
   }
+  return json;
+}
 
+export async function postInterpret(payload: {
+  book: string;
+  chapter: number;
+  verse_start: number;
+  verse_end?: number;
+}): Promise<InterpretResponse> {
+  const res = await apiFetch('/interpret', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.error ?? 'Failed to interpret passage');
+  }
   return json;
 }
