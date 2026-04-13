@@ -152,7 +152,7 @@ export default function ExploreClient({ user }: Props) {
             </Link>
             <nav className="flex items-center gap-4 text-sm text-ink-600">
               <Link href="/explore" className="text-navy-800 font-medium">
-                Explore
+                Study
               </Link>
               <Link href="/favorites" className="hover:text-ink-900">
                 Favorites
