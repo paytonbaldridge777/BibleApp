@@ -257,6 +257,7 @@ export default function DashboardClient({
           : undefined;
       const json = await postGuidance(action, context);
       setGuidance(toGuidanceViewModel(json));
+      setExpanded({});
       router.refresh();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
