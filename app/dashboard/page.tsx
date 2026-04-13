@@ -60,7 +60,6 @@ async function enrichGuidance(
 }
 
 export default async function DashboardPage() {
-  try {
   const supabase = await createServerSupabaseClient();
 
   const {
@@ -81,6 +80,7 @@ export default async function DashboardPage() {
     redirect('/onboarding');
   }
 
+  try {
   const today = new Date().toISOString().split('T')[0];
 
   const { data: todayGuidanceRaw } = await supabase

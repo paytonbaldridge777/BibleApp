@@ -130,6 +130,26 @@ export async function postFeedback(payload: {
   return json;
 }
 
+export async function postFavorite(guidance_id: string) {
+  const res = await apiFetch('/favorites', {
+    method: 'POST',
+    body: JSON.stringify({ guidance_id }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error ?? 'Failed to save favorite');
+  return json;
+}
+
+export async function deleteFavorite(guidance_id: string) {
+  const res = await apiFetch('/favorites', {
+    method: 'DELETE',
+    body: JSON.stringify({ guidance_id }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error ?? 'Failed to remove favorite');
+  return json;
+}
+
 export async function postInterpret(payload: {
   book: string;
   chapter: number;

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/db/supabase';
-import { getGuidance, postGuidance, postFeedback } from '@/lib/api';
+import { postGuidance, postFeedback, postFavorite, deleteFavorite } from '@/lib/api';
 import type { DailyGuidance, GuidancePassage, GuidanceTheme } from '@/lib/api';
 import type { SpiritualProfile } from '@/types';
 
@@ -210,6 +210,7 @@ export default function DashboardClient({
   const [guidance, setGuidance] = useState<GuidanceViewModel | null>(todayGuidance);
   const [isGenerating, setIsGenerating] = useState(false);
   const [feedbackState, setFeedbackState] = useState<Record<string, string>>({});
+  const [isFavorite, setIsFavorite] = useState(false);
   const [error, setError] = useState('');
 
   // Situational context state
@@ -228,20 +229,6 @@ export default function DashboardClient({
       if (data) setContextThemes(data);
     };
     loadThemes();
-  }, []);
-
-  useEffect(() => {
-    const loadGuidance = async () => {
-      try {
-        const json = await getGuidance();
-        const mapped = toGuidanceViewModel(json);
-        if (!mapped) return;
-        setGuidance(mapped);
-      } catch (err) {
-        console.error('Failed to load guidance', err);
-      }
-    };
-    loadGuidance();
   }, []);
 
   const streak = calculateStreak(recentGuidance);
@@ -275,6 +262,21 @@ export default function DashboardClient({
     }
   };
 
+  const toggleFavorite = async () => {
+    if (!guidance) return;
+    try {
+      if (isFavorite) {
+        await deleteFavorite(guidance.id);
+        setIsFavorite(false);
+      } else {
+        await postFavorite(guidance.id);
+        setIsFavorite(true);
+      }
+    } catch {
+      // silently fail favorite toggle
+    }
+  };
+  
   const sendFeedback = async (helpful: boolean) => {
     if (!guidance) return;
     try {
@@ -442,7 +444,17 @@ export default function DashboardClient({
                   isGenerating={isGenerating}
                 />
 
-                <div className="flex flex-wrap items-center gap-3 pt-2">
+<div className="flex flex-wrap items-center gap-3 pt-2">
+                  <button
+                    onClick={toggleFavorite}
+                    className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
+                      isFavorite
+                        ? 'border-gold-400 bg-gold-100 text-gold-700'
+                        : 'border-parchment-400 text-ink-600 hover:border-gold-400 hover:text-gold-700'
+                    }`}
+                  >
+                    {isFavorite ? '⭐ Saved' : '☆ Save to Favorites'}
+                  </button>
                   <button
                     onClick={() => sendFeedback(true)}
                     className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
