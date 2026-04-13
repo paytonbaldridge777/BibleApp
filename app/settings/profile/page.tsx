@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from '@/lib/db/supabase-server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { SpiritualProfile } from '@/types';
+import ChangePasswordForm from '../ChangePasswordForm';
 export const runtime = 'edge';
 
 export default async function ProfileSettingsPage() {
@@ -144,6 +145,9 @@ export default async function ProfileSettingsPage() {
             </Link>
           </div>
         )}
+        <div className="mt-6">
+          <ChangePasswordForm />
+        </div>
       </main>
     </div>
   );
