@@ -310,7 +310,7 @@ export default function DashboardClient({
             </Link>
             <nav className="flex items-center gap-4 text-sm text-ink-600">
               <Link href="/explore" className="hover:text-ink-900">
-                Explore
+                Study
               </Link>
               <Link href="/favorites" className="hover:text-ink-900">
                 Favorites
