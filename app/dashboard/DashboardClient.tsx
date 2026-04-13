@@ -212,6 +212,10 @@ export default function DashboardClient({
   const [feedbackState, setFeedbackState] = useState<Record<string, string>>({});
   const [isFavorite, setIsFavorite] = useState(false);
   const [error, setError] = useState('');
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+
+  const toggleSection = (key: string) =>
+    setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
 
   // Situational context state
   const [showContext, setShowContext] = useState(false);
@@ -398,40 +402,69 @@ export default function DashboardClient({
 
                 <div className="border-t border-parchment-300" />
 
-                {guidance.context_text && (
+                <div className="divide-y divide-parchment-200 rounded-xl border border-parchment-200 overflow-hidden">
+                  {guidance.context_text && (
+                    <section>
+                      <button
+                        onClick={() => toggleSection('context')}
+                        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-parchment-100 transition-colors"
+                      >
+                        <span className="text-base font-semibold font-serif text-ink-900">Biblical Context</span>
+                        <span className="text-ink-400 text-sm ml-4">{expanded['context'] ? '▲' : '▼'}</span>
+                      </button>
+                      {expanded['context'] && (
+                        <p className="px-4 pb-4 whitespace-pre-line leading-7 text-ink-700">
+                          {guidance.context_text}
+                        </p>
+                      )}
+                    </section>
+                  )}
+
                   <section>
-                    <h3 className="mb-2 text-base font-semibold font-serif text-ink-900">
-                      Biblical Context
-                    </h3>
-                    <p className="whitespace-pre-line leading-7 text-ink-700">
-                      {guidance.context_text}
-                    </p>
+                    <button
+                      onClick={() => toggleSection('devotional')}
+                      className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-parchment-100 transition-colors"
+                    >
+                      <span className="text-base font-semibold font-serif text-ink-900">Devotional</span>
+                      <span className="text-ink-400 text-sm ml-4">{expanded['devotional'] ? '▲' : '▼'}</span>
+                    </button>
+                    {expanded['devotional'] && (
+                      <p className="px-4 pb-4 whitespace-pre-line leading-7 text-ink-700">
+                        {guidance.devotional_text}
+                      </p>
+                    )}
                   </section>
-                )}
 
-                <section>
-                  <h3 className="mb-2 text-base font-semibold font-serif text-ink-900">
-                    Devotional
-                  </h3>
-                  <p className="whitespace-pre-line leading-7 text-ink-700">
-                    {guidance.devotional_text}
-                  </p>
-                </section>
+                  <section>
+                    <button
+                      onClick={() => toggleSection('prayer')}
+                      className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-parchment-100 transition-colors"
+                    >
+                      <span className="text-base font-semibold font-serif text-ink-900">Prayer</span>
+                      <span className="text-ink-400 text-sm ml-4">{expanded['prayer'] ? '▲' : '▼'}</span>
+                    </button>
+                    {expanded['prayer'] && (
+                      <p className="px-4 pb-4 whitespace-pre-line leading-7 text-ink-700 font-serif italic">
+                        {guidance.prayer_text}
+                      </p>
+                    )}
+                  </section>
 
-                <section>
-                  <h3 className="mb-2 text-base font-semibold font-serif text-ink-900">Prayer</h3>
-                  <p className="whitespace-pre-line leading-7 text-ink-700 font-serif italic">
-                    {guidance.prayer_text}
-                  </p>
-                </section>
-
-                <section>
-                  <h3 className="mb-2 text-base font-semibold font-serif text-ink-900">
-                    Reflection
-                  </h3>
-                  <p className="leading-7 text-ink-700">{guidance.reflection_question}</p>
-                </section>
-
+                  <section>
+                    <button
+                      onClick={() => toggleSection('reflection')}
+                      className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-parchment-100 transition-colors"
+                    >
+                      <span className="text-base font-semibold font-serif text-ink-900">Reflection</span>
+                      <span className="text-ink-400 text-sm ml-4">{expanded['reflection'] ? '▲' : '▼'}</span>
+                    </button>
+                    {expanded['reflection'] && (
+                      <p className="px-4 pb-4 leading-7 text-ink-700">
+                        {guidance.reflection_question}
+                      </p>
+                    )}
+                  </section>
+                </div>
                 <ContextExpander
                   showContext={showContext}
                   setShowContext={setShowContext}
