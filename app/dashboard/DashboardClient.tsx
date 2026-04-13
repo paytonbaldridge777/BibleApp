@@ -582,7 +582,7 @@ export default function DashboardClient({
           <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-5 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-base font-semibold font-serif text-ink-900">Your Profile</h3>
-              <Link href="/settings" className="text-sm text-navy-700 hover:text-navy-800">
+              <Link href="/settings/profile" className="text-sm text-navy-700 hover:text-navy-800">
                 Edit
               </Link>
             </div>
