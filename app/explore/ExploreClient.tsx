@@ -198,7 +198,7 @@ export default function ExploreClient({ user }: Props) {
               </span>
             </div>
             <p className="mt-1 text-ink-600">
-              Enter any passage to receive context and a reflection question.
+              Enter any passage to receive context and application.
             </p>
           </div>
         </div>
@@ -342,8 +342,8 @@ export default function ExploreClient({ user }: Props) {
             <div className="border-t border-parchment-300" />
 
             <section>
-              <h3 className="mb-2 text-base font-semibold font-serif text-ink-900">Reflection</h3>
-              <p className="leading-7 text-ink-700">{result.reflection_question}</p>
+              <h3 className="mb-2 text-base font-semibold font-serif text-ink-900">Application</h3>
+              <p className="leading-7 text-ink-700">{result.application}</p>
             </section>
 
             <button

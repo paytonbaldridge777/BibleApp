@@ -76,7 +76,7 @@ export type InterpretResponse = {
   reference: string;
   text: string;
   context_text: string;
-  reflection_question: string;
+  application: string;
 };
 
 export async function postOnboarding(data: OnboardingAnswers): Promise<void> {
