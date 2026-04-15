@@ -35,7 +35,7 @@ async function enrichGuidance(
       passage = {
         id: passageData.id,
         reference: passageData.reference,
-        text: '',
+        text: (guidance as any).verse_text ?? '',
       };
     }
   }
