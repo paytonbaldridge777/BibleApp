@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/db/supabase-server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import Header from '@/components/layout/Header';
 import type { Favorite } from '@/types';
 
 export const runtime = 'edge';
@@ -26,16 +27,7 @@ export default async function FavoritesPage() {
   if (!API_BASE || !token) {
     return (
       <div className="min-h-screen bg-parchment-100">
-        <header className="bg-parchment-50 border-b border-parchment-300 sticky top-0 z-40">
-          <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <Link href="/dashboard" className="flex items-center gap-2">
-                <span className="text-xl">🌿</span>
-                <span className="text-lg font-bold font-serif text-navy-800">Shepherd</span>
-              </Link>
-            </div>
-          </div>
-        </header>
+        <Header userEmail={user?.email} />
 
         <main className="max-w-4xl mx-auto px-4 py-8">
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
@@ -63,27 +55,7 @@ export default async function FavoritesPage() {
 
   return (
     <div className="min-h-screen bg-parchment-100">
-      <header className="bg-parchment-50 border-b border-parchment-300 sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <span className="text-xl">🌿</span>
-              <span className="text-lg font-bold font-serif text-navy-800">Shepherd</span>
-            </Link>
-            <nav className="hidden sm:flex gap-4">
-              <Link href="/dashboard" className="text-sm text-ink-500 hover:text-ink-700">
-                Dashboard
-              </Link>
-              <Link href="/favorites" className="text-sm font-medium text-ink-800">
-                Favorites
-              </Link>
-              <Link href="/settings/profile" className="text-sm text-ink-500 hover:text-ink-700">
-                Settings
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header userEmail={user?.email} />
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6">

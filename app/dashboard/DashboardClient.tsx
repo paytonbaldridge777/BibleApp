@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/db/supabase';
+import Header from '@/components/layout/Header';
 import { postGuidance, postFeedback, postFavorite, deleteFavorite } from '@/lib/api';
 import type { DailyGuidance, GuidancePassage, GuidanceTheme } from '@/lib/api';
 import type { SpiritualProfile } from '@/types';
@@ -237,13 +237,6 @@ export default function DashboardClient({
 
   const streak = calculateStreak(recentGuidance);
 
-  const handleLogout = async () => {
-    const supabase = createBrowserSupabaseClient();
-    await supabase.auth.signOut();
-    router.push('/');
-    router.refresh();
-  };
-
   const generateGuidance = async (action: 'generate' | 'regenerate') => {
     setIsGenerating(true);
     setError('');
@@ -302,38 +295,7 @@ export default function DashboardClient({
 
   return (
     <main className="min-h-screen bg-parchment-100 text-ink-900">
-      <header className="border-b border-parchment-300 bg-parchment-50">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-6">
-            <Link href="/dashboard" className="text-xl font-bold font-serif text-navy-800">
-              Shepherd
-            </Link>
-            <nav className="flex items-center gap-4 text-sm text-ink-600">
-              <Link href="/explore" className="hover:text-ink-900">
-                Study
-              </Link>
-              <Link href="/favorites" className="hover:text-ink-900">
-                Favorites
-              </Link>
-              <Link href="/history" className="hover:text-ink-900">
-                History
-              </Link>
-              <Link href="/settings/profile" className="hover:text-ink-900">
-                Settings
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4 text-sm">
-            <span className="text-ink-600">{user.email}</span>
-            <button
-              onClick={handleLogout}
-              className="rounded-lg border border-parchment-400 px-3 py-1.5 text-ink-700 hover:bg-parchment-200 transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header userEmail={user.email} />
 
       <div className="border-b border-gold-300 bg-gold-100">
         <div className="mx-auto max-w-6xl px-6 py-3 text-sm text-navy-800">

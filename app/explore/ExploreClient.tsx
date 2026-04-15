@@ -1,9 +1,7 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { createBrowserSupabaseClient } from '@/lib/db/supabase';
 import { postInterpret } from '@/lib/api';
+import Header from '@/components/layout/Header';
 import type { InterpretResponse } from '@/lib/api';
 
 interface Props {
@@ -86,7 +84,6 @@ const ALL_BOOKS = [...OLD_TESTAMENT, ...NEW_TESTAMENT];
 const MAX_VERSES = 12;
 
 export default function ExploreClient({ user }: Props) {
-  const router = useRouter();
   const [book, setBook] = useState('');
   const [chapter, setChapter] = useState('');
   const [verseStart, setVerseStart] = useState('');
@@ -99,13 +96,6 @@ export default function ExploreClient({ user }: Props) {
   const maxChapters = selectedBook?.chapters ?? 1;
   const verseSpan = verseEnd && verseStart ? parseInt(verseEnd) - parseInt(verseStart) + 1 : 0;
   const verseOverLimit = verseSpan > MAX_VERSES;
-
-  const handleLogout = async () => {
-    const supabase = createBrowserSupabaseClient();
-    await supabase.auth.signOut();
-    router.push('/');
-    router.refresh();
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,38 +134,7 @@ export default function ExploreClient({ user }: Props) {
 
   return (
     <main className="min-h-screen bg-parchment-100 text-ink-900">
-      <header className="border-b border-parchment-300 bg-parchment-50">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-6">
-            <Link href="/dashboard" className="text-xl font-bold font-serif text-navy-800">
-              Shepherd
-            </Link>
-            <nav className="flex items-center gap-4 text-sm text-ink-600">
-              <Link href="/explore" className="text-navy-800 font-medium">
-                Study
-              </Link>
-              <Link href="/favorites" className="hover:text-ink-900">
-                Favorites
-              </Link>
-              <Link href="/history" className="hover:text-ink-900">
-                History
-              </Link>
-              <Link href="/settings/profile" className="hover:text-ink-900">
-                Settings
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4 text-sm">
-            <span className="text-ink-600">{user.email}</span>
-            <button
-              onClick={handleLogout}
-              className="rounded-lg border border-parchment-400 px-3 py-1.5 text-ink-700 hover:bg-parchment-200 transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header userEmail={user.email} />
 
       <div className="border-b border-gold-300 bg-gold-100">
         <div className="mx-auto max-w-6xl px-6 py-3 text-sm text-navy-800">
