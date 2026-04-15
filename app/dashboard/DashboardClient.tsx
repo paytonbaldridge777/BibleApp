@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/db/supabase';
 import Header from '@/components/layout/Header';
 import { postGuidance, postFeedback, postFavorite, deleteFavorite } from '@/lib/api';
