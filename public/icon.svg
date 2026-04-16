@@ -1,33 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img">
   <title>Shepherd icon</title>
   <desc>Shepherd compass icon with upright cross needle on transparent background</desc>
-
-  <!-- Outer ring -->
-  <circle cx="50" cy="50" r="46" fill="none" stroke="#1e3a5f" stroke-width="2.5"/>
-  <!-- Inner dashed ring -->
-  <circle cx="50" cy="50" r="38" fill="none" stroke="#1e3a5f" stroke-width="0.8" stroke-dasharray="3 4"/>
-
-  <!-- Tick marks -->
-  <line x1="50" y1="7"  x2="50" y2="16" stroke="#1e3a5f" stroke-width="2"/>
-  <line x1="50" y1="84" x2="50" y2="93" stroke="#1e3a5f" stroke-width="2"/>
-  <line x1="7"  y1="50" x2="16" y2="50" stroke="#1e3a5f" stroke-width="2"/>
-  <line x1="84" y1="50" x2="93" y2="50" stroke="#1e3a5f" stroke-width="2"/>
-
-  <!-- Diagonal ticks -->
-  <line x1="18" y1="18" x2="24" y2="24" stroke="#1e3a5f" stroke-width="1" opacity="0.35"/>
-  <line x1="76" y1="18" x2="82" y2="24" stroke="#1e3a5f" stroke-width="1" opacity="0.35"/>
-  <line x1="18" y1="82" x2="24" y2="76" stroke="#1e3a5f" stroke-width="1" opacity="0.35"/>
-  <line x1="76" y1="82" x2="82" y2="76" stroke="#1e3a5f" stroke-width="1" opacity="0.35"/>
-
-  <!-- Upright cross needle (north) -->
-  <rect x="47.8" y="16" width="4.5" height="18" rx="1.5" fill="#c9973a"/>
-  <rect x="47.8" y="30" width="4.5" height="18" rx="1.5" fill="#c9973a"/>
-  <rect x="40"   y="28" width="20" height="4.5" rx="1.5" fill="#c9973a"/>
-
-  <!-- South pointer -->
-  <polygon points="50,85 47.5,60 52.5,60" fill="#1e3a5f" opacity="0.4"/>
-
-  <!-- Center pivot -->
-  <circle cx="50" cy="50" r="5" fill="#1e3a5f"/>
-  <circle cx="50" cy="50" r="2.2" fill="#c9973a"/>
+  <polygon points="50,8 43,34 50,30 57,34" fill="#c9973a"/>
+  <polygon points="50,92 43,74 50,78 57,74" fill="#1e3a5f" opacity="0.45"/>
+  <polygon points="92,50 66,43 72,50 66,57" fill="#1e3a5f" opacity="0.45"/>
+  <polygon points="8,50 34,43 28,50 34,57" fill="#1e3a5f" opacity="0.45"/>
+  <circle cx="50" cy="50" r="36" fill="#f5f0e8" stroke="#1e3a5f" stroke-width="1.8"/>
+  <path d="M47.5,19 L52.5,19 L52.5,32 L70,32 L70,37 L52.5,37 L52.5,81 L47.5,81 L47.5,37 L30,37 L30,32 L47.5,32 Z" fill="#c9973a"/>
+  <circle cx="50" cy="50" r="3.5" fill="#1e3a5f"/>
 </svg>
