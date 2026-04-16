@@ -1,13 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 80" role="img">
   <title>Shepherd — Guided by Scripture</title>
-  <desc>Shepherd horizontal wordmark with compass icon</desc>
-  <polygon points="40,6 34,22 40,19 46,22" fill="#c9973a"/>
-  <polygon points="40,74 34,60 40,63 46,60" fill="#1e3a5f" opacity="0.45"/>
-  <polygon points="74,40 52,34 57,40 52,46" fill="#1e3a5f" opacity="0.45"/>
-  <polygon points="6,40 28,34 23,40 28,46" fill="#1e3a5f" opacity="0.45"/>
-  <circle cx="40" cy="40" r="22" fill="#f5f0e8" stroke="#1e3a5f" stroke-width="1.5"/>
-  <path d="M37.75,23 L42.25,23 L42.25,31 L54,31 L54,35 L42.25,35 L42.25,57 L37.75,57 L37.75,35 L26,35 L26,31 L37.75,31 Z" fill="#c9973a"/>
+  <desc>Shepherd horizontal wordmark</desc>
+
+  <!-- Icon centered at (40,40), medallion r=28 -->
+  <polygon points="40,4 36,14 40,12 44,14" fill="#c9973a"/>
+  <polygon points="40,76 36,66 40,68 44,66" fill="#1e3a5f" opacity="0.45"/>
+  <polygon points="76,40 66,37 68,40 66,43" fill="#1e3a5f" opacity="0.45"/>
+  <polygon points="4,40 14,37 12,40 14,43" fill="#1e3a5f" opacity="0.45"/>
+
+  <circle cx="40" cy="40" r="28" fill="#f5f0e8" stroke="#1e3a5f" stroke-width="1.5"/>
+
+  <!-- Cross scaled: vertical y=14..66, crossbar y=24..29, horiz x=22..58, width 5px -->
+  <path d="M37.5,14 L42.5,14 L42.5,24 L58,24 L58,29 L42.5,29 L42.5,66 L37.5,66 L37.5,29 L22,29 L22,24 L37.5,24 Z" fill="#c9973a"/>
   <circle cx="40" cy="40" r="2.5" fill="#1e3a5f"/>
-  <text x="88" y="46" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="700" fill="#1e3a5f" letter-spacing="0.01em">Shepherd</text>
-  <text x="89" y="62" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#c9973a" letter-spacing="0.13em">GUIDED BY SCRIPTURE</text>
+
+  <text x="84" y="46" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="700" fill="#1e3a5f" letter-spacing="0.01em">Shepherd</text>
+  <text x="85" y="62" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#c9973a" letter-spacing="0.13em">GUIDED BY SCRIPTURE</text>
 </svg>

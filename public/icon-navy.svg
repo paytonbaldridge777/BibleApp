@@ -1,12 +1,30 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img">
   <title>Shepherd icon</title>
   <desc>Shepherd compass icon with navy background and upright gold cross needle</desc>
+
+  <!-- Navy background -->
   <circle cx="50" cy="50" r="50" fill="#1e3a5f"/>
-  <polygon points="50,8 43,34 50,30 57,34" fill="#c9973a"/>
-  <polygon points="50,92 43,74 50,78 57,74" fill="white" opacity="0.3"/>
-  <polygon points="92,50 66,43 72,50 66,57" fill="white" opacity="0.3"/>
-  <polygon points="8,50 34,43 28,50 34,57" fill="white" opacity="0.3"/>
-  <circle cx="50" cy="50" r="36" fill="#f5f0e8" stroke="#c9973a" stroke-width="1.2" opacity="0.9"/>
-  <path d="M47.5,19 L52.5,19 L52.5,32 L70,32 L70,37 L52.5,37 L52.5,81 L47.5,81 L47.5,37 L30,37 L30,32 L47.5,32 Z" fill="#c9973a"/>
+
+  <!-- Compass points — outside medallion (r=34), tips at edge of circle -->
+  <!-- North gold -->
+  <polygon points="50,2 46,18 50,15 54,18" fill="#c9973a"/>
+  <!-- South navy/white -->
+  <polygon points="50,98 46,82 50,85 54,82" fill="white" opacity="0.3"/>
+  <!-- East -->
+  <polygon points="98,50 82,46 85,50 82,54" fill="white" opacity="0.3"/>
+  <!-- West -->
+  <polygon points="2,50 18,46 15,50 18,54" fill="white" opacity="0.3"/>
+
+  <!-- Medallion -->
+  <circle cx="50" cy="50" r="34" fill="#f5f0e8" stroke="#c9973a" stroke-width="1.5"/>
+
+  <!-- Upright cross — crossbar in upper third, long stem below
+       Vertical: y=18..82 (gap of 4 from medallion edge at r=34)
+       Crossbar: y=30..36 (upper third)
+       Horizontal: x=30..70
+       Arm width: 6px -->
+  <path d="M47,18 L53,18 L53,30 L70,30 L70,36 L53,36 L53,82 L47,82 L47,36 L30,36 L30,30 L47,30 Z" fill="#c9973a"/>
+
+  <!-- Center pivot -->
   <circle cx="50" cy="50" r="3.5" fill="#1e3a5f"/>
 </svg>

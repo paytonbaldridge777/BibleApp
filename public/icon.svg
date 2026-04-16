@@ -1,11 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img">
   <title>Shepherd icon</title>
-  <desc>Shepherd compass icon with upright cross needle on transparent background</desc>
-  <polygon points="50,8 43,34 50,30 57,34" fill="#c9973a"/>
-  <polygon points="50,92 43,74 50,78 57,74" fill="#1e3a5f" opacity="0.45"/>
-  <polygon points="92,50 66,43 72,50 66,57" fill="#1e3a5f" opacity="0.45"/>
-  <polygon points="8,50 34,43 28,50 34,57" fill="#1e3a5f" opacity="0.45"/>
-  <circle cx="50" cy="50" r="36" fill="#f5f0e8" stroke="#1e3a5f" stroke-width="1.8"/>
-  <path d="M47.5,19 L52.5,19 L52.5,32 L70,32 L70,37 L52.5,37 L52.5,81 L47.5,81 L47.5,37 L30,37 L30,32 L47.5,32 Z" fill="#c9973a"/>
+  <desc>Shepherd compass icon with transparent background</desc>
+
+  <!-- Compass points -->
+  <polygon points="50,2 46,18 50,15 54,18" fill="#c9973a"/>
+  <polygon points="50,98 46,82 50,85 54,82" fill="#1e3a5f" opacity="0.45"/>
+  <polygon points="98,50 82,46 85,50 82,54" fill="#1e3a5f" opacity="0.45"/>
+  <polygon points="2,50 18,46 15,50 18,54" fill="#1e3a5f" opacity="0.45"/>
+
+  <!-- Medallion -->
+  <circle cx="50" cy="50" r="34" fill="#f5f0e8" stroke="#1e3a5f" stroke-width="1.8"/>
+
+  <!-- Same cross -->
+  <path d="M47,18 L53,18 L53,30 L70,30 L70,36 L53,36 L53,82 L47,82 L47,36 L30,36 L30,30 L47,30 Z" fill="#c9973a"/>
+
   <circle cx="50" cy="50" r="3.5" fill="#1e3a5f"/>
 </svg>
