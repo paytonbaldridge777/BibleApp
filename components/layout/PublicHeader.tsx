@@ -6,7 +6,7 @@ export default function PublicHeader() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center shrink-0">
-            <img src="/logo.png" alt="Shepherd" style={{ height: '36px', width: 'auto' }} />
+            <img src="/logo.png" alt="Shepherd" style={{ height: '140px', width: 'auto' }} />
           </Link>
           <nav className="flex items-center gap-4">
             <Link
