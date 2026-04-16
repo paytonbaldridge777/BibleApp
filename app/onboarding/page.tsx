@@ -214,7 +214,7 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-gradient-to-b from-gold-100 to-parchment-100 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-xl">
         <div className="text-center mb-8">
-          <img src="/icon.svg" alt="Shepherd" width="40" height="40" style={{margin: "0 auto 8px"}} />
+          <img src="/logo.svg" alt="Shepherd" style={{height: '44px', width: 'auto', margin: '0 auto 8px', display: 'block'}} />
           <h1 className="text-2xl font-bold font-serif text-ink-900">Let&apos;s personalize your experience</h1>
           <p className="text-ink-600 text-sm mt-1">
             Answer a few questions so Shepherd can guide you better.

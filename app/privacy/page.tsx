@@ -12,8 +12,7 @@ export default function PrivacyPolicyPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
-              <img src="/icon.svg" alt="Shepherd" width="28" height="28" style={{display:'inline-block', verticalAlign:'middle'}} />
-              <span className="text-xl font-bold font-serif text-navy-800">Shepherd</span>
+              <img src="/logo.svg" alt="Shepherd" style={{height: '36px', width: 'auto'}} />
             </Link>
             <Link
               href="/auth/login"
@@ -229,7 +228,7 @@ export default function PrivacyPolicyPage() {
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <img src="/icon-navy.svg" alt="Shepherd" width="22" height="22" style={{display:'inline-block', verticalAlign:'middle'}} />
-            <span className="font-bold font-serif text-white">Shepherd</span>
+            <img src="/logo.svg" alt="Shepherd" style={{height: '28px', width: 'auto', filter: 'brightness(0) invert(1)', opacity: '0.85'}} />
           </div>
           <div className="flex gap-6 text-sm">
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
