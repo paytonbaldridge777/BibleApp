@@ -53,7 +53,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <img src="/logo.svg" alt="Shepherd" style={{height: '36px', width: 'auto'}} />
+            <img src="/logo.png" alt="Shepherd" style={{height: '36px', width: 'auto'}} />
           </Link>
           <h1 className="text-2xl font-bold font-serif text-ink-900">Welcome back</h1>
           <p className="text-ink-600 mt-1">Sign in to continue your journey</p>

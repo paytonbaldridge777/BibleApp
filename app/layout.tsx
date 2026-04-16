@@ -7,10 +7,10 @@ export const metadata: Metadata = {
     'Daily Bible guidance personalized for your spiritual journey. Discover verses, devotionals, and prayers tailored to where you are today.',
   icons: {
     icon: [
-      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon.png', type: 'image/png' },
       { url: '/favicon.ico', sizes: 'any' },
     ],
-    apple: '/icon-navy.svg',
+    apple: '/icon-navy.png',
   },
   openGraph: {
     title: 'Shepherd — Guided by Scripture',

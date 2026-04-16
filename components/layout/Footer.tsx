@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="bg-navy-900 text-navy-200 py-8 px-4 mt-16">
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
         <img
-          src="/logo.svg"
+          src="/logo.png"
           alt="Shepherd"
           style={{ height: '28px', width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.85 }}
         />

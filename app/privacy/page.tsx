@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import PublicHeader from '@/components/layout/PublicHeader';
 
 export const metadata = {
   title: 'Privacy Policy — Shepherd',
@@ -8,21 +9,7 @@ export const metadata = {
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-parchment-100">
-      <header className="bg-parchment-50 border-b border-parchment-300 sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2">
-              <img src="/logo.svg" alt="Shepherd" style={{height: '36px', width: 'auto'}} />
-            </Link>
-            <Link
-              href="/auth/login"
-              className="text-ink-600 hover:text-ink-900 font-medium text-sm transition-colors"
-            >
-              Login
-            </Link>
-          </div>
-        </div>
-      </header>
+      <PublicHeader />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
         <h1 className="text-3xl font-bold font-serif text-ink-900 mb-2">Privacy Policy</h1>
@@ -227,8 +214,8 @@ export default function PrivacyPolicyPage() {
       <footer className="bg-navy-900 text-navy-200 py-8 px-4 mt-16">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <img src="/icon-navy.svg" alt="Shepherd" width="22" height="22" style={{display:'inline-block', verticalAlign:'middle'}} />
-            <img src="/logo.svg" alt="Shepherd" style={{height: '28px', width: 'auto', filter: 'brightness(0) invert(1)', opacity: '0.85'}} />
+            <img src="/icon-navy.png" alt="Shepherd" width="22" height="22" style={{display:'inline-block', verticalAlign:'middle'}} />
+            <img src="/logo.png" alt="Shepherd" style={{height: '28px', width: 'auto', filter: 'brightness(0) invert(1)', opacity: '0.85'}} />
           </div>
           <div className="flex gap-6 text-sm">
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>

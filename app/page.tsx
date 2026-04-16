@@ -1,32 +1,10 @@
 import Link from 'next/link';
+import PublicHeader from '@/components/layout/PublicHeader';
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-parchment-100">
-      {/* Header */}
-      <header className="bg-parchment-50 border-b border-parchment-300 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center shrink-0">
-              <img src="/logo.svg" alt="Shepherd" style={{height: '36px', width: 'auto'}} />
-            </div>
-            <nav className="flex items-center gap-4">
-              <Link
-                href="/auth/login"
-                className="text-ink-600 hover:text-ink-900 font-medium text-sm transition-colors"
-              >
-                Login
-              </Link>
-              <Link
-                href="/auth/signup"
-                className="bg-navy-700 hover:bg-navy-800 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
-              >
-                Get Started
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <PublicHeader />
 
       {/* Hero */}
       <section className="bg-gradient-to-b from-gold-100 to-parchment-100 py-20 px-4">
@@ -166,7 +144,7 @@ export default function LandingPage() {
       <footer className="bg-navy-900 text-navy-200 py-12 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-2 mb-4">
-            <img src="/logo.svg" alt="Shepherd" style={{height: '32px', width: 'auto', filter: 'brightness(0) invert(1)', opacity: '0.85'}} />
+            <img src="/logo.png" alt="Shepherd" style={{height: '32px', width: 'auto', filter: 'brightness(0) invert(1)', opacity: '0.85'}} />
           </div>
           <p className="text-navy-300 text-sm leading-relaxed max-w-2xl mb-6">
             <strong className="text-navy-200">Disclaimer:</strong> Shepherd is for spiritual

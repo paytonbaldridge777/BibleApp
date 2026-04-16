@@ -41,7 +41,7 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <img src="/logo.svg" alt="Shepherd" style={{height: '36px', width: 'auto'}} />
+            <img src="/logo.png" alt="Shepherd" style={{height: '36px', width: 'auto'}} />
           </Link>
           <h1 className="text-2xl font-bold font-serif text-ink-900">Choose a new password</h1>
           <p className="text-ink-600 mt-1">Must be at least 6 characters</p>
