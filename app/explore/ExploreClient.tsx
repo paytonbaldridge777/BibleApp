@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { postInterpret } from '@/lib/api';
 import Header from '@/components/layout/Header';
 import type { InterpretResponse } from '@/lib/api';
+import Footer from '@/components/layout/Footer';
 
 interface Props {
   user: { id: string; email: string };
@@ -314,6 +315,7 @@ export default function ExploreClient({ user }: Props) {
           </div>
         )}
       </div>
+       <Footer />
     </main>
   );
 }
