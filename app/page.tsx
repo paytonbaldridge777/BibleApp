@@ -8,7 +8,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🌿</span>
+              <img src="/icon.svg" alt="Shepherd" width="28" height="28" style={{display:'inline-block', verticalAlign:'middle'}} />
               <span className="text-xl font-bold font-serif text-navy-800">Shepherd</span>
             </div>
             <nav className="flex items-center gap-4">
@@ -167,7 +167,7 @@ export default function LandingPage() {
       <footer className="bg-navy-900 text-navy-200 py-12 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-xl">🌿</span>
+            <img src="/icon.svg" alt="Shepherd" width="28" height="28" style={{display:'inline-block', verticalAlign:'middle'}} />
             <span className="text-lg font-bold font-serif text-white">Shepherd</span>
           </div>
           <p className="text-navy-300 text-sm leading-relaxed max-w-2xl mb-6">

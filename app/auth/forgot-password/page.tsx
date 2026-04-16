@@ -31,7 +31,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <span className="text-2xl">🌿</span>
+            <img src="/icon.svg" alt="Shepherd" width="28" height="28" style={{display:'inline-block', verticalAlign:'middle'}} />
             <span className="text-2xl font-bold font-serif text-navy-800">Shepherd</span>
           </Link>
           <h1 className="text-2xl font-bold font-serif text-ink-900">Reset your password</h1>

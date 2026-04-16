@@ -39,7 +39,7 @@ export default function Header({ userEmail }: HeaderProps) {
         {/* Left: brand + desktop nav */}
         <div className="flex items-center gap-6">
           <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
-            <span className="text-xl">🌿</span>
+            <img src="/icon.svg" alt="Shepherd" width="28" height="28" />
             <span className="text-lg font-bold font-serif text-navy-800">Shepherd</span>
           </Link>
 
