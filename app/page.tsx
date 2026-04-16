@@ -185,6 +185,12 @@ export default function LandingPage() {
             <Link href="/auth/signup" className="hover:text-white transition-colors">
               Sign Up
             </Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-white transition-colors">
+              Terms of Service
+            </Link>
           </div>
           <p className="text-navy-400 text-xs mt-6">
             © {new Date().getFullYear()} Shepherd. All rights reserved.
