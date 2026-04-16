@@ -1,28 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img">
   <title>Shepherd icon</title>
   <desc>Shepherd compass icon with navy background and upright gold cross needle</desc>
-
-  <!-- Navy background circle -->
   <circle cx="50" cy="50" r="50" fill="#1e3a5f"/>
-
-  <!-- Inner dashed ring -->
-  <circle cx="50" cy="50" r="38" fill="none" stroke="#c9973a" stroke-width="0.9" stroke-dasharray="3 4" opacity="0.5"/>
-
-  <!-- Tick marks in gold -->
-  <line x1="50" y1="14" x2="50" y2="21" stroke="#c9973a" stroke-width="1.8" opacity="0.7"/>
-  <line x1="50" y1="79" x2="50" y2="86" stroke="#c9973a" stroke-width="1.8" opacity="0.7"/>
-  <line x1="14" y1="50" x2="21" y2="50" stroke="#c9973a" stroke-width="1.8" opacity="0.7"/>
-  <line x1="79" y1="50" x2="86" y2="50" stroke="#c9973a" stroke-width="1.8" opacity="0.7"/>
-
-  <!-- Upright cross needle -->
-  <rect x="47.8" y="20" width="4.5" height="16" rx="1.5" fill="#c9973a"/>
-  <rect x="47.8" y="32" width="4.5" height="16" rx="1.5" fill="#c9973a"/>
-  <rect x="40"   y="30" width="20" height="4.5" rx="1.5" fill="#c9973a"/>
-
-  <!-- South pointer -->
-  <polygon points="50,80 47.5,58 52.5,58" fill="white" opacity="0.3"/>
-
-  <!-- Center pivot -->
-  <circle cx="50" cy="50" r="4.5" fill="white" opacity="0.9"/>
-  <circle cx="50" cy="50" r="2" fill="#c9973a"/>
+  <polygon points="50,8 43,34 50,30 57,34" fill="#c9973a"/>
+  <polygon points="50,92 43,74 50,78 57,74" fill="white" opacity="0.3"/>
+  <polygon points="92,50 66,43 72,50 66,57" fill="white" opacity="0.3"/>
+  <polygon points="8,50 34,43 28,50 34,57" fill="white" opacity="0.3"/>
+  <circle cx="50" cy="50" r="36" fill="#f5f0e8" stroke="#c9973a" stroke-width="1.2" opacity="0.9"/>
+  <path d="M47.5,19 L52.5,19 L52.5,32 L70,32 L70,37 L52.5,37 L52.5,81 L47.5,81 L47.5,37 L30,37 L30,32 L47.5,32 Z" fill="#c9973a"/>
+  <circle cx="50" cy="50" r="3.5" fill="#1e3a5f"/>
 </svg>

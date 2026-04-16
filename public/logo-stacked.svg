@@ -1,36 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200" role="img">
   <title>Shepherd — Guided by Scripture</title>
-  <desc>Shepherd stacked logo: compass icon above wordmark and tagline</desc>
-
-  <!-- Compass icon, centered -->
-  <circle cx="120" cy="72" r="52" fill="none" stroke="#1e3a5f" stroke-width="2.2"/>
-  <circle cx="120" cy="72" r="43" fill="none" stroke="#1e3a5f" stroke-width="0.8" stroke-dasharray="3 5"/>
-
-  <!-- Tick marks -->
-  <line x1="120" y1="24" x2="120" y2="34" stroke="#1e3a5f" stroke-width="1.8"/>
-  <line x1="120" y1="110" x2="120" y2="120" stroke="#1e3a5f" stroke-width="1.8"/>
-  <line x1="72"  y1="72"  x2="82"  y2="72"  stroke="#1e3a5f" stroke-width="1.8"/>
-  <line x1="158" y1="72"  x2="168" y2="72"  stroke="#1e3a5f" stroke-width="1.8"/>
-
-  <!-- Diagonal ticks -->
-  <line x1="84" y1="36" x2="91" y2="43" stroke="#1e3a5f" stroke-width="1" opacity="0.35"/>
-  <line x1="149" y1="36" x2="156" y2="43" stroke="#1e3a5f" stroke-width="1" opacity="0.35"/>
-  <line x1="84" y1="108" x2="91" y2="101" stroke="#1e3a5f" stroke-width="1" opacity="0.35"/>
-  <line x1="149" y1="108" x2="156" y2="101" stroke="#1e3a5f" stroke-width="1" opacity="0.35"/>
-
-  <!-- Upright cross needle -->
-  <rect x="117.8" y="33" width="4.5" height="20" rx="1.5" fill="#c9973a"/>
-  <rect x="117.8" y="49" width="4.5" height="18" rx="1.5" fill="#c9973a"/>
-  <rect x="109"   y="47" width="22" height="4.5" rx="1.5" fill="#c9973a"/>
-
-  <!-- South pointer -->
-  <polygon points="120,112 117.5,90 122.5,90" fill="#1e3a5f" opacity="0.4"/>
-
-  <!-- Center pivot -->
-  <circle cx="120" cy="72" r="5" fill="#1e3a5f"/>
-  <circle cx="120" cy="72" r="2.2" fill="#c9973a"/>
-
-  <!-- Wordmark stacked -->
+  <desc>Shepherd stacked wordmark with compass icon</desc>
+  <polygon points="120,18 113,44 120,40 127,44" fill="#c9973a"/>
+  <polygon points="120,126 113,108 120,112 127,108" fill="#1e3a5f" opacity="0.45"/>
+  <polygon points="172,72 146,65 152,72 146,79" fill="#1e3a5f" opacity="0.45"/>
+  <polygon points="68,72 94,65 88,72 94,79" fill="#1e3a5f" opacity="0.45"/>
+  <circle cx="120" cy="72" r="26" fill="#f5f0e8" stroke="#1e3a5f" stroke-width="1.5"/>
+  <path d="M117.5,51 L122.5,51 L122.5,59 L134,59 L134,64 L122.5,64 L122.5,93 L117.5,93 L117.5,64 L106,64 L106,59 L117.5,59 Z" fill="#c9973a"/>
+  <circle cx="120" cy="72" r="3" fill="#1e3a5f"/>
   <text x="120" y="152" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="700" fill="#1e3a5f" letter-spacing="0.01em">Shepherd</text>
   <text x="120" y="172" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#c9973a" letter-spacing="0.13em">GUIDED BY SCRIPTURE</text>
 </svg>
