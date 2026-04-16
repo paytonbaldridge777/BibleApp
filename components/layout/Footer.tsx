@@ -7,7 +7,7 @@ export default function Footer() {
         <img
           src="/logo.png"
           alt="Shepherd"
-          style={{ height: '28px', width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.85 }}
+          style={{ height: '140px', width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.85 }}
         />
         <div className="flex gap-6 text-sm">
           <Link href="/privacy" className="hover:text-white transition-colors">
