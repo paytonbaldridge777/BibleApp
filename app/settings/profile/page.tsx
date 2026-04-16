@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import type { SpiritualProfile } from '@/types';
 import ChangePasswordForm from '../ChangePasswordForm';
+import Footer from '@/components/layout/Footer';
 export const runtime = 'edge';
 
 export default async function ProfileSettingsPage() {
@@ -136,6 +137,7 @@ export default async function ProfileSettingsPage() {
           <ChangePasswordForm />
         </div>
       </main>
+          <Footer />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import Header from '@/components/layout/Header';
 import { postGuidance, postFeedback, postFavorite, deleteFavorite } from '@/lib/api';
 import type { DailyGuidance, GuidancePassage, GuidanceTheme } from '@/lib/api';
 import type { SpiritualProfile } from '@/types';
+import Footer from '@/components/layout/Footer';
 
 interface Props {
   user: { id: string; email: string };
@@ -634,6 +635,7 @@ export default function DashboardClient({
           )}
         </aside>
       </div>
+      <Footer />
     </main>
   );
 }

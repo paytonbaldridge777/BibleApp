@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import type { Favorite } from '@/types';
+import Footer from '@/components/layout/Footer';
 
 export const runtime = 'edge';
 
@@ -146,6 +147,7 @@ export default async function FavoritesPage() {
           </div>
         )}
       </main>
+          <Footer />
     </div>
   );
 }

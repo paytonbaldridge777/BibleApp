@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/db/supabase-server';
 import { redirect } from 'next/navigation';
 import ExploreClient from './ExploreClient';
+import Footer from '@/components/layout/Footer';
 
 export const runtime = 'edge';
 
