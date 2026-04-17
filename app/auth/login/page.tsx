@@ -54,8 +54,7 @@ export default function LoginPage() {
     console.log('[login] session after signIn:', !!sessionCheck.session, sessionCheck.session?.access_token?.slice(0, 20));
 
     console.log('[login] pushing to /dashboard...');
-    router.push('/dashboard');
-    router.refresh();
+    window.location.href = '/dashboard';
   };
 
   return (
