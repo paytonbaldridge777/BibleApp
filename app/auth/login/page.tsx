@@ -33,17 +33,27 @@ export default function LoginPage() {
     setServerError('');
 
     const supabase = createBrowserSupabaseClient();
-    const { error } = await supabase.auth.signInWithPassword({
+
+    console.log('[login] attempting signIn...');
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
 
+    console.log('[login] signIn result:', { error, user: authData?.user?.id, session: !!authData?.session });
+
     if (error) {
+      console.log('[login] error:', error.message, error.status);
       setServerError(error.message);
       setIsLoading(false);
       return;
     }
 
+    console.log('[login] success, checking session...');
+    const { data: sessionCheck } = await supabase.auth.getSession();
+    console.log('[login] session after signIn:', !!sessionCheck.session, sessionCheck.session?.access_token?.slice(0, 20));
+
+    console.log('[login] pushing to /dashboard...');
     router.push('/dashboard');
     router.refresh();
   };
