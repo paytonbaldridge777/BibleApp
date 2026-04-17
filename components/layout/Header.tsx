@@ -39,7 +39,7 @@ export default function Header({ userEmail }: HeaderProps) {
         {/* Left: brand + desktop nav */}
         <div className="flex items-center gap-6">
           <Link href="/dashboard" className="flex items-center shrink-0">
-            <img src="/logo.png" alt="Shepherd" height="135" style={{height: '135px', width: 'auto'}} />
+            <img src="/logo.png" alt="Shepherd" height="140" style={{height: '140px', width: 'auto', marginTop: '15px'}} />
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
