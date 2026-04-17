@@ -25,8 +25,9 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session if expired — required for Server Components
-  await supabase.auth.getUser();
+// Refresh session if expired — required for Server Components
+  const { data: { user } } = await supabase.auth.getUser();
+  console.log('[middleware] user:', user?.id ?? 'none', 'path:', request.nextUrl.pathname);
 
   return supabaseResponse;
 }
