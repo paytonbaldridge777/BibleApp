@@ -1,4 +1,5 @@
 export interface OnboardingAnswers {
+  display_name: string;
   struggles: string[];
   seeking: string[];
   familiarity: string;

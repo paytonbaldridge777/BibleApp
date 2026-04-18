@@ -10,7 +10,7 @@ import type { SpiritualProfile } from '@/types';
 import Footer from '@/components/layout/Footer';
 
 interface Props {
-  user: { id: string; email: string };
+  user: { id: string; email: string; display_name: string | null };
   profile: SpiritualProfile;
   todayGuidance: (DailyGuidance & {
     passage?: GuidancePassage | null;
@@ -312,7 +312,7 @@ export default function DashboardClient({
             <div>
               <h1 className="text-3xl font-bold font-serif tracking-tight text-ink-900">
                 {getGreeting()}
-                {user.email ? ` — ${user.email.split('@')[0]}` : ''}
+                {user.display_name ? ` — ${user.display_name}` : ''}
               </h1>
               <p className="mt-1 text-ink-600">{formatDate(today)}</p>
             </div>

@@ -80,6 +80,12 @@ export default async function DashboardPage() {
     redirect('/onboarding');
   }
 
+  const { data: profileMeta } = await supabase
+    .from('profiles')
+    .select('display_name')
+    .eq('id', user.id)
+    .maybeSingle();
+
   try {
   const today = new Date().toISOString().split('T')[0];
 
@@ -111,7 +117,7 @@ export default async function DashboardPage() {
 
   return (
     <DashboardClient
-      user={{ id: user.id, email: user.email ?? '' }}
+      user={{ id: user.id, email: user.email ?? '', display_name: profileMeta?.display_name ?? null }}
       profile={profile as SpiritualProfile}
       todayGuidance={todayGuidance}
       recentGuidance={recentGuidance.filter(Boolean) as GuidanceWithRelations[]}
