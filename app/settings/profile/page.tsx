@@ -28,15 +28,7 @@ export default async function ProfileSettingsPage() {
     <div className="min-h-screen bg-parchment-100">
       <Header userEmail={user?.email} />
 
-      <main className="max-w-2xl mx-auto px-4 py-8">
-        <div className="mb-6 flex items-center gap-4">
-          <Link
-            href="/dashboard"
-            className="text-ink-500 hover:text-ink-700 text-sm flex items-center gap-1"
-          >
-            ← Back to Dashboard
-          </Link>
-        </div>
+      <main className="max-w-2xl mx-auto px-4 py-8">       
 
         <h1 className="text-2xl font-bold font-serif text-ink-900 mb-6">Your Spiritual Profile</h1>
 
