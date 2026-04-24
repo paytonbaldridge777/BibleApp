@@ -31,6 +31,7 @@ export interface SpiritualProfile {
   devotional_length: string;
   profile_summary: string;
   caution_flags: string[];
+  tts_voice: string;
   created_at: string;
   updated_at: string;
 }

@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header';
 import type { SpiritualProfile } from '@/types';
 import ChangePasswordForm from '../ChangePasswordForm';
 import Footer from '@/components/layout/Footer';
+import VoicePreference from '@/app/settings/VoicePreference';
 export const runtime = 'edge';
 
 export default async function ProfileSettingsPage() {
@@ -100,6 +101,10 @@ export default async function ProfileSettingsPage() {
                 </div>
               </div>
             )}
+
+            <div>
+              <VoicePreference currentVoice={(sp as any).tts_voice ?? 'Graham'} />
+            </div>
 
             <div className="border-t border-parchment-300 pt-5">
               <p className="text-sm text-ink-600 mb-4">
