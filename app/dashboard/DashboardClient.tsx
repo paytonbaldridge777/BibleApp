@@ -89,6 +89,8 @@ function useTTS() {
   const [paused, setPaused] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const objectUrlRef = useRef<string | null>(null);
+  // preloaded URL keyed by guidance ID
+  const preloadedRef = useRef<{ guidanceId: string; url: string } | null>(null);
 
   const cleanup = useCallback(() => {
     if (audioRef.current) {
@@ -120,21 +122,40 @@ function useTTS() {
     }
   }, [paused]);
 
+  const preload = useCallback(async (guidanceId: string) => {
+    if (preloadedRef.current?.guidanceId === guidanceId) return;
+    try {
+      const url = await fetchTTS(guidanceId);
+      // Revoke previous preloaded URL if different guidance
+      if (preloadedRef.current?.url) URL.revokeObjectURL(preloadedRef.current.url);
+      preloadedRef.current = { guidanceId, url };
+    } catch {
+      // Preload failure is silent -- speak() will try again on demand
+    }
+  }, []);
+
   const speak = useCallback(
-    async (text: string, section: TTSSection) => {
+    async (guidanceId: string, section: TTSSection) => {
       cleanup();
       setSpeaking(null);
       setPaused(false);
       setLoading(section);
 
       try {
-        const objectUrl = await fetchTTS(text);
+        let objectUrl: string;
+        if (preloadedRef.current?.guidanceId === guidanceId) {
+          objectUrl = preloadedRef.current.url;
+        } else {
+          objectUrl = await fetchTTS(guidanceId);
+          if (preloadedRef.current?.url) URL.revokeObjectURL(preloadedRef.current.url);
+          preloadedRef.current = { guidanceId, url: objectUrl };
+        }
         objectUrlRef.current = objectUrl;
 
         const audio = new Audio(objectUrl);
         audioRef.current = audio;
 
-        audio.onended = () => { setSpeaking(null); setPaused(false); setLoading(null); cleanup(); };
+        audio.onended = () => { setSpeaking(null); setPaused(false); setLoading(null); };
         audio.onerror = () => { setSpeaking(null); setPaused(false); setLoading(null); cleanup(); };
 
         await audio.play();
@@ -150,7 +171,7 @@ function useTTS() {
 
   useEffect(() => () => { cleanup(); }, [cleanup]);
 
-  return { speak, stop, togglePause, speaking, loading, paused, supported: true };
+  return { speak, preload, stop, togglePause, speaking, loading, paused, supported: true };
 }
 
 // ---------------------------------------------------------------------------
@@ -160,11 +181,11 @@ interface AudioButtonProps {
   section: TTSSection;
   label?: string;
   tts: ReturnType<typeof useTTS>;
-  getText: () => string;
+  guidanceId: string;
   variant?: 'icon' | 'pill';
 }
 
-function AudioButton({ section, label, tts, getText, variant = 'icon' }: AudioButtonProps) {
+function AudioButton({ section, label, tts, guidanceId, variant = 'icon' }: AudioButtonProps) {
   const { speak, stop, togglePause, speaking, loading, paused, supported } = tts;
   if (!supported) return null;
 
@@ -175,7 +196,7 @@ function AudioButton({ section, label, tts, getText, variant = 'icon' }: AudioBu
     if (isActive) {
       stop();
     } else if (!isLoading) {
-      speak(getText(), section);
+      speak(guidanceId, section);
     }
   };
 
@@ -454,27 +475,16 @@ export default function DashboardClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [guidance?.id]);
 
+  // Preload audio when guidance is available
+  useEffect(() => {
+    if (guidance?.id) {
+      tts.preload(guidance.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [guidance?.id]);
+
   const streak = calculateStreak(recentGuidance);
 
-  const buildAllText = (g: GuidanceViewModel) => {
-    const parts: string[] = [];
-    if (g.passage?.text) {
-      parts.push(`Today's verse. ${g.passage.reference}. ${g.passage.text}`);
-    }
-    if (g.context_text) {
-      parts.push(`Biblical Context. ${g.context_text}`);
-    }
-    if (g.devotional_text) {
-      parts.push(`Devotional. ${g.devotional_text}`);
-    }
-    if (g.prayer_text) {
-      parts.push(`Prayer. ${g.prayer_text}`);
-    }
-    if (g.reflection_question) {
-      parts.push(`Reflection. ${g.reflection_question}`);
-    }
-    return parts.join('\n\n');
-  };
 
   const generateGuidance = async (action: 'generate' | 'regenerate') => {
     setIsGenerating(true);
@@ -590,7 +600,7 @@ export default function DashboardClient({
                       section="all"
                       label="Listen to All"
                       tts={tts}
-                      getText={() => buildAllText(guidance)}
+                      guidanceId={guidance.id}
                       variant="pill"
                     />
                   </div>
@@ -607,9 +617,7 @@ export default function DashboardClient({
                       <AudioButton
                         section="verse"
                         tts={tts}
-                        getText={() =>
-                          `${guidance.passage?.reference ?? ''}. ${guidance.passage?.text ?? ''}`
-                        }
+                        guidanceId={guidance.id}
                       />
                     )}
                   </div>
@@ -645,7 +653,7 @@ export default function DashboardClient({
                             <AudioButton
                               section="context"
                               tts={tts}
-                              getText={() => guidance.context_text ?? ''}
+                              guidanceId={guidance.id}
                             />
                           </div>
                           <p className="px-4 pb-4 whitespace-pre-line leading-7 text-ink-700">
@@ -670,7 +678,7 @@ export default function DashboardClient({
                           <AudioButton
                             section="devotional"
                             tts={tts}
-                            getText={() => guidance.devotional_text ?? ''}
+                            guidanceId={guidance.id}
                           />
                         </div>
                         <p className="px-4 pb-4 whitespace-pre-line leading-7 text-ink-700">
@@ -694,7 +702,7 @@ export default function DashboardClient({
                           <AudioButton
                             section="prayer"
                             tts={tts}
-                            getText={() => guidance.prayer_text ?? ''}
+                            guidanceId={guidance.id}
                           />
                         </div>
                         <p className="px-4 pb-4 whitespace-pre-line leading-7 text-ink-700 font-serif italic">
@@ -718,7 +726,7 @@ export default function DashboardClient({
                           <AudioButton
                             section="reflection"
                             tts={tts}
-                            getText={() => guidance.reflection_question ?? ''}
+                            guidanceId={guidance.id}
                           />
                         </div>
                         <p className="px-4 pb-4 leading-7 text-ink-700">
