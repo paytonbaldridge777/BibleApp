@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default function VoicePreference({ currentVoice }: Props) {
-  const [voice, setVoice] = useState<string>(currentVoice ?? 'Graham');
+  const [voice, setVoice] = useState<string>(currentVoice ?? 'ash');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -40,28 +40,28 @@ export default function VoicePreference({ currentVoice }: Props) {
       </p>
       <div className="flex gap-3">
         <button
-          onClick={() => handleSelect('Graham')}
+          onClick={() => handleSelect('ash')}
           disabled={saving}
           className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition-colors ${
-            voice === 'Graham'
+            voice === 'ash'
               ? 'border-navy-500 bg-navy-50 text-navy-800'
               : 'border-parchment-300 text-ink-600 hover:border-navy-400 hover:text-navy-700'
           }`}
         >
           <span className="text-base">♂</span> Male
-          <span className="block text-xs font-normal text-ink-500 mt-0.5">Graham</span>
+          <span className="block text-xs font-normal text-ink-500 mt-0.5">Ash</span>
         </button>
         <button
-          onClick={() => handleSelect('Claire')}
+          onClick={() => handleSelect('nova')}
           disabled={saving}
           className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition-colors ${
-            voice === 'Claire'
+            voice === 'nova'
               ? 'border-navy-500 bg-navy-50 text-navy-800'
               : 'border-parchment-300 text-ink-600 hover:border-navy-400 hover:text-navy-700'
           }`}
         >
           <span className="text-base">♀</span> Female
-          <span className="block text-xs font-normal text-ink-500 mt-0.5">Claire</span>
+          <span className="block text-xs font-normal text-ink-500 mt-0.5">Nova</span>
         </button>
       </div>
       <p className="text-xs text-ink-400 mt-2">
