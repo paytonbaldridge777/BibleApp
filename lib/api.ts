@@ -150,6 +150,32 @@ export async function deleteFavorite(guidance_id: string) {
   return json;
 }
 
+export async function fetchTTS(text: string): Promise<string> {
+  const supabase = createBrowserSupabaseClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const token = session?.access_token;
+
+  const headers = new Headers();
+  headers.set('Content-Type', 'application/json');
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+
+  const res = await fetch(`${API_BASE}/tts`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ text }),
+  });
+
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new Error((json as any).error ?? 'TTS failed');
+  }
+
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
+}
+
 export async function postInterpret(payload: {
   book: string;
   chapter: number;

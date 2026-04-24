@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/db/supabase';
 import Header from '@/components/layout/Header';
-import { postGuidance, postFeedback, postFavorite, deleteFavorite } from '@/lib/api';
+import { postGuidance, postFeedback, postFavorite, deleteFavorite, fetchTTS } from '@/lib/api';
 import type { DailyGuidance, GuidancePassage, GuidanceTheme } from '@/lib/api';
 import type { SpiritualProfile } from '@/types';
 import Footer from '@/components/layout/Footer';
@@ -79,57 +79,78 @@ function toGuidanceViewModel(json: {
 }
 
 // ---------------------------------------------------------------------------
-// TTS hook
+// TTS hook -- OpenAI TTS-1 HD via Worker proxy
 // ---------------------------------------------------------------------------
 type TTSSection = 'all' | 'verse' | 'context' | 'devotional' | 'prayer' | 'reflection';
 
 function useTTS() {
   const [speaking, setSpeaking] = useState<TTSSection | null>(null);
+  const [loading, setLoading] = useState<TTSSection | null>(null);
   const [paused, setPaused] = useState(false);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const objectUrlRef = useRef<string | null>(null);
 
-  const supported = typeof window !== 'undefined' && 'speechSynthesis' in window;
+  const cleanup = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+      audioRef.current = null;
+    }
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+  }, []);
 
   const stop = useCallback(() => {
-    if (!supported) return;
-    window.speechSynthesis.cancel();
-    utteranceRef.current = null;
+    cleanup();
     setSpeaking(null);
+    setLoading(null);
     setPaused(false);
-  }, [supported]);
+  }, [cleanup]);
 
   const togglePause = useCallback(() => {
-    if (!supported) return;
+    if (!audioRef.current) return;
     if (paused) {
-      window.speechSynthesis.resume();
+      audioRef.current.play();
       setPaused(false);
     } else {
-      window.speechSynthesis.pause();
+      audioRef.current.pause();
       setPaused(true);
     }
-  }, [supported, paused]);
+  }, [paused]);
 
   const speak = useCallback(
-    (text: string, section: TTSSection) => {
-      if (!supported) return;
-      window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 0.92;
-      utter.pitch = 1;
-      utter.lang = 'en-US';
-      utter.onstart = () => { setSpeaking(section); setPaused(false); };
-      utter.onend = () => { setSpeaking(null); setPaused(false); utteranceRef.current = null; };
-      utter.onerror = () => { setSpeaking(null); setPaused(false); utteranceRef.current = null; };
-      utteranceRef.current = utter;
-      window.speechSynthesis.speak(utter);
+    async (text: string, section: TTSSection) => {
+      cleanup();
+      setSpeaking(null);
+      setPaused(false);
+      setLoading(section);
+
+      try {
+        const objectUrl = await fetchTTS(text);
+        objectUrlRef.current = objectUrl;
+
+        const audio = new Audio(objectUrl);
+        audioRef.current = audio;
+
+        audio.onended = () => { setSpeaking(null); setPaused(false); setLoading(null); cleanup(); };
+        audio.onerror = () => { setSpeaking(null); setPaused(false); setLoading(null); cleanup(); };
+
+        await audio.play();
+        setLoading(null);
+        setSpeaking(section);
+      } catch {
+        setLoading(null);
+        setSpeaking(null);
+      }
     },
-    [supported]
+    [cleanup]
   );
 
-  // Cleanup on unmount
-  useEffect(() => () => { if (supported) window.speechSynthesis.cancel(); }, [supported]);
+  useEffect(() => () => { cleanup(); }, [cleanup]);
 
-  return { speak, stop, togglePause, speaking, paused, supported };
+  return { speak, stop, togglePause, speaking, loading, paused, supported: true };
 }
 
 // ---------------------------------------------------------------------------
@@ -144,15 +165,16 @@ interface AudioButtonProps {
 }
 
 function AudioButton({ section, label, tts, getText, variant = 'icon' }: AudioButtonProps) {
-  const { speak, stop, togglePause, speaking, paused, supported } = tts;
+  const { speak, stop, togglePause, speaking, loading, paused, supported } = tts;
   if (!supported) return null;
 
   const isActive = speaking === section;
+  const isLoading = loading === section;
 
   const handleClick = () => {
     if (isActive) {
       stop();
-    } else {
+    } else if (!isLoading) {
       speak(getText(), section);
     }
   };
@@ -161,23 +183,27 @@ function AudioButton({ section, label, tts, getText, variant = 'icon' }: AudioBu
     return (
       <button
         onClick={handleClick}
+        disabled={isLoading}
         title={isActive ? 'Stop audio' : `Listen to ${label ?? section}`}
         className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
           isActive
             ? 'border-navy-400 bg-navy-100 text-navy-700'
+            : isLoading
+            ? 'border-parchment-400 text-ink-400 cursor-wait'
             : 'border-parchment-400 text-ink-600 hover:border-navy-400 hover:text-navy-700'
         }`}
       >
-        {isActive ? (
-          paused ? (
-            <PlayIcon />
-          ) : (
-            <StopIcon />
-          )
+        {isLoading ? (
+          <svg className="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+        ) : isActive ? (
+          paused ? <PlayIcon /> : <StopIcon />
         ) : (
           <SpeakerIcon />
         )}
-        {isActive ? (paused ? 'Resume' : 'Stop') : (label ?? 'Listen')}
+        {isLoading ? 'Loading...' : isActive ? (paused ? 'Resume' : 'Stop') : (label ?? 'Listen')}
         {isActive && !paused && (
           <button
             onClick={(e) => { e.stopPropagation(); togglePause(); }}
@@ -191,23 +217,30 @@ function AudioButton({ section, label, tts, getText, variant = 'icon' }: AudioBu
     );
   }
 
-  // icon variant -- small, sits inline with section header
   return (
     <button
       onClick={handleClick}
+      disabled={isLoading}
       title={isActive ? 'Stop audio' : 'Listen'}
       className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors ${
         isActive
           ? 'bg-navy-100 text-navy-700'
+          : isLoading
+          ? 'text-ink-400 cursor-wait'
           : 'text-ink-400 hover:bg-parchment-200 hover:text-ink-700'
       }`}
     >
-      {isActive ? (
+      {isLoading ? (
+        <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      ) : isActive ? (
         paused ? <PlayIcon size={12} /> : <StopIcon size={12} />
       ) : (
         <SpeakerIcon size={12} />
       )}
-      {isActive ? (paused ? 'Resume' : 'Stop') : 'Listen'}
+      {isLoading ? 'Loading...' : isActive ? (paused ? 'Resume' : 'Stop') : 'Listen'}
       {isActive && !paused && (
         <button
           onClick={(e) => { e.stopPropagation(); togglePause(); }}
