@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/db/supabase';
@@ -78,6 +78,178 @@ function toGuidanceViewModel(json: {
   };
 }
 
+// ---------------------------------------------------------------------------
+// TTS hook
+// ---------------------------------------------------------------------------
+type TTSSection = 'all' | 'verse' | 'context' | 'devotional' | 'prayer' | 'reflection';
+
+function useTTS() {
+  const [speaking, setSpeaking] = useState<TTSSection | null>(null);
+  const [paused, setPaused] = useState(false);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  const supported = typeof window !== 'undefined' && 'speechSynthesis' in window;
+
+  const stop = useCallback(() => {
+    if (!supported) return;
+    window.speechSynthesis.cancel();
+    utteranceRef.current = null;
+    setSpeaking(null);
+    setPaused(false);
+  }, [supported]);
+
+  const togglePause = useCallback(() => {
+    if (!supported) return;
+    if (paused) {
+      window.speechSynthesis.resume();
+      setPaused(false);
+    } else {
+      window.speechSynthesis.pause();
+      setPaused(true);
+    }
+  }, [supported, paused]);
+
+  const speak = useCallback(
+    (text: string, section: TTSSection) => {
+      if (!supported) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.92;
+      utter.pitch = 1;
+      utter.lang = 'en-US';
+      utter.onstart = () => { setSpeaking(section); setPaused(false); };
+      utter.onend = () => { setSpeaking(null); setPaused(false); utteranceRef.current = null; };
+      utter.onerror = () => { setSpeaking(null); setPaused(false); utteranceRef.current = null; };
+      utteranceRef.current = utter;
+      window.speechSynthesis.speak(utter);
+    },
+    [supported]
+  );
+
+  // Cleanup on unmount
+  useEffect(() => () => { if (supported) window.speechSynthesis.cancel(); }, [supported]);
+
+  return { speak, stop, togglePause, speaking, paused, supported };
+}
+
+// ---------------------------------------------------------------------------
+// Audio button component
+// ---------------------------------------------------------------------------
+interface AudioButtonProps {
+  section: TTSSection;
+  label?: string;
+  tts: ReturnType<typeof useTTS>;
+  getText: () => string;
+  variant?: 'icon' | 'pill';
+}
+
+function AudioButton({ section, label, tts, getText, variant = 'icon' }: AudioButtonProps) {
+  const { speak, stop, togglePause, speaking, paused, supported } = tts;
+  if (!supported) return null;
+
+  const isActive = speaking === section;
+
+  const handleClick = () => {
+    if (isActive) {
+      stop();
+    } else {
+      speak(getText(), section);
+    }
+  };
+
+  if (variant === 'pill') {
+    return (
+      <button
+        onClick={handleClick}
+        title={isActive ? 'Stop audio' : `Listen to ${label ?? section}`}
+        className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
+          isActive
+            ? 'border-navy-400 bg-navy-100 text-navy-700'
+            : 'border-parchment-400 text-ink-600 hover:border-navy-400 hover:text-navy-700'
+        }`}
+      >
+        {isActive ? (
+          paused ? (
+            <PlayIcon />
+          ) : (
+            <StopIcon />
+          )
+        ) : (
+          <SpeakerIcon />
+        )}
+        {isActive ? (paused ? 'Resume' : 'Stop') : (label ?? 'Listen')}
+        {isActive && !paused && (
+          <button
+            onClick={(e) => { e.stopPropagation(); togglePause(); }}
+            className="ml-1 rounded px-1 text-xs hover:bg-navy-200 transition-colors"
+            title="Pause"
+          >
+            &#9646;&#9646;
+          </button>
+        )}
+      </button>
+    );
+  }
+
+  // icon variant -- small, sits inline with section header
+  return (
+    <button
+      onClick={handleClick}
+      title={isActive ? 'Stop audio' : 'Listen'}
+      className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+        isActive
+          ? 'bg-navy-100 text-navy-700'
+          : 'text-ink-400 hover:bg-parchment-200 hover:text-ink-700'
+      }`}
+    >
+      {isActive ? (
+        paused ? <PlayIcon size={12} /> : <StopIcon size={12} />
+      ) : (
+        <SpeakerIcon size={12} />
+      )}
+      {isActive ? (paused ? 'Resume' : 'Stop') : 'Listen'}
+      {isActive && !paused && (
+        <button
+          onClick={(e) => { e.stopPropagation(); togglePause(); }}
+          className="ml-0.5 px-0.5 hover:text-navy-900 transition-colors"
+          title="Pause"
+        >
+          &#9646;&#9646;
+        </button>
+      )}
+    </button>
+  );
+}
+
+function SpeakerIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+    </svg>
+  );
+}
+
+function StopIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <rect x="4" y="4" width="16" height="16" rx="2" />
+    </svg>
+  );
+}
+
+function PlayIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <polygon points="5 3 19 12 5 21 5 3" />
+    </svg>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ContextExpander
+// ---------------------------------------------------------------------------
 interface ContextExpanderProps {
   showContext: boolean;
   setShowContext: (v: boolean) => void;
@@ -202,6 +374,9 @@ function ContextExpander({
   );
 }
 
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
 export default function DashboardClient({
   user,
   profile,
@@ -225,6 +400,9 @@ export default function DashboardClient({
   const [selectedThemeSlug, setSelectedThemeSlug] = useState<string | null>(null);
   const [contextFreeText, setContextFreeText] = useState('');
 
+  // TTS
+  const tts = useTTS();
+
   useEffect(() => {
     const loadThemes = async () => {
       const supabase = createBrowserSupabaseClient();
@@ -237,7 +415,33 @@ export default function DashboardClient({
     loadThemes();
   }, []);
 
+  // Stop audio when guidance changes
+  useEffect(() => {
+    tts.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [guidance?.id]);
+
   const streak = calculateStreak(recentGuidance);
+
+  const buildAllText = (g: GuidanceViewModel) => {
+    const parts: string[] = [];
+    if (g.passage?.text) {
+      parts.push(`Today's verse. ${g.passage.reference}. ${g.passage.text}`);
+    }
+    if (g.context_text) {
+      parts.push(`Biblical Context. ${g.context_text}`);
+    }
+    if (g.devotional_text) {
+      parts.push(`Devotional. ${g.devotional_text}`);
+    }
+    if (g.prayer_text) {
+      parts.push(`Prayer. ${g.prayer_text}`);
+    }
+    if (g.reflection_question) {
+      parts.push(`Reflection. ${g.reflection_question}`);
+    }
+    return parts.join('\n\n');
+  };
 
   const generateGuidance = async (action: 'generate' | 'regenerate') => {
     setIsGenerating(true);
@@ -276,7 +480,7 @@ export default function DashboardClient({
       // silently fail favorite toggle
     }
   };
-  
+
   const sendFeedback = async (helpful: boolean) => {
     if (!guidance) return;
     try {
@@ -332,25 +536,50 @@ export default function DashboardClient({
           {guidance ? (
             <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-6 shadow-sm">
               <div className="mb-6">
-                <p className="text-sm font-medium uppercase tracking-widest text-gold-600">
-                  Today&apos;s Guidance
-                </p>
-                <p className="mt-1 text-sm text-ink-500">{formatDate(today)}</p>
-                <h2 className="mt-3 text-2xl font-semibold font-serif text-ink-900">
-                  {guidance.title || "Today's Guidance"}
-                </h2>
-                {guidance.matched_theme?.name && (
-                  <p className="mt-2 text-sm text-ink-600">
-                    Theme: {guidance.matched_theme.name}
-                  </p>
-                )}
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-medium uppercase tracking-widest text-gold-600">
+                      Today&apos;s Guidance
+                    </p>
+                    <p className="mt-1 text-sm text-ink-500">{formatDate(today)}</p>
+                    <h2 className="mt-3 text-2xl font-semibold font-serif text-ink-900">
+                      {guidance.title || "Today's Guidance"}
+                    </h2>
+                    {guidance.matched_theme?.name && (
+                      <p className="mt-2 text-sm text-ink-600">
+                        Theme: {guidance.matched_theme.name}
+                      </p>
+                    )}
+                  </div>
+                  {/* Listen to All */}
+                  <div className="flex-shrink-0 mt-1">
+                    <AudioButton
+                      section="all"
+                      label="Listen to All"
+                      tts={tts}
+                      getText={() => buildAllText(guidance)}
+                      variant="pill"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-6">
                 <section>
-                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-ink-500">
-                    Today&apos;s Verse
-                  </h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-xs font-semibold uppercase tracking-widest text-ink-500">
+                      Today&apos;s Verse
+                    </h3>
+                    {guidance.passage?.text && (
+                      <AudioButton
+                        section="verse"
+                        tts={tts}
+                        getText={() =>
+                          `${guidance.passage?.reference ?? ''}. ${guidance.passage?.text ?? ''}`
+                        }
+                      />
+                    )}
+                  </div>
                   {guidance.passage?.text ? (
                     <blockquote className="border-l-4 border-gold-400 pl-5 py-1">
                       <p className="font-serif italic text-xl leading-9 text-ink-800">
@@ -378,9 +607,18 @@ export default function DashboardClient({
                         <span className="text-ink-400 text-sm ml-4">{expanded['context'] ? '▲' : '▼'}</span>
                       </button>
                       {expanded['context'] && (
-                        <p className="px-4 pb-4 whitespace-pre-line leading-7 text-ink-700">
-                          {guidance.context_text}
-                        </p>
+                        <>
+                          <div className="px-4 pb-1 pt-0 flex justify-end">
+                            <AudioButton
+                              section="context"
+                              tts={tts}
+                              getText={() => guidance.context_text ?? ''}
+                            />
+                          </div>
+                          <p className="px-4 pb-4 whitespace-pre-line leading-7 text-ink-700">
+                            {guidance.context_text}
+                          </p>
+                        </>
                       )}
                     </section>
                   )}
@@ -394,9 +632,18 @@ export default function DashboardClient({
                       <span className="text-ink-400 text-sm ml-4">{expanded['devotional'] ? '▲' : '▼'}</span>
                     </button>
                     {expanded['devotional'] && (
-                      <p className="px-4 pb-4 whitespace-pre-line leading-7 text-ink-700">
-                        {guidance.devotional_text}
-                      </p>
+                      <>
+                        <div className="px-4 pb-1 pt-0 flex justify-end">
+                          <AudioButton
+                            section="devotional"
+                            tts={tts}
+                            getText={() => guidance.devotional_text ?? ''}
+                          />
+                        </div>
+                        <p className="px-4 pb-4 whitespace-pre-line leading-7 text-ink-700">
+                          {guidance.devotional_text}
+                        </p>
+                      </>
                     )}
                   </section>
 
@@ -409,9 +656,18 @@ export default function DashboardClient({
                       <span className="text-ink-400 text-sm ml-4">{expanded['prayer'] ? '▲' : '▼'}</span>
                     </button>
                     {expanded['prayer'] && (
-                      <p className="px-4 pb-4 whitespace-pre-line leading-7 text-ink-700 font-serif italic">
-                        {guidance.prayer_text}
-                      </p>
+                      <>
+                        <div className="px-4 pb-1 pt-0 flex justify-end">
+                          <AudioButton
+                            section="prayer"
+                            tts={tts}
+                            getText={() => guidance.prayer_text ?? ''}
+                          />
+                        </div>
+                        <p className="px-4 pb-4 whitespace-pre-line leading-7 text-ink-700 font-serif italic">
+                          {guidance.prayer_text}
+                        </p>
+                      </>
                     )}
                   </section>
 
@@ -424,9 +680,18 @@ export default function DashboardClient({
                       <span className="text-ink-400 text-sm ml-4">{expanded['reflection'] ? '▲' : '▼'}</span>
                     </button>
                     {expanded['reflection'] && (
-                      <p className="px-4 pb-4 leading-7 text-ink-700">
-                        {guidance.reflection_question}
-                      </p>
+                      <>
+                        <div className="px-4 pb-1 pt-0 flex justify-end">
+                          <AudioButton
+                            section="reflection"
+                            tts={tts}
+                            getText={() => guidance.reflection_question ?? ''}
+                          />
+                        </div>
+                        <p className="px-4 pb-4 leading-7 text-ink-700">
+                          {guidance.reflection_question}
+                        </p>
+                      </>
                     )}
                   </section>
                 </div>
@@ -442,7 +707,7 @@ export default function DashboardClient({
                   isGenerating={isGenerating}
                 />
 
-<div className="flex flex-wrap items-center gap-3 pt-2">
+                <div className="flex flex-wrap items-center gap-3 pt-2">
                   <button
                     onClick={toggleFavorite}
                     className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
