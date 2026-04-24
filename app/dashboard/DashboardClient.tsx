@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/db/supabase';
 import Header from '@/components/layout/Header';
-import { postGuidance, postFeedback, postFavorite, deleteFavorite, fetchTTS } from '@/lib/api';
+import { postGuidance, postFeedback, postFavorite, deleteFavorite, fetchTTS, type TTSSection } from '@/lib/api';
 import type { DailyGuidance, GuidancePassage, GuidanceTheme } from '@/lib/api';
 import type { SpiritualProfile } from '@/types';
 import Footer from '@/components/layout/Footer';
@@ -81,35 +81,28 @@ function toGuidanceViewModel(json: {
 // ---------------------------------------------------------------------------
 // TTS hook -- OpenAI TTS-1 HD via Worker proxy
 // ---------------------------------------------------------------------------
-type TTSSection = 'all' | 'verse' | 'context' | 'devotional' | 'prayer' | 'reflection';
+// Cache: guidanceId+section -> object URL
+const audioCache = new Map<string, string>();
 
 function useTTS() {
   const [speaking, setSpeaking] = useState<TTSSection | null>(null);
   const [loading, setLoading] = useState<TTSSection | null>(null);
   const [paused, setPaused] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const objectUrlRef = useRef<string | null>(null);
-  // preloaded URL keyed by guidance ID
-  const preloadedRef = useRef<{ guidanceId: string; url: string } | null>(null);
 
-  const cleanup = useCallback(() => {
+  const stopAudio = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
+      audioRef.current.currentTime = 0;
       audioRef.current.src = '';
       audioRef.current = null;
     }
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current);
-      objectUrlRef.current = null;
-    }
-  }, []);
-
-  const stop = useCallback(() => {
-    cleanup();
     setSpeaking(null);
     setLoading(null);
     setPaused(false);
-  }, [cleanup]);
+  }, []);
+
+  const stop = stopAudio;
 
   const togglePause = useCallback(() => {
     if (!audioRef.current) return;
@@ -123,40 +116,43 @@ function useTTS() {
   }, [paused]);
 
   const preload = useCallback(async (guidanceId: string) => {
-    if (preloadedRef.current?.guidanceId === guidanceId) return;
+    // Preload the 'all' section silently in the background
+    const cacheKey = `${guidanceId}:all`;
+    if (audioCache.has(cacheKey)) return;
     try {
-      const url = await fetchTTS(guidanceId);
-      // Revoke previous preloaded URL if different guidance
-      if (preloadedRef.current?.url) URL.revokeObjectURL(preloadedRef.current.url);
-      preloadedRef.current = { guidanceId, url };
+      const url = await fetchTTS(guidanceId, 'all');
+      audioCache.set(cacheKey, url);
     } catch {
-      // Preload failure is silent -- speak() will try again on demand
+      // Silent -- will fetch on demand
     }
   }, []);
 
   const speak = useCallback(
     async (guidanceId: string, section: TTSSection) => {
-      cleanup();
-      setSpeaking(null);
-      setPaused(false);
+      stopAudio();
       setLoading(section);
 
       try {
-        let objectUrl: string;
-        if (preloadedRef.current?.guidanceId === guidanceId) {
-          objectUrl = preloadedRef.current.url;
-        } else {
-          objectUrl = await fetchTTS(guidanceId);
-          if (preloadedRef.current?.url) URL.revokeObjectURL(preloadedRef.current.url);
-          preloadedRef.current = { guidanceId, url: objectUrl };
+        const cacheKey = `${guidanceId}:${section}`;
+        let objectUrl = audioCache.get(cacheKey);
+
+        if (!objectUrl) {
+          objectUrl = await fetchTTS(guidanceId, section);
+          audioCache.set(cacheKey, objectUrl);
         }
-        objectUrlRef.current = objectUrl;
 
         const audio = new Audio(objectUrl);
         audioRef.current = audio;
 
-        audio.onended = () => { setSpeaking(null); setPaused(false); setLoading(null); };
-        audio.onerror = () => { setSpeaking(null); setPaused(false); setLoading(null); cleanup(); };
+        // Wait for enough data before playing to avoid skipping the start
+        await new Promise<void>((resolve, reject) => {
+          audio.oncanplaythrough = () => resolve();
+          audio.onerror = () => reject(new Error('Audio load error'));
+          audio.load();
+        });
+
+        audio.onended = () => { setSpeaking(null); setPaused(false); setLoading(null); audioRef.current = null; };
+        audio.onerror = () => { setSpeaking(null); setPaused(false); setLoading(null); audioRef.current = null; };
 
         await audio.play();
         setLoading(null);
@@ -164,12 +160,13 @@ function useTTS() {
       } catch {
         setLoading(null);
         setSpeaking(null);
+        audioRef.current = null;
       }
     },
-    [cleanup]
+    [stopAudio]
   );
 
-  useEffect(() => () => { cleanup(); }, [cleanup]);
+  useEffect(() => () => { stopAudio(); }, [stopAudio]);
 
   return { speak, preload, stop, togglePause, speaking, loading, paused, supported: true };
 }

@@ -150,7 +150,9 @@ export async function deleteFavorite(guidance_id: string) {
   return json;
 }
 
-export async function fetchTTS(guidanceId: string): Promise<string> {
+export type TTSSection = 'all' | 'verse' | 'context' | 'devotional' | 'prayer' | 'reflection';
+
+export async function fetchTTS(guidanceId: string, section: TTSSection): Promise<string> {
   const supabase = createBrowserSupabaseClient();
   const {
     data: { session },
@@ -160,7 +162,7 @@ export async function fetchTTS(guidanceId: string): Promise<string> {
   const headers = new Headers();
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
-  const res = await fetch(`${API_BASE}/tts/${guidanceId}`, { headers });
+  const res = await fetch(`${API_BASE}/tts/${guidanceId}/${section}`, { headers });
 
   if (!res.ok) {
     const json = await res.json().catch(() => ({}));
