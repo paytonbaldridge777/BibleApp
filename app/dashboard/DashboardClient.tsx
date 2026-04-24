@@ -208,7 +208,7 @@ onClick={handleClick}
 disabled={isLoading}
 title={isActive ? ‘Stop audio’ : `Listen to ${label ?? section}`}
 className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${ isActive ? 'border-navy-400 bg-navy-100 text-navy-700' : isLoading ? 'border-parchment-400 text-ink-400 cursor-wait' : 'border-parchment-400 text-ink-600 hover:border-navy-400 hover:text-navy-700' }`}
->
+
 {isLoading ? (
 <svg className="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -225,7 +225,7 @@ paused ? <PlayIcon /> : <StopIcon />
 onClick={(e) => { e.stopPropagation(); togglePause(); }}
 className=“ml-1 rounded px-1 text-xs hover:bg-navy-200 transition-colors”
 title=“Pause”
->
+
 ▮▮
 </button>
 )}
@@ -239,7 +239,7 @@ onClick={handleClick}
 disabled={isLoading}
 title={isActive ? ‘Stop audio’ : ‘Listen’}
 className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors ${ isActive ? 'bg-navy-100 text-navy-700' : isLoading ? 'text-ink-400 cursor-wait' : 'text-ink-400 hover:bg-parchment-200 hover:text-ink-700' }`}
->
+
 {isLoading ? (
 <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -256,7 +256,7 @@ paused ? <PlayIcon size={12} /> : <StopIcon size={12} />
 onClick={(e) => { e.stopPropagation(); togglePause(); }}
 className=“ml-0.5 px-0.5 hover:text-navy-900 transition-colors”
 title=“Pause”
->
+
 ▮▮
 </button>
 )}
@@ -317,13 +317,14 @@ onGenerate,
 isGenerating,
 }: ContextExpanderProps) {
 return (
+
 <div className="rounded-xl border border-parchment-300 bg-parchment-50 overflow-hidden">
 <button
 onClick={() => setShowContext(!showContext)}
-className=“w-full flex items-center justify-between px-4 py-3 text-sm text-ink-600 hover:text-ink-900 hover:bg-parchment-100 transition-colors”
+className="w-full flex items-center justify-between px-4 py-3 text-sm text-ink-600 hover:text-ink-900 hover:bg-parchment-100 transition-colors"
 >
 <span>Customize today's guidance</span>
-<span className="text-ink-400">{showContext ? ‘▲’ : ‘▼’}</span>
+<span className="text-ink-400">{showContext ? '▲' : '▼'}</span>
 </button>
 
 ```
@@ -544,6 +545,7 @@ setFeedbackState((prev) => ({
 const today = new Date().toISOString().split(‘T’)[0];
 
 return (
+
 <main className="min-h-screen bg-parchment-100 text-ink-900">
 <Header userEmail={user.email} />
 
