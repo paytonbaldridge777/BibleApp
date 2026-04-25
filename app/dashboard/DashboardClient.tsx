@@ -409,14 +409,8 @@ export default function DashboardClient({
         });
       }
       tts.stop();
-      const newGuidance = toGuidanceViewModel(json);
-      setGuidance(newGuidance);
+      setGuidance(toGuidanceViewModel(json));
       setExpanded({});
-      // Explicitly preload fresh audio after regeneration
-      // (ID may not change on same-day regeneration so the effect won't re-fire)
-      if (newGuidance?.id) {
-        tts.preload(newGuidance.id);
-      }
       router.refresh();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
