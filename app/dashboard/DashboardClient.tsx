@@ -117,22 +117,11 @@ function useTTS(generationKey: string, onAudioTimed?: (ms: number) => void) {
     }
   }, [paused]);
 
-  const preload = useCallback(async (guidanceId: string) => {
-    const cacheKey = `${guidanceId}:all:${generationKey}`;
-    console.debug('[TTS] preload attempt', { cacheKey, cached: audioCache.has(cacheKey) });
-    if (audioCache.has(cacheKey)) {
-      console.debug('[TTS] preload: cache hit, skipping fetch');
-      return;
-    }
-    try {
-      const t0 = performance.now();
-      const url = await fetchTTS(guidanceId, 'all');
-      console.debug(`[TTS] preload: fetched in ${(performance.now() - t0).toFixed(0)}ms`);
-      audioCache.set(cacheKey, url);
-    } catch (err) {
-      console.warn('[TTS] preload failed:', err);
-    }
-  }, [generationKey]);
+  // Preload disabled -- was causing stale audio race with R2
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const preload = useCallback(async (_guidanceId: string) => {
+    console.debug('[TTS] preload disabled');
+  }, []);
 
   const speak = useCallback(
     async (guidanceId: string, section: TTSSection) => {
@@ -386,14 +375,10 @@ export default function DashboardClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [guidance?.id]);
 
+  // Preload disabled -- on-demand fetch on Listen click is fast enough
+  // and preload was racing R2 writes causing stale audio
   useEffect(() => {
-    if (!guidance?.id) return;
-    // Delay preload slightly after regeneration to give R2 time to finish writing
-    const timer = setTimeout(() => {
-      tts.preload(guidance.id);
-    }, 8000);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    console.debug('[DEV] guidance/generationKey changed', { id: guidance?.id, generationKey });
   }, [guidance?.id, generationKey]);
 
   // Situational context state
@@ -433,16 +418,11 @@ export default function DashboardClient({
       const guidanceMs = performance.now() - genStart;
       console.debug(`[DEV] Guidance generated in ${(guidanceMs / 1000).toFixed(2)}s`);
       setDevTimings(prev => ({ ...prev, guidance: guidanceMs }));
-      if (guidance?.id) {
-        ['all', 'verse', 'context', 'devotional', 'prayer', 'reflection'].forEach((section) => {
-          const key = `${guidance.id}:${section}:${generationKey}`;
-          console.debug('[DEV] clearing cache key:', key);
-          const url = audioCache.get(key);
-          if (url) URL.revokeObjectURL(url);
-          audioCache.delete(key);
-        });
-      }
-      console.debug('[DEV] cache after clear:', [...audioCache.keys()]);
+      // Hard flush entire audio cache on regeneration
+      console.debug('[DEV] flushing entire audioCache, had', audioCache.size, 'entries:', [...audioCache.keys()]);
+      audioCache.forEach((url) => URL.revokeObjectURL(url));
+      audioCache.clear();
+      console.debug('[DEV] audioCache cleared');
       tts.stop();
       const newKey = Date.now().toString();
       console.debug('[DEV] new generationKey:', newKey);
