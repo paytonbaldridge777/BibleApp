@@ -82,9 +82,11 @@ function toGuidanceViewModel(json: {
 // ---------------------------------------------------------------------------
 // TTS
 // ---------------------------------------------------------------------------
+// Cache keyed by guidanceId:section:generationKey
+// generationKey changes on every regeneration to bust stale audio
 const audioCache = new Map<string, string>();
 
-function useTTS() {
+function useTTS(generationKey: string) {
   const [speaking, setSpeaking] = useState<TTSSection | null>(null);
   const [loading, setLoading] = useState<TTSSection | null>(null);
   const [paused, setPaused] = useState(false);
@@ -116,7 +118,7 @@ function useTTS() {
   }, [paused]);
 
   const preload = useCallback(async (guidanceId: string) => {
-    const cacheKey = `${guidanceId}:all`;
+    const cacheKey = `${guidanceId}:all:${generationKey}`;
     if (audioCache.has(cacheKey)) return;
     try {
       const url = await fetchTTS(guidanceId, 'all');
@@ -124,14 +126,14 @@ function useTTS() {
     } catch {
       // silent
     }
-  }, []);
+  }, [generationKey]);
 
   const speak = useCallback(
     async (guidanceId: string, section: TTSSection) => {
       stopAudio();
       setLoading(section);
       try {
-        const cacheKey = `${guidanceId}:${section}`;
+        const cacheKey = `${guidanceId}:${section}:${generationKey}`;
         let objectUrl = audioCache.get(cacheKey);
         if (!objectUrl) {
           objectUrl = await fetchTTS(guidanceId, section);
@@ -347,6 +349,7 @@ export default function DashboardClient({
   const router = useRouter();
   const [guidance, setGuidance] = useState<GuidanceViewModel | null>(todayGuidance);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationKey, setGenerationKey] = useState(() => Date.now().toString());
   const [feedbackState, setFeedbackState] = useState<Record<string, string>>({});
   const [isFavorite, setIsFavorite] = useState(false);
   const [error, setError] = useState('');
@@ -356,7 +359,7 @@ export default function DashboardClient({
     setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
 
   // TTS
-  const tts = useTTS();
+  const tts = useTTS(generationKey);
 
   useEffect(() => {
     tts.stop();
@@ -364,9 +367,14 @@ export default function DashboardClient({
   }, [guidance?.id]);
 
   useEffect(() => {
-    if (guidance?.id) tts.preload(guidance.id);
+    if (!guidance?.id) return;
+    // Delay preload slightly after regeneration to give R2 time to finish writing
+    const timer = setTimeout(() => {
+      tts.preload(guidance.id);
+    }, 8000);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [guidance?.id]);
+  }, [guidance?.id, generationKey]);
 
   // Situational context state
   const [showContext, setShowContext] = useState(false);
@@ -409,6 +417,7 @@ export default function DashboardClient({
         });
       }
       tts.stop();
+      setGenerationKey(Date.now().toString());
       setGuidance(toGuidanceViewModel(json));
       setExpanded({});
       router.refresh();
