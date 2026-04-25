@@ -86,7 +86,7 @@ function toGuidanceViewModel(json: {
 // generationKey changes on every regeneration to bust stale audio
 const audioCache = new Map<string, string>();
 
-function useTTS(generationKey: string) {
+function useTTS(generationKey: string, onAudioTimed?: (ms: number) => void) {
   const [speaking, setSpeaking] = useState<TTSSection | null>(null);
   const [loading, setLoading] = useState<TTSSection | null>(null);
   const [paused, setPaused] = useState(false);
@@ -119,12 +119,18 @@ function useTTS(generationKey: string) {
 
   const preload = useCallback(async (guidanceId: string) => {
     const cacheKey = `${guidanceId}:all:${generationKey}`;
-    if (audioCache.has(cacheKey)) return;
+    console.debug('[TTS] preload attempt', { cacheKey, cached: audioCache.has(cacheKey) });
+    if (audioCache.has(cacheKey)) {
+      console.debug('[TTS] preload: cache hit, skipping fetch');
+      return;
+    }
     try {
+      const t0 = performance.now();
       const url = await fetchTTS(guidanceId, 'all');
+      console.debug(`[TTS] preload: fetched in ${(performance.now() - t0).toFixed(0)}ms`);
       audioCache.set(cacheKey, url);
-    } catch {
-      // silent
+    } catch (err) {
+      console.warn('[TTS] preload failed:', err);
     }
   }, [generationKey]);
 
@@ -132,12 +138,19 @@ function useTTS(generationKey: string) {
     async (guidanceId: string, section: TTSSection) => {
       stopAudio();
       setLoading(section);
+      const speakStart = performance.now();
       try {
         const cacheKey = `${guidanceId}:${section}:${generationKey}`;
+        console.debug('[TTS] speak', { section, cacheKey, cached: audioCache.has(cacheKey) });
         let objectUrl = audioCache.get(cacheKey);
         if (!objectUrl) {
+          console.debug('[TTS] speak: cache miss, fetching from R2/API');
+          const t0 = performance.now();
           objectUrl = await fetchTTS(guidanceId, section);
+          console.debug(`[TTS] speak: fetched in ${(performance.now() - t0).toFixed(0)}ms`);
           audioCache.set(cacheKey, objectUrl);
+        } else {
+          console.debug('[TTS] speak: cache hit');
         }
         const audio = new Audio(objectUrl);
         audioRef.current = audio;
@@ -149,6 +162,9 @@ function useTTS(generationKey: string) {
         audio.onended = () => { setSpeaking(null); setPaused(false); setLoading(null); audioRef.current = null; };
         audio.onerror = () => { setSpeaking(null); setPaused(false); setLoading(null); audioRef.current = null; };
         await audio.play();
+        const totalMs = performance.now() - speakStart;
+        if (onAudioTimed) onAudioTimed(totalMs);
+        console.debug(`[TTS] audio playing for section: ${section} after ${totalMs.toFixed(0)}ms`);
         setLoading(null);
         setSpeaking(section);
       } catch {
@@ -161,7 +177,7 @@ function useTTS(generationKey: string) {
   );
 
   useEffect(() => () => { stopAudio(); }, [stopAudio]);
-  return { speak, preload, stop, togglePause, speaking, loading, paused, supported: true };
+  return { speak, preload, stop, togglePause, speaking, loading, paused, supported: true, generationKey };
 }
 
 interface AudioButtonProps {
@@ -350,6 +366,7 @@ export default function DashboardClient({
   const [guidance, setGuidance] = useState<GuidanceViewModel | null>(todayGuidance);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationKey, setGenerationKey] = useState(() => Date.now().toString());
+  const [devTimings, setDevTimings] = useState<{ guidance: number | null; audio: number | null }>({ guidance: null, audio: null });
   const [feedbackState, setFeedbackState] = useState<Record<string, string>>({});
   const [isFavorite, setIsFavorite] = useState(false);
   const [error, setError] = useState('');
@@ -359,7 +376,10 @@ export default function DashboardClient({
     setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
 
   // TTS
-  const tts = useTTS(generationKey);
+  const tts = useTTS(generationKey, (ms) => {
+    setDevTimings(prev => ({ ...prev, audio: ms }));
+  });
+  const audioTimingRef = useRef<number | null>(null);
 
   useEffect(() => {
     tts.stop();
@@ -399,6 +419,8 @@ export default function DashboardClient({
   const generateGuidance = async (action: 'generate' | 'regenerate') => {
     setIsGenerating(true);
     setError('');
+    setDevTimings({ guidance: null, audio: null });
+    const genStart = performance.now();
     try {
       const context =
         selectedThemeSlug || contextFreeText.trim()
@@ -408,16 +430,23 @@ export default function DashboardClient({
             }
           : undefined;
       const json = await postGuidance(action, context);
+      const guidanceMs = performance.now() - genStart;
+      console.debug(`[DEV] Guidance generated in ${(guidanceMs / 1000).toFixed(2)}s`);
+      setDevTimings(prev => ({ ...prev, guidance: guidanceMs }));
       if (guidance?.id) {
         ['all', 'verse', 'context', 'devotional', 'prayer', 'reflection'].forEach((section) => {
-          const key = `${guidance.id}:${section}`;
+          const key = `${guidance.id}:${section}:${generationKey}`;
+          console.debug('[DEV] clearing cache key:', key);
           const url = audioCache.get(key);
           if (url) URL.revokeObjectURL(url);
           audioCache.delete(key);
         });
       }
+      console.debug('[DEV] cache after clear:', [...audioCache.keys()]);
       tts.stop();
-      setGenerationKey(Date.now().toString());
+      const newKey = Date.now().toString();
+      console.debug('[DEV] new generationKey:', newKey);
+      setGenerationKey(newKey);
       setGuidance(toGuidanceViewModel(json));
       setExpanded({});
       router.refresh();
@@ -830,6 +859,18 @@ export default function DashboardClient({
           )}
         </aside>
       </div>
+      {/* DEV TIMING OVERLAY -- remove before going live */}
+      {(devTimings.guidance !== null) && (
+        <div className="fixed bottom-4 right-4 z-50 rounded-lg bg-black/80 px-3 py-2 text-xs font-mono text-green-400 space-y-1 pointer-events-none">
+          <div>⚡ DEV TIMINGS</div>
+          {devTimings.guidance !== null && (
+            <div>Guidance: {(devTimings.guidance / 1000).toFixed(2)}s</div>
+          )}
+          {devTimings.audio !== null && (
+            <div>Audio: {(devTimings.audio / 1000).toFixed(2)}s</div>
+          )}
+        </div>
+      )}
       <Footer />
     </main>
   );
