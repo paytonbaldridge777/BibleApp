@@ -143,11 +143,6 @@ function useTTS(generationKey: string, onAudioTimed?: (ms: number) => void) {
         }
         const audio = new Audio(objectUrl);
         audioRef.current = audio;
-        await new Promise<void>((resolve, reject) => {
-          audio.oncanplaythrough = () => resolve();
-          audio.onerror = () => reject(new Error('Audio load error'));
-          audio.load();
-        });
         audio.onended = () => { setSpeaking(null); setPaused(false); setLoading(null); audioRef.current = null; };
         audio.onerror = () => { setSpeaking(null); setPaused(false); setLoading(null); audioRef.current = null; };
         await audio.play();
