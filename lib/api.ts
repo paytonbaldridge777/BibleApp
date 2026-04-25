@@ -162,7 +162,10 @@ export async function fetchTTS(guidanceId: string, section: TTSSection): Promise
   const headers = new Headers();
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
-  const res = await fetch(`${API_BASE}/tts/${guidanceId}/${section}`, { headers });
+  const res = await fetch(`${API_BASE}/tts/${guidanceId}/${section}?t=${Date.now()}`, {
+    headers,
+    cache: 'no-store',
+  });
 
   if (!res.ok) {
     const json = await res.json().catch(() => ({}));
