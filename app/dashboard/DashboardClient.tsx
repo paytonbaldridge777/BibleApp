@@ -216,126 +216,88 @@ function PlayIcon({ size = 14 }: { size?: number }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>;
 }
 
-interface ContextExpanderProps {
-  showContext: boolean;
-  setShowContext: (v: boolean) => void;
+interface CustomizeFormProps {
   contextThemes: { id: string; slug: string; name: string }[];
   selectedThemeSlug: string | null;
   setSelectedThemeSlug: (slug: string | null) => void;
   contextFreeText: string;
   setContextFreeText: (text: string) => void;
   onGenerate: () => void;
+  onCancel: () => void;
   isGenerating: boolean;
 }
 
-function ContextExpander({
-  showContext,
-  setShowContext,
+function CustomizeForm({
   contextThemes,
   selectedThemeSlug,
   setSelectedThemeSlug,
   contextFreeText,
   setContextFreeText,
   onGenerate,
+  onCancel,
   isGenerating,
-}: ContextExpanderProps) {
+}: CustomizeFormProps) {
   return (
-    <div className="rounded-xl border border-parchment-300 bg-parchment-50 overflow-hidden">
-      <button
-        onClick={() => setShowContext(!showContext)}
-        className="w-full flex items-center justify-between px-4 py-3 text-sm text-ink-600 hover:text-ink-900 hover:bg-parchment-100 transition-colors"
-      >
-        <span>Customize today&apos;s guidance</span>
-        <span className="text-ink-400">{showContext ? '▲' : '▼'}</span>
-      </button>
+    <div className="rounded-xl border border-navy-200 bg-navy-50 p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-semibold text-navy-800">Customize your guidance</p>
+        <button onClick={onCancel} className="text-xs text-ink-400 hover:text-ink-600 transition-colors">
+          Cancel
+        </button>
+      </div>
 
-      {showContext && (
-        <div className="px-4 pb-4 space-y-4 border-t border-parchment-200 pt-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-ink-500 mb-2">
-              What do you need today?
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {contextThemes.map((t) => (
-                <button
-                  key={t.slug}
-                  onClick={() =>
-                    setSelectedThemeSlug(selectedThemeSlug === t.slug ? null : t.slug)
-                  }
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                    selectedThemeSlug === t.slug
-                      ? 'bg-navy-700 text-white border-navy-700'
-                      : 'bg-white text-ink-700 border-parchment-300 hover:border-navy-400'
-                  }`}
-                >
-                  {t.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-ink-500 mb-2">
-              Anything on your heart?{' '}
-              <span className="font-normal normal-case text-ink-400">optional</span>
-            </p>
-            <textarea
-              value={contextFreeText}
-              onChange={(e) => setContextFreeText(e.target.value.slice(0, 500))}
-              placeholder="Share what you are going through today..."
-              rows={3}
-              className="w-full px-3 py-2 border border-parchment-300 rounded-lg text-sm text-ink-900 bg-white placeholder-ink-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent transition resize-none font-serif italic"
-            />
-            <p className="text-xs text-ink-400 mt-1 text-right">{contextFreeText.length}/500</p>
-          </div>
-
-          {(selectedThemeSlug || contextFreeText.trim()) && (
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-widest text-ink-500 mb-2">
+          What do you need today?
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {contextThemes.map((t) => (
             <button
-              onClick={() => {
-                setSelectedThemeSlug(null);
-                setContextFreeText('');
-              }}
-              className="text-xs text-ink-400 hover:text-ink-600 transition-colors"
+              key={t.slug}
+              onClick={() => setSelectedThemeSlug(selectedThemeSlug === t.slug ? null : t.slug)}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                selectedThemeSlug === t.slug
+                  ? 'bg-navy-700 text-white border-navy-700'
+                  : 'bg-white text-ink-700 border-parchment-300 hover:border-navy-400'
+              }`}
             >
-              Clear customization
+              {t.name}
             </button>
-          )}
-
-          <button
-            onClick={onGenerate}
-            disabled={isGenerating}
-            className="w-full rounded-xl bg-navy-700 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-navy-800 disabled:bg-navy-400"
-          >
-            {isGenerating ? (
-              <span className="flex items-center justify-center gap-1.5">
-                <svg
-                  className="animate-spin h-3.5 w-3.5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-                Generating...
-              </span>
-            ) : (
-              "Generate Today's Guidance"
-            )}
-          </button>
+          ))}
         </div>
+      </div>
+
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-widest text-ink-500 mb-2">
+          Anything on your heart?{' '}
+          <span className="font-normal normal-case text-ink-400">optional</span>
+        </p>
+        <textarea
+          value={contextFreeText}
+          onChange={(e) => setContextFreeText(e.target.value.slice(0, 500))}
+          placeholder="Share what you are going through today..."
+          rows={3}
+          className="w-full px-3 py-2 border border-parchment-300 rounded-lg text-sm text-ink-900 bg-white placeholder-ink-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent transition resize-none font-serif italic"
+        />
+        <p className="text-xs text-ink-400 mt-1 text-right">{contextFreeText.length}/500</p>
+      </div>
+
+      {(selectedThemeSlug || contextFreeText.trim()) && (
+        <button
+          onClick={() => { setSelectedThemeSlug(null); setContextFreeText(''); }}
+          className="text-xs text-ink-400 hover:text-ink-600 transition-colors"
+        >
+          Clear selections
+        </button>
       )}
+
+      <button
+        onClick={onGenerate}
+        disabled={isGenerating}
+        className="w-full rounded-xl bg-navy-700 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-navy-800 disabled:bg-navy-400"
+      >
+        Generate Custom Guidance
+      </button>
     </div>
   );
 }
@@ -349,6 +311,7 @@ export default function DashboardClient({
   const router = useRouter();
   const [guidance, setGuidance] = useState<GuidanceViewModel | null>(todayGuidance);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [loadingStage, setLoadingStage] = useState(0);
   const [generationKey, setGenerationKey] = useState(() => Date.now().toString());
   const [devTimings, setDevTimings] = useState<{ guidance: number | null; audio: number | null }>({ guidance: null, audio: null });
   const [feedbackState, setFeedbackState] = useState<Record<string, string>>({});
@@ -398,9 +361,13 @@ export default function DashboardClient({
 
   const generateGuidance = async (action: 'generate' | 'regenerate') => {
     setIsGenerating(true);
+    setLoadingStage(0);
     setError('');
     setDevTimings({ guidance: null, audio: null });
     const genStart = performance.now();
+    const stageTimer = setInterval(() => {
+      setLoadingStage((s) => Math.min(s + 1, 3));
+    }, 4000);
     try {
       const context =
         selectedThemeSlug || contextFreeText.trim()
@@ -430,6 +397,8 @@ export default function DashboardClient({
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
       setIsGenerating(false);
+      setLoadingStage(0);
+      clearInterval(stageTimer);
     }
   };
 
@@ -500,7 +469,35 @@ export default function DashboardClient({
             </div>
           )}
 
-          {guidance ? (
+          {isGenerating ? (
+            <div className="rounded-2xl border border-navy-200 bg-navy-50 p-8 shadow-sm text-center space-y-6">
+              <div className="flex justify-center">
+                <div className="relative h-16 w-16">
+                  <svg className="animate-spin h-16 w-16 text-navy-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  <span className="absolute inset-0 flex items-center justify-center text-2xl">✦</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-lg font-semibold font-serif text-navy-900">
+                  {["Selecting your verse for today...", "Crafting your devotional...", "Composing your prayer and reflection...", "Almost ready..."][loadingStage]}
+                </p>
+                <p className="mt-2 text-sm text-navy-600">
+                  This usually takes 15&ndash;20 seconds &mdash; your guidance is being thoughtfully prepared.
+                </p>
+              </div>
+              <div className="flex justify-center gap-2">
+                {[0,1,2,3].map((i) => (
+                  <div
+                    key={i}
+                    className={`h-1.5 rounded-full transition-all duration-500 ${i <= loadingStage ? 'w-8 bg-navy-500' : 'w-2 bg-navy-200'}`}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : guidance ? (
             <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-6 shadow-sm">
               <div className="mb-6">
                 <p className="text-sm font-medium uppercase tracking-widest text-gold-600">
@@ -629,17 +626,35 @@ export default function DashboardClient({
                     )}
                   </section>
                 </div>
-                <ContextExpander
-                  showContext={showContext}
-                  setShowContext={setShowContext}
-                  contextThemes={contextThemes}
-                  selectedThemeSlug={selectedThemeSlug}
-                  setSelectedThemeSlug={setSelectedThemeSlug}
-                  contextFreeText={contextFreeText}
-                  setContextFreeText={setContextFreeText}
-                  onGenerate={() => generateGuidance('regenerate')}
-                  isGenerating={isGenerating}
-                />
+                {showContext ? (
+                  <CustomizeForm
+                    contextThemes={contextThemes}
+                    selectedThemeSlug={selectedThemeSlug}
+                    setSelectedThemeSlug={setSelectedThemeSlug}
+                    contextFreeText={contextFreeText}
+                    setContextFreeText={setContextFreeText}
+                    onGenerate={() => { setShowContext(false); generateGuidance('regenerate'); }}
+                    onCancel={() => setShowContext(false)}
+                    isGenerating={isGenerating}
+                  />
+                ) : (
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => generateGuidance('regenerate')}
+                      disabled={isGenerating}
+                      className="flex-1 rounded-xl border border-parchment-400 px-4 py-2.5 text-sm font-medium text-ink-700 hover:border-navy-400 hover:text-navy-700 transition-colors disabled:opacity-50"
+                    >
+                      ✦ Regenerate Guidance
+                    </button>
+                    <button
+                      onClick={() => setShowContext(true)}
+                      disabled={isGenerating}
+                      className="flex-1 rounded-xl border border-navy-300 bg-navy-50 px-4 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-100 transition-colors disabled:opacity-50"
+                    >
+                      ✎ Customize & Regenerate
+                    </button>
+                  </div>
+                )}
 
 <div className="flex flex-wrap items-center gap-3 pt-2">
                   <button
@@ -672,71 +687,50 @@ export default function DashboardClient({
                   >
                     {feedbackState['not_helpful'] === 'sent' ? 'Marked Not Helpful' : 'Not Helpful'}
                   </button>
-                  <button
-                    onClick={() => generateGuidance('regenerate')}
-                    disabled={isGenerating}
-                    className="ml-auto rounded-lg border border-parchment-400 px-3 py-1.5 text-sm font-medium text-ink-600 transition-colors hover:border-navy-400 hover:text-navy-700 disabled:opacity-50"
-                  >
-                    {isGenerating ? (
-                      <span className="flex items-center gap-1.5">
-                        <svg
-                          className="animate-spin h-3.5 w-3.5"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                          />
-                        </svg>
-                        Regenerating...
-                      </span>
-                    ) : (
-                      '✦ Regenerate'
-                    )}
-                  </button>
+
                 </div>
               </div>
             </div>
           ) : (
             <div className="space-y-4">
-              <ContextExpander
-                showContext={showContext}
-                setShowContext={setShowContext}
-                contextThemes={contextThemes}
-                selectedThemeSlug={selectedThemeSlug}
-                setSelectedThemeSlug={setSelectedThemeSlug}
-                contextFreeText={contextFreeText}
-                setContextFreeText={setContextFreeText}
-                onGenerate={() => generateGuidance('generate')}
-                isGenerating={isGenerating}
-              />
-              <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-8 text-center shadow-sm">
-                <h2 className="text-2xl font-semibold font-serif text-ink-900">
-                  Ready for today&apos;s guidance?
-                </h2>
-                <p className="mx-auto mt-3 max-w-2xl text-ink-600">
-                  Shepherd will select a verse and create a personalized devotional, prayer,
-                  reflection, and biblical context just for you.
-                </p>
-                <button
-                  onClick={() => generateGuidance('generate')}
-                  disabled={isGenerating}
-                  className="mt-6 rounded-xl bg-navy-700 px-8 py-3 font-semibold text-white transition-colors hover:bg-navy-800 disabled:bg-navy-400"
-                >
-                  {isGenerating ? 'Generating your guidance...' : "Generate Today's Guidance"}
-                </button>
-              </div>
+              {showContext ? (
+                <CustomizeForm
+                  contextThemes={contextThemes}
+                  selectedThemeSlug={selectedThemeSlug}
+                  setSelectedThemeSlug={setSelectedThemeSlug}
+                  contextFreeText={contextFreeText}
+                  setContextFreeText={setContextFreeText}
+                  onGenerate={() => { setShowContext(false); generateGuidance('generate'); }}
+                  onCancel={() => setShowContext(false)}
+                  isGenerating={isGenerating}
+                />
+              ) : (
+                <div className="rounded-2xl border border-parchment-300 bg-parchment-50 p-8 shadow-sm">
+                  <h2 className="text-2xl font-semibold font-serif text-ink-900 text-center">
+                    Ready for today&apos;s guidance?
+                  </h2>
+                  <p className="mx-auto mt-3 max-w-2xl text-ink-600 text-center">
+                    Shepherd will select a verse and create a personalized devotional, prayer,
+                    reflection, and biblical context just for you.
+                  </p>
+                  <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={() => generateGuidance('generate')}
+                      disabled={isGenerating}
+                      className="flex-1 rounded-xl bg-navy-700 px-6 py-3 font-semibold text-white transition-colors hover:bg-navy-800 disabled:bg-navy-400"
+                    >
+                      Generate My Guidance
+                    </button>
+                    <button
+                      onClick={() => setShowContext(true)}
+                      disabled={isGenerating}
+                      className="flex-1 rounded-xl border border-navy-400 bg-white px-6 py-3 font-semibold text-navy-700 transition-colors hover:bg-navy-50 disabled:opacity-50"
+                    >
+                      ✎ Customize My Guidance
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </section>
