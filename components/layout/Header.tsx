@@ -34,7 +34,7 @@ export default function Header({ userEmail }: HeaderProps) {
 
   return (
     <header className="bg-navy-900 border-b border-navy-700 sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-24 flex items-center justify-between">
 
         {/* Left: brand + desktop nav */}
         <div className="flex items-center gap-6">
