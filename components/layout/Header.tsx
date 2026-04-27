@@ -33,13 +33,13 @@ export default function Header({ userEmail }: HeaderProps) {
     pathname === href || pathname.startsWith(href + '/');
 
   return (
-    <header className="bg-parchment-50 border-b border-parchment-300 sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <header className="bg-navy-900 border-b border-navy-700 sticky top-0 z-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-24 flex items-center justify-between">
 
         {/* Left: brand + desktop nav */}
         <div className="flex items-center gap-6">
           <Link href="/dashboard" className="flex items-center shrink-0">
-            <img src="/logo.png" alt="Shepherd" height="150" style={{height: '150px', width: 'auto', marginTop: '20px'}} />
+            <img src="/logo-dark.png" alt="Shepherd" height="140" style={{height: '140px', width: 'auto', marginTop: '20px'}} />
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
@@ -49,8 +49,8 @@ export default function Header({ userEmail }: HeaderProps) {
                 href={link.href}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive(link.href)
-                    ? 'text-navy-800 bg-navy-50'
-                    : 'text-ink-500 hover:text-ink-900 hover:bg-parchment-200'
+                    ? 'text-white bg-navy-700'
+                    : 'text-navy-300 hover:text-white hover:bg-navy-700'
                 }`}
               >
                 {link.label}
@@ -62,12 +62,12 @@ export default function Header({ userEmail }: HeaderProps) {
         {/* Right: desktop user info + logout */}
         <div className="hidden md:flex items-center gap-3">
           {userEmail && (
-            <span className="text-sm text-ink-400 truncate max-w-[180px]">{userEmail}</span>
+            <span className="text-sm text-navy-400 truncate max-w-[180px]">{userEmail}</span>
           )}
           {userEmail && (
             <button
               onClick={handleLogout}
-              className="text-sm font-medium text-ink-600 hover:text-ink-900 border border-parchment-400 hover:bg-parchment-200 px-3 py-1.5 rounded-lg transition-colors"
+              className="text-sm font-medium text-navy-300 hover:text-white border border-navy-600 hover:bg-navy-700 px-3 py-1.5 rounded-lg transition-colors"
             >
               Logout
             </button>
@@ -77,7 +77,7 @@ export default function Header({ userEmail }: HeaderProps) {
         {/* Mobile: hamburger button */}
         <button
           onClick={() => setMenuOpen((v) => !v)}
-          className="md:hidden p-2 rounded-lg text-ink-600 hover:text-ink-900 hover:bg-parchment-200 transition-colors"
+          className="md:hidden p-2 rounded-lg text-navy-300 hover:text-white hover:bg-navy-700 transition-colors"
           aria-label="Toggle navigation menu"
         >
           {menuOpen ? (
@@ -94,7 +94,7 @@ export default function Header({ userEmail }: HeaderProps) {
 
       {/* Mobile dropdown menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-parchment-300 bg-parchment-50 px-4 py-3 space-y-1">
+        <div className="md:hidden border-t border-navy-700 bg-navy-900 px-4 py-3 space-y-1">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -102,8 +102,8 @@ export default function Header({ userEmail }: HeaderProps) {
               onClick={() => setMenuOpen(false)}
               className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 isActive(link.href)
-                  ? 'text-navy-800 bg-navy-50'
-                  : 'text-ink-600 hover:text-ink-900 hover:bg-parchment-200'
+                  ? 'text-white bg-navy-700'
+                  : 'text-navy-300 hover:text-white hover:bg-navy-700'
               }`}
             >
               {link.label}
@@ -111,11 +111,11 @@ export default function Header({ userEmail }: HeaderProps) {
           ))}
 
           {userEmail && (
-            <div className="border-t border-parchment-300 mt-2 pt-2">
-              <p className="px-3 py-1 text-xs text-ink-400 truncate">{userEmail}</p>
+            <div className="border-t border-navy-700 mt-2 pt-2">
+              <p className="px-3 py-1 text-xs text-navy-400 truncate">{userEmail}</p>
               <button
                 onClick={() => { setMenuOpen(false); handleLogout(); }}
-                className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-ink-600 hover:text-ink-900 hover:bg-parchment-200 transition-colors"
+                className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-navy-300 hover:text-white hover:bg-navy-700 transition-colors"
               >
                 Logout
               </button>
