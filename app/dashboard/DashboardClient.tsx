@@ -89,10 +89,14 @@ const audioCache = new Map<string, string>();
 function useTTS(generationKey: string, onAudioTimed?: (ms: number) => void) {
   const [speaking, setSpeaking] = useState<TTSSection | null>(null);
   const [loading, setLoading] = useState<TTSSection | null>(null);
+  const [audioStage, setAudioStage] = useState(0);
   const [paused, setPaused] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioStageTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const stopAudio = useCallback(() => {
+    if (audioStageTimerRef.current) { clearInterval(audioStageTimerRef.current); audioStageTimerRef.current = null; }
+    setAudioStage(0);
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -127,6 +131,11 @@ function useTTS(generationKey: string, onAudioTimed?: (ms: number) => void) {
     async (guidanceId: string, section: TTSSection) => {
       stopAudio();
       setLoading(section);
+      setAudioStage(0);
+      if (audioStageTimerRef.current) clearInterval(audioStageTimerRef.current);
+      audioStageTimerRef.current = setInterval(() => {
+        setAudioStage((s) => Math.min(s + 1, 2));
+      }, 2500);
       const speakStart = performance.now();
       try {
         const cacheKey = `${guidanceId}:${section}:${generationKey}`;
@@ -145,6 +154,8 @@ function useTTS(generationKey: string, onAudioTimed?: (ms: number) => void) {
         audioRef.current = audio;
         audio.onended = () => { setSpeaking(null); setPaused(false); setLoading(null); audioRef.current = null; };
         audio.onerror = () => { setSpeaking(null); setPaused(false); setLoading(null); audioRef.current = null; };
+        if (audioStageTimerRef.current) { clearInterval(audioStageTimerRef.current); audioStageTimerRef.current = null; }
+        setAudioStage(0);
         await audio.play();
         const totalMs = performance.now() - speakStart;
         if (onAudioTimed) onAudioTimed(totalMs);
@@ -152,6 +163,8 @@ function useTTS(generationKey: string, onAudioTimed?: (ms: number) => void) {
         setLoading(null);
         setSpeaking(section);
       } catch {
+        if (audioStageTimerRef.current) { clearInterval(audioStageTimerRef.current); audioStageTimerRef.current = null; }
+        setAudioStage(0);
         setLoading(null);
         setSpeaking(null);
         audioRef.current = null;
@@ -161,7 +174,7 @@ function useTTS(generationKey: string, onAudioTimed?: (ms: number) => void) {
   );
 
   useEffect(() => () => { stopAudio(); }, [stopAudio]);
-  return { speak, preload, stop, togglePause, speaking, loading, paused, supported: true, generationKey };
+  return { speak, preload, stop, togglePause, speaking, loading, audioStage, paused, supported: true, generationKey };
 }
 
 interface AudioButtonProps {
@@ -172,8 +185,20 @@ interface AudioButtonProps {
   variant?: 'icon' | 'pill';
 }
 
+const AUDIO_LOADING_MESSAGES = [
+  'Preparing audio...',
+  'Almost ready...',
+  'Just a moment...',
+];
+
+const AUDIO_LOADING_MESSAGES_PILL = [
+  'Preparing audio...',
+  'Fetching from library...',
+  'Almost ready...',
+];
+
 function AudioButton({ section, label, tts, guidanceId, variant = 'icon' }: AudioButtonProps) {
-  const { speak, stop, togglePause, speaking, loading, paused } = tts;
+  const { speak, stop, togglePause, speaking, loading, audioStage, paused } = tts;
   const isActive = speaking === section;
   const isLoading = loading === section;
   const handleClick = () => { if (isActive) { stop(); } else if (!isLoading) { speak(guidanceId, section); } };
@@ -184,10 +209,28 @@ function AudioButton({ section, label, tts, guidanceId, variant = 'icon' }: Audi
         onClick={handleClick}
         disabled={isLoading}
         title={isActive ? 'Stop audio' : `Listen to ${label ?? section}`}
-        className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${isActive ? 'border-navy-400 bg-navy-100 text-navy-700' : isLoading ? 'border-parchment-400 text-ink-400 cursor-wait' : 'border-parchment-400 text-ink-600 hover:border-navy-400 hover:text-navy-700'}`}
+        className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${isActive ? 'border-navy-400 bg-navy-100 text-navy-700' : isLoading ? 'border-navy-200 bg-navy-50 text-navy-500 cursor-wait' : 'border-parchment-400 text-ink-600 hover:border-navy-400 hover:text-navy-700'}`}
       >
-        {isLoading ? <svg className="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg> : isActive ? (paused ? <PlayIcon /> : <StopIcon />) : <SpeakerIcon />}
-        {isLoading ? 'Loading...' : isActive ? (paused ? 'Resume' : 'Stop') : (label ?? 'Listen')}
+        {isLoading ? (
+          <svg className="animate-spin h-3.5 w-3.5 text-navy-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+        ) : isActive ? (paused ? <PlayIcon /> : <StopIcon />) : <SpeakerIcon />}
+        <span className={isLoading ? 'animate-pulse' : ''}>
+          {isLoading ? AUDIO_LOADING_MESSAGES_PILL[audioStage] : isActive ? (paused ? 'Resume' : 'Stop') : (label ?? 'Listen')}
+        </span>
+        {isLoading && (
+          <span className="flex gap-0.5 ml-1">
+            {[0,1,2].map((i) => (
+              <span
+                key={i}
+                className="h-1 w-1 rounded-full bg-navy-400"
+                style={{ animation: `bounce 1s ease-in-out ${i * 0.15}s infinite` }}
+              />
+            ))}
+          </span>
+        )}
         {isActive && !paused && <button onClick={(e) => { e.stopPropagation(); togglePause(); }} className="ml-1 rounded px-1 text-xs hover:bg-navy-200 transition-colors" title="Pause">&#9646;&#9646;</button>}
       </button>
     );
@@ -197,10 +240,17 @@ function AudioButton({ section, label, tts, guidanceId, variant = 'icon' }: Audi
       onClick={handleClick}
       disabled={isLoading}
       title={isActive ? 'Stop audio' : 'Listen'}
-      className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors ${isActive ? 'bg-navy-100 text-navy-700' : isLoading ? 'text-ink-400 cursor-wait' : 'text-ink-400 hover:bg-parchment-200 hover:text-ink-700'}`}
+      className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors ${isActive ? 'bg-navy-100 text-navy-700' : isLoading ? 'text-navy-400 cursor-wait' : 'text-ink-400 hover:bg-parchment-200 hover:text-ink-700'}`}
     >
-      {isLoading ? <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg> : isActive ? (paused ? <PlayIcon size={12} /> : <StopIcon size={12} />) : <SpeakerIcon size={12} />}
-      {isLoading ? 'Loading...' : isActive ? (paused ? 'Resume' : 'Stop') : 'Listen'}
+      {isLoading ? (
+        <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      ) : isActive ? (paused ? <PlayIcon size={12} /> : <StopIcon size={12} />) : <SpeakerIcon size={12} />}
+      <span className={isLoading ? 'animate-pulse' : ''}>
+        {isLoading ? AUDIO_LOADING_MESSAGES[audioStage] : isActive ? (paused ? 'Resume' : 'Stop') : 'Listen'}
+      </span>
       {isActive && !paused && <button onClick={(e) => { e.stopPropagation(); togglePause(); }} className="ml-0.5 px-0.5 hover:text-navy-900 transition-colors" title="Pause">&#9646;&#9646;</button>}
     </button>
   );
@@ -360,7 +410,6 @@ export default function DashboardClient({
   const streak = calculateStreak(recentGuidance);
 
   const generateGuidance = async (action: 'generate' | 'regenerate') => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     setIsGenerating(true);
     setLoadingStage(0);
     setError('');
