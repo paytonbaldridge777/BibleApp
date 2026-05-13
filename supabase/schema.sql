@@ -184,6 +184,9 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
+-- Revoke direct API access to the trigger function (should only fire via trigger, never called directly)
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM anon, authenticated;
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_daily_guidance_user_date ON daily_guidance(user_id, date DESC);
 CREATE INDEX IF NOT EXISTS idx_guidance_feedback_user ON guidance_feedback(user_id);
