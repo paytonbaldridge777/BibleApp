@@ -185,6 +185,7 @@ create trigger on_auth_user_created
   for each row execute function public.handle_new_user();
 
 -- Revoke direct API access to the trigger function (should only fire via trigger, never called directly)
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM anon, authenticated;
 
 -- Indexes
