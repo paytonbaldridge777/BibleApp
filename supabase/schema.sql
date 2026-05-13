@@ -82,13 +82,40 @@ CREATE TABLE IF NOT EXISTS guidance_feedback (
   UNIQUE(user_id, guidance_id, feedback_type)
 );
 
--- favorites
-CREATE TABLE IF NOT EXISTS favorites (
+-- guidance_favorites
+CREATE TABLE IF NOT EXISTS guidance_favorites (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   guidance_id UUID NOT NULL REFERENCES daily_guidance(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(user_id, guidance_id)
+);
+
+-- scripture_passages (reference/seed data for AI scripture selection)
+CREATE TABLE IF NOT EXISTS scripture_passages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  book_name TEXT NOT NULL,
+  book_number INTEGER,
+  chapter INTEGER NOT NULL,
+  verse_start INTEGER NOT NULL,
+  verse_end INTEGER,
+  reference TEXT NOT NULL,
+  translation TEXT NOT NULL DEFAULT 'WEB',
+  text TEXT NOT NULL,
+  testament TEXT,
+  devotional_summary TEXT,
+  caution_notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- scripture_theme_map (maps themes to passages with weights for AI selection)
+CREATE TABLE IF NOT EXISTS scripture_theme_map (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  theme_id UUID NOT NULL,
+  passage_id UUID NOT NULL REFERENCES scripture_passages(id) ON DELETE CASCADE,
+  weight INTEGER NOT NULL DEFAULT 1,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- RLS policies
@@ -97,8 +124,10 @@ ALTER TABLE onboarding_answers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE spiritual_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE daily_guidance ENABLE ROW LEVEL SECURITY;
 ALTER TABLE guidance_feedback ENABLE ROW LEVEL SECURITY;
-ALTER TABLE favorites ENABLE ROW LEVEL SECURITY;
+ALTER TABLE guidance_favorites ENABLE ROW LEVEL SECURITY;
 ALTER TABLE scripture_themes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE scripture_passages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE scripture_theme_map ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
@@ -119,12 +148,18 @@ CREATE POLICY "Users can update own guidance" ON daily_guidance FOR UPDATE USING
 CREATE POLICY "Users can view own feedback" ON guidance_feedback FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own feedback" ON guidance_feedback FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can view own favorites" ON favorites FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own favorites" ON favorites FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own favorites" ON favorites FOR DELETE USING (auth.uid() = user_id);
+CREATE POLICY "Users can view their own favorites" ON guidance_favorites FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own favorites" ON guidance_favorites FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own favorites" ON guidance_favorites FOR DELETE USING (auth.uid() = user_id);
 
--- scripture_themes is publicly readable
+-- scripture_themes is publicly readable (reference data)
 CREATE POLICY "Anyone can read scripture themes" ON scripture_themes FOR SELECT USING (true);
+
+-- scripture_passages is publicly readable (reference/seed data)
+CREATE POLICY "Anyone can read scripture passages" ON scripture_passages FOR SELECT USING (true);
+
+-- scripture_theme_map is publicly readable (reference data)
+CREATE POLICY "Anyone can read scripture theme map" ON scripture_theme_map FOR SELECT USING (true);
 
 -- Function to handle new user creation (Supabase-safe: schema-qualified + locked-down search_path)
 create schema if not exists public;
@@ -152,6 +187,6 @@ create trigger on_auth_user_created
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_daily_guidance_user_date ON daily_guidance(user_id, date DESC);
 CREATE INDEX IF NOT EXISTS idx_guidance_feedback_user ON guidance_feedback(user_id);
-CREATE INDEX IF NOT EXISTS idx_favorites_user ON favorites(user_id);
+CREATE INDEX IF NOT EXISTS idx_guidance_favorites_user ON guidance_favorites(user_id);
 CREATE INDEX IF NOT EXISTS idx_spiritual_profiles_user ON spiritual_profiles(user_id);
 CREATE INDEX IF NOT EXISTS idx_onboarding_answers_user ON onboarding_answers(user_id);
