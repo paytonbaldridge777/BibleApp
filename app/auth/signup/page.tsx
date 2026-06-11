@@ -57,28 +57,28 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gold-100 to-parchment-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-navy-900 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <img src="/logo.png" alt="Shepherd" style={{height: '36px', width: 'auto'}} />
+            <img src="/logo-dark.png" alt="Anchored in the Word" style={{height: '140px', width: 'auto'}} />
           </Link>
-          <h1 className="text-2xl font-bold font-serif text-ink-900">Start your journey</h1>
-          <p className="text-ink-600 mt-1">Create a free account to get started</p>
+          <h1 className="text-2xl font-bold font-serif text-white">Start your journey</h1>
+          <p className="text-navy-300 mt-1">Create a free account to get started</p>
         </div>
 
-        <div className="bg-parchment-50 rounded-2xl border border-parchment-300 shadow-sm p-8">
+        <div className="bg-navy-800 rounded-2xl border border-navy-700 shadow-sm p-8">
           {success ? (
             <div className="text-center py-4">
               <div className="text-4xl mb-4">📬</div>
-              <h2 className="text-xl font-bold font-serif text-ink-900 mb-2">Check your email</h2>
-              <p className="text-ink-600 text-sm leading-relaxed">
+              <h2 className="text-xl font-bold font-serif text-white mb-2">Check your email</h2>
+              <p className="text-navy-300 text-sm leading-relaxed">
                 We&apos;ve sent you a confirmation link. Click it to activate your account and
                 begin your personalized Bible journey.
               </p>
               <Link
                 href="/auth/login"
-                className="mt-6 inline-block text-navy-700 hover:text-navy-800 font-medium text-sm"
+                className="mt-6 inline-block text-gold-400 hover:text-gold-300 font-medium text-sm"
               >
                 Back to login
               </Link>
@@ -86,7 +86,7 @@ export default function SignupPage() {
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-ink-700 mb-1.5">
+                <label htmlFor="email" className="block text-sm font-medium text-navy-200 mb-1.5">
                   Email address
                 </label>
                 <input
@@ -94,16 +94,16 @@ export default function SignupPage() {
                   type="email"
                   autoComplete="email"
                   {...register('email')}
-                  className="w-full px-4 py-3 border border-parchment-300 rounded-lg text-ink-900 bg-white placeholder-ink-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent transition"
+                  className="w-full px-4 py-3 border border-navy-600 rounded-lg text-white bg-navy-700 placeholder-navy-400 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent transition"
                   placeholder="you@example.com"
                 />
                 {errors.email && (
-                  <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>
+                  <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-ink-700 mb-1.5">
+                <label htmlFor="password" className="block text-sm font-medium text-navy-200 mb-1.5">
                   Password
                 </label>
                 <input
@@ -111,16 +111,16 @@ export default function SignupPage() {
                   type="password"
                   autoComplete="new-password"
                   {...register('password')}
-                  className="w-full px-4 py-3 border border-parchment-300 rounded-lg text-ink-900 bg-white placeholder-ink-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent transition"
+                  className="w-full px-4 py-3 border border-navy-600 rounded-lg text-white bg-navy-700 placeholder-navy-400 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent transition"
                   placeholder="At least 8 characters"
                 />
                 {errors.password && (
-                  <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>
+                  <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-ink-700 mb-1.5">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-navy-200 mb-1.5">
                   Confirm password
                 </label>
                 <input
@@ -128,16 +128,16 @@ export default function SignupPage() {
                   type="password"
                   autoComplete="new-password"
                   {...register('confirmPassword')}
-                  className="w-full px-4 py-3 border border-parchment-300 rounded-lg text-ink-900 bg-white placeholder-ink-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent transition"
+                  className="w-full px-4 py-3 border border-navy-600 rounded-lg text-white bg-navy-700 placeholder-navy-400 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent transition"
                   placeholder="••••••••"
                 />
                 {errors.confirmPassword && (
-                  <p className="text-red-600 text-sm mt-1">{errors.confirmPassword.message}</p>
+                  <p className="text-red-400 text-sm mt-1">{errors.confirmPassword.message}</p>
                 )}
               </div>
 
               {serverError && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                <div className="bg-red-900/40 border border-red-700 text-red-300 px-4 py-3 rounded-lg text-sm">
                   {serverError}
                 </div>
               )}
@@ -145,12 +145,12 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-navy-700 hover:bg-navy-800 disabled:bg-navy-400 text-white py-3 rounded-lg font-semibold transition-colors"
+                className="w-full bg-navy-700 hover:bg-navy-600 disabled:bg-navy-800 disabled:text-navy-500 text-white py-3 rounded-lg font-semibold transition-colors border border-navy-600"
               >
                 {isLoading ? 'Creating account...' : 'Create Account'}
               </button>
 
-              <p className="text-xs text-ink-500 text-center">
+              <p className="text-xs text-navy-400 text-center">
                 By creating an account, you agree that Shepherd is for spiritual encouragement
                 only and is not a substitute for professional mental health care.
               </p>
@@ -159,9 +159,9 @@ export default function SignupPage() {
         </div>
 
         {!success && (
-          <p className="text-center text-ink-600 text-sm mt-6">
+          <p className="text-center text-navy-400 text-sm mt-6">
             Already have an account?{' '}
-            <Link href="/auth/login" className="text-navy-700 hover:text-navy-800 font-medium">
+            <Link href="/auth/login" className="text-gold-400 hover:text-gold-300 font-medium">
               Sign in
             </Link>
           </p>
