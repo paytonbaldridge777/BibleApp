@@ -215,6 +215,15 @@ function useTTS(generationKey: string, onAudioTimed?: (ms: number) => void) {
       }, 2500);
       const speakStart = performance.now();
       try {
+        // Prefetch all sections in parallel before starting playback
+        await Promise.all(sections.map(async (section) => {
+          const cacheKey = `${guidanceId}:${section}:${generationKey}`;
+          if (!audioCache.has(cacheKey)) {
+            const objectUrl = await fetchTTS(guidanceId, section);
+            audioCache.set(cacheKey, objectUrl);
+          }
+        }));
+        if (stopRequestedRef.current) return;
         if (audioStageTimerRef.current) { clearInterval(audioStageTimerRef.current); audioStageTimerRef.current = null; }
         setAudioStage(0);
         setLoading(null);
@@ -241,7 +250,7 @@ function useTTS(generationKey: string, onAudioTimed?: (ms: number) => void) {
         }
       }
     },
-    [stopAudio, playSectionAudio, onAudioTimed]
+    [stopAudio, playSectionAudio, generationKey, onAudioTimed]
   );
 
   useEffect(() => () => { stopAudio(); }, [stopAudio]);
