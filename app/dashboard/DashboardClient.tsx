@@ -86,6 +86,9 @@ function toGuidanceViewModel(json: {
 // generationKey changes on every regeneration to bust stale audio
 const audioCache = new Map<string, string>();
 
+// How long to pause between sections when playing all (ms)
+const SECTION_GAP_MS = 3500;
+
 function useTTS(generationKey: string, onAudioTimed?: (ms: number) => void) {
   const [speaking, setSpeaking] = useState<TTSSection | null>(null);
   const [loading, setLoading] = useState<TTSSection | null>(null);
@@ -93,9 +96,13 @@ function useTTS(generationKey: string, onAudioTimed?: (ms: number) => void) {
   const [paused, setPaused] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioStageTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const gapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stopRequestedRef = useRef(false);
 
   const stopAudio = useCallback(() => {
+    stopRequestedRef.current = true;
     if (audioStageTimerRef.current) { clearInterval(audioStageTimerRef.current); audioStageTimerRef.current = null; }
+    if (gapTimerRef.current) { clearTimeout(gapTimerRef.current); gapTimerRef.current = null; }
     setAudioStage(0);
     if (audioRef.current) {
       audioRef.current.pause();
@@ -127,9 +134,31 @@ function useTTS(generationKey: string, onAudioTimed?: (ms: number) => void) {
     console.debug('[TTS] preload disabled');
   }, []);
 
+  // Plays a single section's audio; resolves when playback ends or is stopped
+  const playSectionAudio = useCallback(
+    async (guidanceId: string, section: TTSSection): Promise<void> => {
+      const cacheKey = `${guidanceId}:${section}:${generationKey}`;
+      let objectUrl = audioCache.get(cacheKey);
+      if (!objectUrl) {
+        objectUrl = await fetchTTS(guidanceId, section);
+        audioCache.set(cacheKey, objectUrl);
+      }
+      return new Promise((resolve) => {
+        if (stopRequestedRef.current) { resolve(); return; }
+        const audio = new Audio(objectUrl!);
+        audioRef.current = audio;
+        audio.onended = () => { audioRef.current = null; resolve(); };
+        audio.onerror = () => { audioRef.current = null; resolve(); };
+        audio.play().catch(() => { audioRef.current = null; resolve(); });
+      });
+    },
+    [generationKey]
+  );
+
   const speak = useCallback(
     async (guidanceId: string, section: TTSSection) => {
       stopAudio();
+      stopRequestedRef.current = false;
       setLoading(section);
       setAudioStage(0);
       if (audioStageTimerRef.current) clearInterval(audioStageTimerRef.current);
@@ -170,11 +199,53 @@ function useTTS(generationKey: string, onAudioTimed?: (ms: number) => void) {
         audioRef.current = null;
       }
     },
-    [stopAudio]
+    [stopAudio, generationKey, onAudioTimed]
+  );
+
+  // Plays sections sequentially with a real timed gap between each
+  const playAll = useCallback(
+    async (guidanceId: string, sections: TTSSection[]) => {
+      stopAudio();
+      stopRequestedRef.current = false;
+      setLoading('all');
+      setAudioStage(0);
+      if (audioStageTimerRef.current) clearInterval(audioStageTimerRef.current);
+      audioStageTimerRef.current = setInterval(() => {
+        setAudioStage((s) => Math.min(s + 1, 2));
+      }, 2500);
+      const speakStart = performance.now();
+      try {
+        if (audioStageTimerRef.current) { clearInterval(audioStageTimerRef.current); audioStageTimerRef.current = null; }
+        setAudioStage(0);
+        setLoading(null);
+        setSpeaking('all');
+        const totalMs = performance.now() - speakStart;
+        if (onAudioTimed) onAudioTimed(totalMs);
+        for (let i = 0; i < sections.length; i++) {
+          if (stopRequestedRef.current) break;
+          await playSectionAudio(guidanceId, sections[i]);
+          if (stopRequestedRef.current) break;
+          if (i < sections.length - 1) {
+            // Real timed silence between sections
+            await new Promise<void>((resolve) => {
+              gapTimerRef.current = setTimeout(() => { gapTimerRef.current = null; resolve(); }, SECTION_GAP_MS);
+            });
+          }
+        }
+      } finally {
+        if (!stopRequestedRef.current) {
+          setSpeaking(null);
+          setLoading(null);
+          setPaused(false);
+          audioRef.current = null;
+        }
+      }
+    },
+    [stopAudio, playSectionAudio, onAudioTimed]
   );
 
   useEffect(() => () => { stopAudio(); }, [stopAudio]);
-  return { speak, preload, stop, togglePause, speaking, loading, audioStage, paused, supported: true, generationKey };
+  return { speak, playAll, preload, stop, togglePause, speaking, loading, audioStage, paused, supported: true, generationKey };
 }
 
 interface AudioButtonProps {
@@ -563,7 +634,48 @@ export default function DashboardClient({
                   </p>
                 )}
                 <div className="mt-3">
-                  <AudioButton section="all" label="Listen to All" tts={tts} guidanceId={guidance.id} variant="pill" />
+                  {(() => {
+                    const { playAll, stop, togglePause, speaking, loading, audioStage, paused } = tts;
+                    const isActive = speaking === 'all';
+                    const isLoading = loading === 'all';
+                    const allSections: TTSSection[] = [
+                      'verse',
+                      ...(guidance.context_text ? ['context' as TTSSection] : []),
+                      'devotional',
+                      'prayer',
+                      'reflection',
+                    ];
+                    const handleClick = () => {
+                      if (isActive) { stop(); }
+                      else if (!isLoading) { playAll(guidance.id, allSections); }
+                    };
+                    return (
+                      <button
+                        onClick={handleClick}
+                        disabled={isLoading}
+                        title={isActive ? 'Stop audio' : 'Listen to All'}
+                        className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${isActive ? 'border-navy-400 bg-navy-100 text-navy-700' : isLoading ? 'border-navy-200 bg-navy-50 text-navy-500 cursor-wait' : 'border-parchment-400 text-ink-600 hover:border-navy-400 hover:text-navy-700'}`}
+                      >
+                        {isLoading ? (
+                          <svg className="animate-spin h-3.5 w-3.5 text-navy-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        ) : isActive ? (paused ? <PlayIcon /> : <StopIcon />) : <SpeakerIcon />}
+                        <span className={isLoading ? 'animate-pulse' : ''}>
+                          {isLoading ? AUDIO_LOADING_MESSAGES_PILL[audioStage] : isActive ? (paused ? 'Resume' : 'Stop') : 'Listen to All'}
+                        </span>
+                        {isLoading && (
+                          <span className="flex gap-0.5 ml-1">
+                            {[0,1,2].map((i) => (
+                              <span key={i} className="h-1 w-1 rounded-full bg-navy-400" style={{ animation: `bounce 1s ease-in-out ${i * 0.15}s infinite` }} />
+                            ))}
+                          </span>
+                        )}
+                        {isActive && !paused && <button onClick={(e) => { e.stopPropagation(); togglePause(); }} className="ml-1 rounded px-1 text-xs hover:bg-navy-200 transition-colors" title="Pause">&#9646;&#9646;</button>}
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
 
